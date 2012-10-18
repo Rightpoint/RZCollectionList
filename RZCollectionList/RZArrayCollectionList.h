@@ -27,6 +27,7 @@
 - (void)removeObject:(id)object;
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath;
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object;
+- (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath;
 
 - (void)addSection:(RZArrayCollectionListSectionInfo*)section;
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index;

@@ -43,6 +43,7 @@
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications;
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications;
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object sendNotifications:(BOOL)shouldSendNotifications;
+- (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath sendNotifications:(BOOL)shouldSendNotifications;
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
 - (void)removeSectionAtIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
@@ -143,6 +144,21 @@
     }
     
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:YES];
+    
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    {
+        [self.delegate collectionListDidChangeContent:self];
+    }
+}
+
+- (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath
+{
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    {
+        [self.delegate collectionListWillChangeContent:self];
+    }
+    
+    [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:YES];
     
     if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
@@ -267,6 +283,35 @@
     {
         [self.delegate collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
     }
+}
+
+- (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath sendNotifications:(BOOL)shouldSendNotifications
+{
+    NSIndexPath *destIndexPath = destinationIndexPath;
+    NSIndexPath *removeIndexPath = sourceIndexPath;
+    
+    if (sourceIndexPath.section == destinationIndexPath.section)
+    {
+        if (destinationIndexPath.row < sourceIndexPath.row)
+        {
+            removeIndexPath = [NSIndexPath indexPathForRow:(removeIndexPath.row + 1) inSection:removeIndexPath.section];
+        }
+        else
+        {
+            destIndexPath = [NSIndexPath indexPathForRow:(destIndexPath.row + 1) inSection:destIndexPath.section];
+        }
+    }
+    
+    id object = [self objectAtIndexPath:sourceIndexPath];
+    
+    [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
+    [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
+    
+    if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
+    {
+        [self.delegate collectionList:self didChangeObject:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];
+    }
+    
 }
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications
