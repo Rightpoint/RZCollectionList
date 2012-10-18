@@ -362,8 +362,7 @@
     
     if (nil == keyPath)
     {
-        RZArrayCollectionListSectionInfo *sectionZero = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil];
-        sectionZero.numberOfObjects = [objects count];
+        RZArrayCollectionListSectionInfo *sectionZero = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:[objects count]];
         
         sections = @[sectionZero];
     }
@@ -399,7 +398,7 @@
                     [sectionsInfo addObject:currentSection];
                 }
                 
-                RZArrayCollectionListSectionInfo *nextSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:sectionName sectionIndexTitle:nil];
+                RZArrayCollectionListSectionInfo *nextSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:sectionName sectionIndexTitle:nil numberOfObjects:0];
                 nextSection.indexOffset = idx;
                 
                 currentSection = nextSection;
@@ -531,7 +530,7 @@
     
     //else binSearchForIt
     
-    RZArrayCollectionListSectionInfo *tempSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:title];
+    RZArrayCollectionListSectionInfo *tempSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:title numberOfObjects:0];
     
     NSInteger index = [self.sectionsInfo indexOfObject:tempSection inSortedRange:NSMakeRange(0, self.sectionsInfo.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [((RZArrayCollectionListSectionInfo*)obj1).indexTitle compare:((RZArrayCollectionListSectionInfo*)obj2).indexTitle];
@@ -545,12 +544,13 @@
 
 @implementation RZArrayCollectionListSectionInfo
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle
+- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects
 {
     if ((self = [super init]))
     {
         self.name = name;
         self.indexTitle = indexTitle;
+        self.numberOfObjects = numberOfObjects;
     }
     
     return self;

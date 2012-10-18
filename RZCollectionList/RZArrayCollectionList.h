@@ -13,7 +13,7 @@
 
 @property (nonatomic, assign) NSUInteger indexOffset;
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle;
+- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects;
 
 @end
 
