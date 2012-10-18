@@ -576,4 +576,9 @@
     return NSMakeRange(self.indexOffset, self.numberOfObjects);
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
+}
+
 @end
