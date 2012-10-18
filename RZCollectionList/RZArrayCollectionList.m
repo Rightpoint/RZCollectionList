@@ -34,6 +34,7 @@
 
 @property (nonatomic, strong) NSMutableArray *sectionsInfo;
 @property (nonatomic, strong) NSMutableArray *objects;
+@property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
 
@@ -99,14 +100,14 @@
 
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath
 {
-    if (_flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
     {
         [self.delegate collectionListWillChangeContent:self];
     }
     
     [self insertObject:object atIndexPath:indexPath sendNotifications:YES];
     
-    if (_flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
         [self.delegate collectionListDidChangeContent:self];
     }
@@ -121,14 +122,14 @@
 
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath
 {
-    if (_flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
     {
         [self.delegate collectionListWillChangeContent:self];
     }
     
     [self removeObjectAtIndexPath:indexPath sendNotifications:YES];
     
-    if (_flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
         [self.delegate collectionListDidChangeContent:self];
     }
@@ -136,14 +137,14 @@
 
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object
 {
-    if (_flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
     {
         [self.delegate collectionListWillChangeContent:self];
     }
     
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:YES];
     
-    if (_flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
         [self.delegate collectionListDidChangeContent:self];
     }
@@ -156,14 +157,14 @@
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index
 {
-    if (_flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
     {
         [self.delegate collectionListWillChangeContent:self];
     }
     
     [self insertSection:section atIndex:index sendNotifications:YES];
     
-    if (_flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
         [self.delegate collectionListDidChangeContent:self];
     }
@@ -178,16 +179,41 @@
 
 - (void)removeSectionAtIndex:(NSUInteger)index
 {
-    if (_flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
     {
         [self.delegate collectionListWillChangeContent:self];
     }
     
     [self removeSectionAtIndex:index sendNotifications:YES];
     
-    if (_flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
     {
         [self.delegate collectionListDidChangeContent:self];
+    }
+}
+
+- (void)beginUpdates
+{
+    if(!self.batchUpdating)
+    {
+        self.batchUpdating = YES;
+        if (_flags._sendWillChangeContentNotifications)
+        {
+            [self.delegate collectionListWillChangeContent:self];
+        }
+    }
+}
+
+- (void)endUpdates
+{
+    if (self.batchUpdating)
+    {
+        if (_flags._sendDidChangeContentNotifications)
+        {
+            [self.delegate collectionListDidChangeContent:self];
+        }
+        
+        self.batchUpdating = NO;
     }
 }
 

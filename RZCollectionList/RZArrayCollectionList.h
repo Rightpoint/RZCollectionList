@@ -33,4 +33,7 @@
 - (void)removeSection:(RZArrayCollectionListSectionInfo*)section;
 - (void)removeSectionAtIndex:(NSUInteger)index;
 
+- (void)beginUpdates;
+- (void)endUpdates;
+
 @end
