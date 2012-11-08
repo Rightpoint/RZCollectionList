@@ -14,6 +14,13 @@
 @required
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
+@optional
+- (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section;
+- (NSString*)tableView:(UITableView*)tableView titleForFooterInSection:(NSInteger)section;
+
+- (BOOL)tableView:(UITableView*)tableView canEditObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+- (BOOL)tableView:(UITableView*)tableView canMoveObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+
 @end
 
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
@@ -22,6 +29,9 @@
 @property (nonatomic, weak, readonly) UITableView *tableView;
 
 @property (nonatomic, weak) id<RZCollectionListDataSourceDelegate> delegate;
+
+@property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;           // Defaults to NO
+@property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate;
 

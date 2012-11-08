@@ -54,31 +54,69 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    id<RZCollectionListSectionInfo> sectionInfo = [self.collectionList.sections objectAtIndex:section];
-    return sectionInfo.name;
+    NSString *sectionTitle = nil;
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:titleForHeaderInSection:)])
+    {
+        sectionTitle = [self.delegate tableView:tableView titleForHeaderInSection:section];
+    }
+    else if (self.showSectionHeaders)
+    {
+        id<RZCollectionListSectionInfo> sectionInfo = [self.collectionList.sections objectAtIndex:section];
+        sectionTitle = sectionInfo.name;
+    }
+    
+    return sectionTitle;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    // TODO: Get this from a delegate?
-    return nil;
+    NSString *sectionTitle = nil;
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:titleForFooterInSection:)])
+    {
+        sectionTitle = [self.delegate tableView:tableView titleForFooterInSection:section];
+    }
+    
+    return sectionTitle;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Get this from a delegate
-    return YES;
+    BOOL canEdit = YES;
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:canEditObject:atIndexPath:)])
+    {
+        id object = [self.collectionList objectAtIndexPath:indexPath];
+        canEdit = [self.delegate tableView:tableView canEditObject:object atIndexPath:indexPath];
+    }
+    
+    return canEdit;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Get this from a delegate
-    return NO;
+    BOOL canMove = NO;
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:canMoveObject:atIndexPath:)])
+    {
+        id object = [self.collectionList objectAtIndexPath:indexPath];
+        canMove = [self.delegate tableView:tableView canMoveObject:object atIndexPath:indexPath];
+    }
+    
+    return canMove;
 }
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView;
 {
-    return [self.collectionList sectionIndexTitles];
+    NSArray *sectionIndexTitles = nil;
+    
+    if (self.showTableIndex)
+    {
+        sectionIndexTitles = [self.collectionList sectionIndexTitles];
+    }
+    
+    return sectionIndexTitles;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
