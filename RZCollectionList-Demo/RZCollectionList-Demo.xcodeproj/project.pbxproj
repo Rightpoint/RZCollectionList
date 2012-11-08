@@ -74,20 +74,20 @@
 		FE02AD09160289A40096F3EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		FE02AD0B160289A40096F3EA /* RZCollectionList_DemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RZCollectionList_DemoTests.h; sourceTree = "<group>"; };
 		FE02AD0C160289A40096F3EA /* RZCollectionList_DemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RZCollectionList_DemoTests.m; sourceTree = "<group>"; };
-		FE02AD1716028A900096F3EA /* NSFetchRequest+RZCreationHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSFetchRequest+RZCreationHelpers.h"; path = "../../RZCollectionList/NSFetchRequest+RZCreationHelpers.h"; sourceTree = "<group>"; };
-		FE02AD1816028A900096F3EA /* NSFetchRequest+RZCreationHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSFetchRequest+RZCreationHelpers.m"; path = "../../RZCollectionList/NSFetchRequest+RZCreationHelpers.m"; sourceTree = "<group>"; };
-		FE02AD1B16037B570096F3EA /* RZCollectionList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RZCollectionList.h; path = ../../RZCollectionList/RZCollectionList.h; sourceTree = "<group>"; };
-		FE02AD1C1603863F0096F3EA /* RZFetchedCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RZFetchedCollectionList.h; path = ../../RZCollectionList/RZFetchedCollectionList.h; sourceTree = "<group>"; };
-		FE02AD1D1603863F0096F3EA /* RZFetchedCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RZFetchedCollectionList.m; path = ../../RZCollectionList/RZFetchedCollectionList.m; sourceTree = "<group>"; };
-		FE02AD201603B3F00096F3EA /* RZCollectionListTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RZCollectionListTableViewDataSource.h; path = ../../RZCollectionList/RZCollectionListTableViewDataSource.h; sourceTree = "<group>"; };
-		FE02AD211603B3F00096F3EA /* RZCollectionListTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RZCollectionListTableViewDataSource.m; path = ../../RZCollectionList/RZCollectionListTableViewDataSource.m; sourceTree = "<group>"; };
+		FE02AD1716028A900096F3EA /* NSFetchRequest+RZCreationHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFetchRequest+RZCreationHelpers.h"; sourceTree = "<group>"; };
+		FE02AD1816028A900096F3EA /* NSFetchRequest+RZCreationHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFetchRequest+RZCreationHelpers.m"; sourceTree = "<group>"; };
+		FE02AD1B16037B570096F3EA /* RZCollectionList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RZCollectionList.h; sourceTree = "<group>"; };
+		FE02AD1C1603863F0096F3EA /* RZFetchedCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZFetchedCollectionList.h; sourceTree = "<group>"; };
+		FE02AD1D1603863F0096F3EA /* RZFetchedCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZFetchedCollectionList.m; sourceTree = "<group>"; };
+		FE02AD201603B3F00096F3EA /* RZCollectionListTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListTableViewDataSource.h; sourceTree = "<group>"; };
+		FE02AD211603B3F00096F3EA /* RZCollectionListTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListTableViewDataSource.m; sourceTree = "<group>"; };
 		FE02AD2A1603DB3F0096F3EA /* ListItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListItem.h; sourceTree = "<group>"; };
 		FE02AD2B1603DB3F0096F3EA /* ListItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListItem.m; sourceTree = "<group>"; };
 		FE02AD331603DBF00096F3EA /* DemoCollectionListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCollectionListViewController.h; sourceTree = "<group>"; };
 		FE02AD341603DBF00096F3EA /* DemoCollectionListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCollectionListViewController.m; sourceTree = "<group>"; };
 		FE02AD351603DBF00096F3EA /* DemoCollectionListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoCollectionListViewController.xib; sourceTree = "<group>"; };
-		FE02AD3A16079ED60096F3EA /* RZArrayCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RZArrayCollectionList.h; path = ../../RZCollectionList/RZArrayCollectionList.h; sourceTree = "<group>"; };
-		FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RZArrayCollectionList.m; path = ../../RZCollectionList/RZArrayCollectionList.m; sourceTree = "<group>"; };
+		FE02AD3A16079ED60096F3EA /* RZArrayCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZArrayCollectionList.h; sourceTree = "<group>"; };
+		FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZArrayCollectionList.m; sourceTree = "<group>"; };
 		FE02AD3F1607FA980096F3EA /* ListItemObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ListItemObject.h; path = Objects/ListItemObject.h; sourceTree = "<group>"; };
 		FE02AD401607FA980096F3EA /* ListItemObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ListItemObject.m; path = Objects/ListItemObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -208,7 +208,8 @@
 				FE02AD3A16079ED60096F3EA /* RZArrayCollectionList.h */,
 				FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */,
 			);
-			path = RZCollectionList;
+			name = RZCollectionList;
+			path = ../RZCollectionList;
 			sourceTree = "<group>";
 		};
 		FE02AD281603DB3F0096F3EA /* Classes */ = {
@@ -544,6 +545,7 @@
 				FE02AD12160289A40096F3EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FE02AD13160289A40096F3EA /* Build configuration list for PBXNativeTarget "RZCollectionList-DemoTests" */ = {
 			isa = XCConfigurationList;
@@ -552,6 +554,7 @@
 				FE02AD15160289A40096F3EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
