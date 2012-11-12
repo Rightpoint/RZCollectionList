@@ -24,16 +24,13 @@
 {
 @private
     struct _arrayCollectionListFlags {
-        unsigned int _sendObjectChangeNotifications:1;
-        unsigned int _sendSectionChangeNotifications:1;
-        unsigned int _sendDidChangeContentNotifications:1;
-        unsigned int _sendWillChangeContentNotifications:1;
         unsigned int _sendSectionIndexTitleForSectionName:1;
     } _flags;
 }
 
 @property (nonatomic, strong) NSMutableArray *sectionsInfo;
 @property (nonatomic, strong) NSMutableArray *objects;
+@property (nonatomic, strong) NSMutableSet *collectionListObservers;
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
@@ -47,6 +44,11 @@
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
 - (void)removeSectionAtIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
+
+- (void)sendWillChangeContentNotifications;
+- (void)sendDidChangeContentNotifications;
+- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
+- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
 @end
 
@@ -83,11 +85,17 @@
     
     _delegate = delegate;
     
-    _flags._sendObjectChangeNotifications = [delegate respondsToSelector:@selector(collectionList:didChangeObject:atIndexPath:forChangeType:newIndexPath:)];
-    _flags._sendSectionChangeNotifications = [delegate respondsToSelector:@selector(collectionList:didChangeSection:atIndex:forChangeType:)];
-    _flags._sendDidChangeContentNotifications = [delegate respondsToSelector:@selector(collectionListDidChangeContent:)];
-    _flags._sendWillChangeContentNotifications = [delegate respondsToSelector:@selector(collectionListWillChangeContent:)];
     _flags._sendSectionIndexTitleForSectionName = [delegate respondsToSelector:@selector(collectionList:sectionIndexTitleForSectionName:)];
+}
+
+- (NSMutableSet*)collectionListObservers
+{
+    if (nil == _collectionListObservers)
+    {
+        _collectionListObservers = [NSMutableSet set];
+    }
+    
+    return _collectionListObservers;
 }
 
 #pragma mark - Mutators
@@ -101,16 +109,16 @@
 
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self insertObject:object atIndexPath:indexPath sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -123,46 +131,46 @@
 
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self removeObjectAtIndexPath:indexPath sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -173,16 +181,16 @@
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self insertSection:section atIndex:index sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -195,16 +203,16 @@
 
 - (void)removeSectionAtIndex:(NSUInteger)index
 {
-    if (!self.batchUpdating && _flags._sendWillChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self sendWillChangeContentNotifications];
     }
     
     [self removeSectionAtIndex:index sendNotifications:YES];
     
-    if (!self.batchUpdating && _flags._sendDidChangeContentNotifications)
+    if (!self.batchUpdating)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -213,10 +221,7 @@
     if(!self.batchUpdating)
     {
         self.batchUpdating = YES;
-        if (_flags._sendWillChangeContentNotifications)
-        {
-            [self.delegate collectionListWillChangeContent:self];
-        }
+        [self sendWillChangeContentNotifications];
     }
 }
 
@@ -224,11 +229,7 @@
 {
     if (self.batchUpdating)
     {
-        if (_flags._sendDidChangeContentNotifications)
-        {
-            [self.delegate collectionListDidChangeContent:self];
-        }
-        
+        [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
     }
 }
@@ -244,9 +245,9 @@
     
     [self updateSection:sectionInfo withObjectCountChange:1];
     
-    if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
+    if (shouldSendNotifications)
     {
-        [self.delegate collectionList:self didChangeObject:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:indexPath];
+        [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:indexPath];
     }
 }
 
@@ -261,14 +262,9 @@
     
     [self updateSection:sectionInfo withObjectCountChange:-1];
     
-    if (sectionInfo.numberOfObjects == 0)
+    if (shouldSendNotifications)
     {
-        [self removeSectionAtIndex:indexPath.section sendNotifications:shouldSendNotifications];
-    }
-    
-    if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
-    {
-        [self.delegate collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
     }
 }
 
@@ -279,9 +275,9 @@
     
     [self.objects replaceObjectAtIndex:index withObject:object];
     
-    if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
+    if (shouldSendNotifications)
     {
-        [self.delegate collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
     }
 }
 
@@ -307,9 +303,9 @@
     [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
     [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
     
-    if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
+    if (shouldSendNotifications)
     {
-        [self.delegate collectionList:self didChangeObject:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];
+        [self sendDidChangeObjectNotification:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];
     }
     
 }
@@ -319,9 +315,9 @@
     [self.sectionsInfo insertObject:section atIndex:index];
     section.arrayList = self;
     
-    if (shouldSendNotifications && _flags._sendSectionChangeNotifications)
+    if (shouldSendNotifications)
     {
-        [self.delegate collectionList:self didChangeSection:section atIndex:index forChangeType:RZCollectionListChangeInsert];
+        [self sendDidChangeSectionNotification:section atIndex:index forChangeType:RZCollectionListChangeInsert];
     }
 }
 
@@ -338,9 +334,9 @@
         [self updateSection:sectionInfo withObjectCountChange:-objectsToRemove.count];
         
         [objectsToRemove enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if (shouldSendNotifications && _flags._sendObjectChangeNotifications)
+            if (shouldSendNotifications)
             {
-                [self.delegate collectionList:self didChangeObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:sectionInfo.indexOffset] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+                [self sendDidChangeObjectNotification:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:sectionInfo.indexOffset] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
             }
         }];
     }
@@ -348,10 +344,52 @@
     [self.sectionsInfo removeObjectAtIndex:index];
     sectionInfo.arrayList = nil;
     
-    if (shouldSendNotifications && _flags._sendSectionChangeNotifications)
+    if (shouldSendNotifications)
     {
-        [self.delegate collectionList:self didChangeSection:sectionInfo atIndex:index forChangeType:RZCollectionListChangeDelete];
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:index forChangeType:RZCollectionListChangeDelete];
     }
+}
+
+#pragma mark - Notification Helpers
+
+- (void)sendWillChangeContentNotifications
+{
+    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            [obj collectionListWillChangeContent:self];
+        }
+    }];
+}
+
+- (void)sendDidChangeContentNotifications
+{
+    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            [obj collectionListDidChangeContent:self];
+        }
+    }];
+}
+
+- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
+{
+    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
+        }
+    }];
+}
+
+- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type
+{
+    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
+        }
+    }];
 }
 
 #pragma mark - SectionInfo Helpers
@@ -442,6 +480,11 @@
 - (NSArray*)sections
 {
     return [self.sectionsInfo copy];
+}
+
+- (NSArray*)listObservers
+{
+    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles
@@ -537,6 +580,16 @@
     }];
     
     return index;
+}
+
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers addObject:listObserver];
+}
+
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers removeObject:listObserver];
 }
 
 @end

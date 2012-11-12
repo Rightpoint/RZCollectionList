@@ -8,7 +8,7 @@
 
 #import "RZCollectionListTableViewDataSource.h"
 
-@interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate>
+@interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
@@ -25,12 +25,18 @@
         self.delegate = delegate;
         self.tableView = tableView;
         
+        [collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
         tableView.dataSource = self;
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 #pragma mark - UITableViewDataSource

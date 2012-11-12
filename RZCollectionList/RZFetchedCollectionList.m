@@ -10,6 +10,8 @@
 
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
+@property (nonatomic, strong) NSMutableSet *collectionListObservers;
+
 @end
 
 @implementation RZFetchedCollectionList
@@ -52,6 +54,15 @@
     }
 }
 
+- (NSMutableSet*)collectionListObservers
+{
+    if (nil == _collectionListObservers)
+    {
+        _collectionListObservers = [NSMutableSet set];
+    }
+    
+    return _collectionListObservers;
+}
 
 #pragma mark - RZCollectionList
 
@@ -84,6 +95,11 @@
     return [self.controller sections];
 }
 
+- (NSArray*)listObservers
+{
+    return [self.collectionListObservers allObjects];
+}
+
 - (NSArray*)sectionIndexTitles
 {
     return [self.controller sectionIndexTitles];
@@ -109,37 +125,67 @@
     return [self.controller sectionForSectionIndexTitle:title atIndex:sectionIndex];
 }
 
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers addObject:listObserver];
+}
+
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers removeObject:listObserver];
+}
+
 #pragma mark - NSFetchedResultsControllerDelegate
 
 - (void)controller:(NSFetchedResultsController*)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath*)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    if (self.controller == controller && self.delegate && [self.delegate respondsToSelector:@selector(collectionList:didChangeObject:atIndexPath:forChangeType:newIndexPath:)])
+    if (self.controller == controller)
     {
-        [self.delegate collectionList:self didChangeObject:anObject atIndexPath:indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:newIndexPath];
+        [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeObject:anObject atIndexPath:indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:newIndexPath];
+            }
+        }];
     }
 }
 
 - (void)controller:(NSFetchedResultsController*)controller didChangeSection:(id<NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
 {
-    if (self.controller == controller && self.delegate && [self.delegate respondsToSelector:@selector(collectionList:didChangeSection:atIndex:forChangeType:)])
+    if (self.controller == controller)
     {
-        [self.delegate collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:sectionIndex forChangeType:(RZCollectionListChangeType)type];
+        [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:sectionIndex forChangeType:(RZCollectionListChangeType)type];
+            }
+        }];
     }
 }
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 {
-    if (self.controller == controller && self.delegate && [self.delegate respondsToSelector:@selector(collectionListWillChangeContent:)])
+    if (self.controller == controller)
     {
-        [self.delegate collectionListWillChangeContent:self];
+        [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionListWillChangeContent:self];
+            }
+        }];
     }
 }
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
-    if (self.controller == controller && self.delegate && [self.delegate respondsToSelector:@selector(collectionListDidChangeContent:)])
+    if (self.controller == controller)
     {
-        [self.delegate collectionListDidChangeContent:self];
+        [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionListDidChangeContent:self];
+            }
+        }];
     }
 }
 

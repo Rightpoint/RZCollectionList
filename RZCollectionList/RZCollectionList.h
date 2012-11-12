@@ -19,11 +19,13 @@
 @end
 
 @protocol RZCollectionListDelegate;
+@protocol RZCollectionListObserver;
 
 @protocol RZCollectionList <NSObject>
 
 @property (nonatomic, readonly) NSArray *listObjects;
 @property (nonatomic, readonly) NSArray *sections;
+@property (nonatomic, readonly) NSArray *listObservers;
 @property (nonatomic, weak) id<RZCollectionListDelegate> delegate;
 
 @property (nonatomic, readonly) NSArray *sectionIndexTitles;
@@ -35,10 +37,13 @@
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName;
 - (NSInteger)sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)sectionIndex;
 
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+
 @end
 
 
-@protocol RZCollectionListDelegate <NSObject>
+@protocol RZCollectionListObserver <NSObject>
 
 typedef enum {
     RZCollectionListChangeInsert = 1,
@@ -47,7 +52,7 @@ typedef enum {
     RZCollectionListChangeUpdate = 4
 } RZCollectionListChangeType;
 
-@optional
+@required
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type;
@@ -56,6 +61,11 @@ typedef enum {
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList;
 
+@end
+
+@protocol RZCollectionListDelegate <NSObject>
+
+@optional
 - (NSString *)collectionList:(id<RZCollectionList>)collectionList sectionIndexTitleForSectionName:(NSString *)sectionName;
 
 @end
