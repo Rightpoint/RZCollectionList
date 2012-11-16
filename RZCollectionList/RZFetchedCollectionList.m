@@ -41,11 +41,7 @@
     
     _controller.delegate = nil;
     _controller = controller;
-    
-    if (self.delegate)
-    {
-        controller.delegate = self;
-    }
+    controller.delegate = self;
     
     NSError *error = nil;
     if (![controller performFetch:&error])
@@ -65,25 +61,6 @@
 }
 
 #pragma mark - RZCollectionList
-
-- (void)setDelegate:(id<RZCollectionListDelegate>)delegate
-{
-    if (delegate == _delegate)
-    {
-        return;
-    }
-    
-    _delegate = delegate;
-    
-    if (delegate)
-    {
-        self.controller.delegate = self;
-    }
-    else
-    {
-        self.controller.delegate = nil;
-    }
-}
 
 - (NSArray*)listObjects
 {
