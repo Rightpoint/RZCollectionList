@@ -132,6 +132,9 @@
 {
     if (self.controller == controller)
     {
+#if kRZCollectionListNotificationLogging
+        NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
+#endif
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
@@ -147,6 +150,9 @@
     {
         if (NSFetchedResultsChangeInsert == type)
         {
+#if kRZCollectionListNotificationLogging
+            NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
+#endif
             [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                 if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
                 {
@@ -167,6 +173,9 @@
 {
     if (self.controller == controller)
     {
+#if kRZCollectionListNotificationLogging
+        NSLog(@"RZFetchedCollectionList Will Change");
+#endif
         self.removeSectionNotifications = [NSMutableSet set];
         
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -185,6 +194,9 @@
         // Send out all Removed Section Notifications
         [self.removeSectionNotifications enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             RZFetchedCollectionListSectionNotification *notification = (RZFetchedCollectionListSectionNotification*)obj;
+#if kRZCollectionListNotificationLogging
+            NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", notification.sectionInfo, notification.sectionIndex, notification.type);
+#endif
             [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                 if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
                 {
@@ -195,6 +207,9 @@
         
         self.removeSectionNotifications = nil;
         
+#if kRZCollectionListNotificationLogging
+        NSLog(@"RZFetchedCollectionList Did Change");
+#endif
         // Send out DidChange Notifications
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])

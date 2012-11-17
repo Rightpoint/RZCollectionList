@@ -354,6 +354,9 @@
 
 - (void)sendWillChangeContentNotifications
 {
+#if kRZCollectionListNotificationLogging
+    NSLog(@"RZArrayCollectionList Will Change");
+#endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
@@ -364,6 +367,9 @@
 
 - (void)sendDidChangeContentNotifications
 {
+#if kRZCollectionListNotificationLogging
+    NSLog(@"RZArrayCollectionList Did Change");
+#endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
@@ -374,6 +380,9 @@
 
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
+#if kRZCollectionListNotificationLogging
+    NSLog(@"RZArrayCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
+#endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
@@ -384,6 +393,9 @@
 
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type
 {
+#if kRZCollectionListNotificationLogging
+    NSLog(@"RZArrayCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
+#endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
