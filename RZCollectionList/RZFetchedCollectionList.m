@@ -8,9 +8,23 @@
 
 #import "RZFetchedCollectionList.h"
 
+// HACK - Storing Remove Section Notifications until Content Did Change is called
+//        so Remove Object Notifications go out first. Need to do a proper batch
+//        changes implementation.
+@interface RZFetchedCollectionListSectionNotification : NSObject
+
+@property (nonatomic, strong) id<RZCollectionListSectionInfo> sectionInfo;
+@property (nonatomic, assign) NSUInteger sectionIndex;
+@property (nonatomic, assign) RZCollectionListChangeType type;
+
+- (id)initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type;
+
+@end
+
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
 @property (nonatomic, strong) NSMutableSet *collectionListObservers;
+@property (nonatomic, strong) NSMutableSet *removeSectionNotifications;
 
 @end
 
@@ -131,12 +145,21 @@
 {
     if (self.controller == controller)
     {
-        [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:sectionIndex forChangeType:(RZCollectionListChangeType)type];
-            }
-        }];
+        if (NSFetchedResultsChangeInsert == type)
+        {
+            [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+                if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+                {
+                    [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:sectionIndex forChangeType:(RZCollectionListChangeType)type];
+                }
+            }];
+        }
+        else if (NSFetchedResultsChangeDelete)
+        {
+            RZFetchedCollectionListSectionNotification *removeNotification = [[RZFetchedCollectionListSectionNotification alloc] initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:sectionIndex type:(RZCollectionListChangeType)type];
+            
+            [self.removeSectionNotifications addObject:removeNotification];
+        }
     }
 }
 
@@ -144,6 +167,8 @@
 {
     if (self.controller == controller)
     {
+        self.removeSectionNotifications = [NSMutableSet set];
+        
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
@@ -157,6 +182,20 @@
 {
     if (self.controller == controller)
     {
+        // Send out all Removed Section Notifications
+        [self.removeSectionNotifications enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            RZFetchedCollectionListSectionNotification *notification = (RZFetchedCollectionListSectionNotification*)obj;
+            [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+                if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+                {
+                    [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
+                }
+            }];
+        }];
+        
+        self.removeSectionNotifications = nil;
+        
+        // Send out DidChange Notifications
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
@@ -174,6 +213,22 @@
     }
     
     return nil;
+}
+
+@end
+
+@implementation RZFetchedCollectionListSectionNotification
+
+- (id)initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type
+{
+    if ((self = [super init]))
+    {
+        self.sectionInfo = sectionInfo;
+        self.sectionIndex = sectionIndex;
+        self.type = type;
+    }
+    
+    return self;
 }
 
 @end
