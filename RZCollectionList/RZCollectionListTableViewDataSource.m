@@ -156,7 +156,7 @@
             break;
         case RZCollectionListChangeUpdate:
         {
-            // TODO: Notify Delegate of object change
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
             break;
         default:
