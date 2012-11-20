@@ -132,11 +132,19 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:commitEditingStyle:forRowAtIndexPath:)])
+    {
+        [self.delegate tableView:tableView commitEditingStyle:editingStyle forRowAtIndexPath:indexPath];
+    }
     // TODO: Modify the collectionList
 }
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(tableView:moveRowAtIndexPath:toIndexPath:)])
+    {
+        [self.delegate tableView:tableView moveRowAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath];
+    }
     // TODO: Modify the collectionList
 }
 
