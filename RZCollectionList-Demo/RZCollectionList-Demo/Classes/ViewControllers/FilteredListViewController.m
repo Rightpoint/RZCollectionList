@@ -47,7 +47,7 @@
     // Do any additional setup after loading the view from its nib.
     
     RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:@"subtitle"];
-    self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:arrayList predicate:[NSPredicate predicateWithFormat:@"itemName CONTAINS '1'"]];
+    self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:arrayList predicate:nil];
     self.listDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.filteredList delegate:self];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];

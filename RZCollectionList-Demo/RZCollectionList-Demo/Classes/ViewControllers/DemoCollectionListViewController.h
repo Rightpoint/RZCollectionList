@@ -15,5 +15,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (strong, nonatomic) RZCollectionListTableViewDataSource *dataSource;
+@property (strong, nonatomic) NSManagedObjectContext *moc;
 
 @end

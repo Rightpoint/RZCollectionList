@@ -7,18 +7,20 @@
 //
 
 #import "DemoCollectionListViewController.h"
-#import "RZCollectionList.h"
-#import "RZFetchedCollectionList.h"
 #import "RZArrayCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
-#import "ListItem.h"
-#import "ListItemObject.h"
-#import "NSFetchRequest+RZCreationHelpers.h"
-#import "AppDelegate.h"
+#import "ArrayListViewController.h"
+#import "FetchedListViewController.h"
+#import "FilteredListViewController.h"
 
-@interface DemoCollectionListViewController () <RZCollectionListDataSourceDelegate>
 
-- (NSArray*)listItemObjects;
+
+NSString * const kArrayCollectionList =  @"ArrayCollectionList";
+NSString * const kFetchedCollectionListManual = @"FetchedCollectionList - Manual";
+NSString * const kFetchedCollectionListAuto = @"FetchedCollectionList - Auto";
+NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
+
+@interface DemoCollectionListViewController () <RZCollectionListDataSourceDelegate, UITableViewDelegate>
 
 @end
 
@@ -38,45 +40,58 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    // RZFetchedCollectionList DEMO
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList]  sectionNameKeyPath:nil];
     
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"ListItem" sortDescriptorKey:@"itemName" ascending:YES];
-    RZFetchedCollectionList *fetchedList = [[RZFetchedCollectionList alloc] initWIthFetchRequest:request
-                                                                            managedObjectContext:[[AppDelegate appDelegate] managedObjectContext]
-                                                                              sectionNameKeyPath:@"subtitle"
-                                                                                       cacheName:nil];
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:arrayList delegate:self];
     
-    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:fetchedList delegate:self];
-    
-    
-    // RZArrayCollectionList DEMO
-    
-//    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:@"subtitle"];
-//    
-//    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:arrayList delegate:self];
-}
-
-- (NSArray*)listItemObjects
-{
-    return @[[ListItemObject listItemObjectWithName:@"Item 0" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 1" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 2" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 3" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 4" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 5" subtitle:@"1 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 6" subtitle:@"2 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 7" subtitle:@"2 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 8" subtitle:@"2 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 9" subtitle:@"2 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 10" subtitle:@"2 Subtitle"],
-             [ListItemObject listItemObjectWithName:@"Item 11" subtitle:@"2 Subtitle"]
-    ];
+    self.tableView.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *demoClass = [self.dataSource.collectionList objectAtIndexPath:indexPath];
+    
+    if (kArrayCollectionList == demoClass)
+    {
+        ArrayListViewController *arrayVC = [[ArrayListViewController alloc] init];
+        arrayVC.title = @"Array List";
+        
+        [self.navigationController pushViewController:arrayVC animated:YES];
+    }
+    else if (kFetchedCollectionListManual == demoClass)
+    {
+        FetchedListViewController *fetchVC = [[FetchedListViewController alloc] init];
+        fetchVC.title = @"Fetched List Manual";
+        fetchVC.moc = self.moc;
+        
+        [self.navigationController pushViewController:fetchVC animated:YES];
+    }
+    else if (kFetchedCollectionListAuto == demoClass)
+    {
+        FetchedListViewController *fetchVC = [[FetchedListViewController alloc] init];
+        fetchVC.title = @"Fetched List Auto";
+        fetchVC.moc = self.moc;
+        fetchVC.autoAddRemove = YES;
+        
+        [self.navigationController pushViewController:fetchVC animated:YES];
+    }
+    else if (kFilteredCollectionList == demoClass)
+    {
+        FilteredListViewController *filteredVC = [[FilteredListViewController alloc] init];
+        filteredVC.title = @"Filtered List";
+        
+        [self.navigationController pushViewController:filteredVC animated:YES];
+    }
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - RZCollectionListDataSourceDelegate
@@ -93,13 +108,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
     }
     
-    ListItem *item = (ListItem*)object;
-    
-    if ([item isKindOfClass:[ListItem class]] || [item isKindOfClass:[ListItemObject class]])
-    {
-        cell.textLabel.text = item.itemName;
-        cell.detailTextLabel.text = item.subtitle;
-    }
+    cell.textLabel.text = object;
     
     return cell;
 }

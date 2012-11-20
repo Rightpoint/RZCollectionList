@@ -8,17 +8,6 @@
 
 #import "AppDelegate.h"
 #import "DemoCollectionListViewController.h"
-#import "ListItem.h"
-#import "NSFetchRequest+RZCreationHelpers.h"
-
-@interface AppDelegate ()
-
-@property (nonatomic, strong) NSFetchedResultsController *controller;
-@property (nonatomic, strong) NSTimer *timer;
-
-- (void)changeDataModel;
-
-@end
 
 @implementation AppDelegate
 
@@ -28,13 +17,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.controller = [[NSFetchedResultsController alloc] initWithFetchRequest:[NSFetchRequest fetchRequestWithEntityName:@"ListItem" sortDescriptorKey:@"itemName" ascending:YES] managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil];
+    DemoCollectionListViewController *demoVC = [[DemoCollectionListViewController alloc] initWithNibName:nil bundle:nil];
+    demoVC.moc = self.managedObjectContext;
     
-    [self.controller performFetch:nil];
-    
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(changeDataModel) userInfo:nil repeats:YES];
-    
-    DemoCollectionListViewController *rootVC = [[DemoCollectionListViewController alloc] initWithNibName:nil bundle:nil];
+    UINavigationController *rootVC = [[UINavigationController alloc] initWithRootViewController:demoVC];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
@@ -170,46 +156,6 @@
 - (NSURL *)applicationDocumentsDirectory
 {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-}
-
-- (void)changeDataModel
-{
-    static BOOL ascending = YES;
-    static int runningCount = 0;
-    
-    NSLog(@"Fetched Objects Count: %d", self.controller.fetchedObjects.count);
-    
-    [self.controller performFetch:nil];
-    
-    if ([self.controller.fetchedObjects count] <= 0)
-    {
-        ascending = YES;
-    }
-    else if ([self.controller.fetchedObjects count] >=6)
-    {
-        ascending = NO;
-    }
-    
-    
-    if (ascending)
-    {
-        ListItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ListItem" inManagedObjectContext:self.managedObjectContext];
-        item.itemName = [NSString stringWithFormat:@"Count: %d", runningCount];
-        item.subtitle = [NSString stringWithFormat:@"%d Subtitle", self.controller.fetchedObjects.count / 3];
-        
-        ++runningCount;
-    }
-    else
-    {
-        ListItem *item = [self.controller.fetchedObjects lastObject];
-        
-        [self.managedObjectContext deleteObject:item];
-    }
-    
-    
-    [self.managedObjectContext save:nil];
-    
-    
 }
 
 @end
