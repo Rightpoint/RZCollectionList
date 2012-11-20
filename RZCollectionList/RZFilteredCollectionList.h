@@ -12,7 +12,7 @@
 @interface RZFilteredCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, strong, readonly) id<RZCollectionList> sourceList;
-@property (nonatomic, strong, readonly) NSPredicate *predicate;
+@property (nonatomic, strong) NSPredicate *predicate;
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
 

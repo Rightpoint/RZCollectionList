@@ -29,7 +29,6 @@ typedef enum {
 @interface RZFilteredCollectionList ()
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> sourceList;
-@property (nonatomic, strong, readwrite) NSPredicate *predicate;
 
 @property (nonatomic, strong) NSMutableIndexSet *sectionIndexes;
 @property (nonatomic, strong) NSMutableArray *objectIndexesForSection;
@@ -52,6 +51,12 @@ typedef enum {
 - (void)moveSourceObject:(id)object fromSourceIndexPath:(NSIndexPath*)indexPath toSourceIndexPath:(NSIndexPath*)newIndexPath;
 - (void)updateSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
 
+- (void)filterOutSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
+- (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
+
+- (void)beginPotentialUpdates;
+- (void)endPotentialUpdates;
+
 // Notification helpers
 - (void)sendWillChangeContentNotifications;
 - (void)sendDidChangeContentNotifications;
@@ -68,10 +73,10 @@ typedef enum {
     if ((self = [super init]))
     {
         self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
+        [self setupIndexSetsForSourceList:sourceList predicate:predicate];
+        
         self.sourceList = sourceList;
         self.predicate = predicate;
-        
-        [self setupIndexSetsForSourceList:sourceList predicate:predicate];
         
         [self.sourceList addCollectionListObserver:self];
     }
@@ -82,6 +87,21 @@ typedef enum {
 - (void)dealloc
 {
     [self.sourceList removeCollectionListObserver:self];
+}
+
+- (void)setPredicate:(NSPredicate *)predicate
+{
+    if (predicate != _predicate)
+    {
+        NSMutableIndexSet *newSectionIndexes = nil;
+        NSMutableArray *newObjectIndexes = nil;
+        
+        [self getIndexSets:&newObjectIndexes andSections:&newSectionIndexes forSourceList:self.sourceList predicate:predicate];
+        
+        _predicate = predicate;
+        
+        [self transformListForOldObjects:self.objectIndexesForSection andNewObjects:newObjectIndexes];
+    }
 }
 
 - (NSMutableSet*)collectionListObservers
@@ -96,6 +116,17 @@ typedef enum {
 
 - (void)setupIndexSetsForSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate
 {
+    NSMutableIndexSet *sectionIndexes = nil;
+    NSMutableArray *objectIndexesForSection = nil;
+    
+    [self getIndexSets:&objectIndexesForSection andSections:&sectionIndexes forSourceList:sourceList predicate:predicate];
+    
+    self.sectionIndexes = sectionIndexes;
+    self.objectIndexesForSection = objectIndexesForSection;
+}
+
+- (void)getIndexSets:(NSMutableArray*__autoreleasing*)objectsIndexes andSections:(NSMutableIndexSet*__autoreleasing*)sectionIdxs forSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate
+{
     NSArray *sections = sourceList.sections;
     
     NSMutableIndexSet *sectionIndexes = [NSMutableIndexSet indexSet];
@@ -106,7 +137,7 @@ typedef enum {
         NSArray *objects = section.objects;
         
         NSIndexSet *objectIndexes = [objects indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-            return [predicate evaluateWithObject:obj];
+            return (nil == predicate) ? YES : [predicate evaluateWithObject:obj];
         }];
         
         [objectIndexesForSection addObject:[objectIndexes mutableCopy]];
@@ -117,10 +148,72 @@ typedef enum {
         }
     }];
     
-    self.sectionIndexes = sectionIndexes;
-    self.objectIndexesForSection = objectIndexesForSection;
+    if (nil != objectsIndexes)
+    {
+        *objectsIndexes = objectIndexesForSection;
+    }
     
-    NSLog(@"Section Indexes: %@\nObject Indexes: %@", sectionIndexes, objectIndexesForSection);
+    if (nil != sectionIdxs)
+    {
+        *sectionIdxs = sectionIndexes;
+    }
+}
+
+- (void)transformListForOldObjects:(NSArray*)oldObjects andNewObjects:(NSArray*)newObjects
+{
+    NSAssert([oldObjects count] == [newObjects count], @"There must be the same number of source sections.");
+    
+    NSMutableArray *removedObjects = [NSMutableArray arrayWithCapacity:oldObjects.count];
+    NSMutableArray *addedObjects = [NSMutableArray arrayWithCapacity:oldObjects.count];
+    NSMutableArray *updatedObjects = [NSMutableArray arrayWithCapacity:oldObjects.count];
+    
+    NSUInteger sections = [newObjects count];
+    
+    for (NSUInteger i = 0; i < sections; ++i)
+    {
+        NSIndexSet *oldObjectIndexes = [oldObjects objectAtIndex:i];
+        NSIndexSet *newObjectIndexes = [newObjects objectAtIndex:i];
+        
+        NSIndexSet *removedObjectIndexes = [oldObjectIndexes indexesPassingTest:^BOOL(NSUInteger idx, BOOL *stop) {
+            return ![newObjectIndexes containsIndex:idx];
+        }];
+        NSIndexSet *addedObjectIndexes = [newObjectIndexes indexesPassingTest:^BOOL(NSUInteger idx, BOOL *stop) {
+            return ![oldObjectIndexes containsIndex:idx];
+        }];
+        NSIndexSet *updatedObjectIndexes = [newObjectIndexes indexesPassingTest:^BOOL(NSUInteger idx, BOOL *stop) {
+            return [oldObjectIndexes containsIndex:idx];
+        }];
+        
+        [removedObjects addObject:removedObjectIndexes];
+        [addedObjects addObject:addedObjectIndexes];
+        [updatedObjects addObject:updatedObjectIndexes];
+    }
+    
+    [self beginPotentialUpdates];
+    
+    [removedObjects enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger section, BOOL *stop) {
+        NSIndexSet *objectIndexes = (NSIndexSet*)obj;
+        
+        [objectIndexes enumerateIndexesWithOptions:NSEnumerationReverse usingBlock:^(NSUInteger row, BOOL *stop) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            id object = [self.sourceList objectAtIndexPath:indexPath];
+            
+            [self filterOutSourceObject:object atSourceIndexPath:indexPath];
+        }];
+    }];
+    
+    [addedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger section, BOOL *stop) {
+        NSIndexSet *objectIndexes = (NSIndexSet*)obj;
+        
+        [objectIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            id object = [self.sourceList objectAtIndexPath:indexPath];
+            
+            [self unfilterSourceObject:object atSourceIndexPath:indexPath];
+        }];
+    }];
+    
+    [self endPotentialUpdates];
 }
 
 - (NSIndexPath*)sourceIndexPathForIndexPath:(NSIndexPath*)indexPath
@@ -311,7 +404,7 @@ typedef enum {
     NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
     [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row by:1];
     
-    if ([self.predicate evaluateWithObject:object])
+    if ([self.predicate evaluateWithObject:object] || nil == self.predicate)
     {
         [sectionIndexSet addIndex:indexPath.row];
         
@@ -378,7 +471,85 @@ typedef enum {
 
 - (void)updateSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
+    NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
     
+    [self sendDidChangeObjectNotification:object atIndexPath:filteredIndexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+}
+
+- (void)filterOutSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
+{
+    NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+    
+    if ([sectionIndexSet containsIndex:indexPath.row])
+    {
+        if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
+        {
+            [self sendWillChangeContentNotifications];
+        }
+        
+        self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+        
+        NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
+        
+        [self sendDidChangeObjectNotification:object atIndexPath:filteredIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+    }
+    
+    [sectionIndexSet removeIndex:indexPath.row];
+    
+    if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+    {
+        NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
+        RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
+        
+        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
+        
+        [self.sectionIndexes removeIndex:indexPath.section];
+    }
+}
+
+- (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
+{
+    NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+    [sectionIndexSet addIndex:indexPath.row];
+    
+    if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
+    {
+        [self sendWillChangeContentNotifications];
+    }
+    
+    self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+    
+    if (![self.sectionIndexes containsIndex:indexPath.section])
+    {
+        [self.sectionIndexes addIndex:indexPath.section];
+        
+        NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
+        
+        RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredSections] objectAtIndex:filteredSection];
+        
+        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeInsert];
+    }
+    
+    NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
+    
+    [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:filteredIndexPath];
+}
+
+- (void)beginPotentialUpdates
+{
+    self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
+    self.cachedSourceSections = [self.sourceList.sections copy];
+}
+
+- (void)endPotentialUpdates
+{
+    if (self.contentChangeState == RZFilteredSourceListContentChangeStateChanged)
+    {
+        [self sendDidChangeContentNotifications];
+    }
+    
+    self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
+    self.cachedSourceSections = nil;
 }
 
 #pragma mark - Notification Helpers
@@ -479,19 +650,12 @@ typedef enum {
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
-    self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
-    self.cachedSourceSections = [self.sourceList.sections copy];
+    [self beginPotentialUpdates];
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    if (self.contentChangeState == RZFilteredSourceListContentChangeStateChanged)
-    {
-        [self sendDidChangeContentNotifications];
-    }
-    
-    self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
-    self.cachedSourceSections = nil;
+    [self endPotentialUpdates];
 }
 
 @end
@@ -528,7 +692,14 @@ typedef enum {
 {
     if (nil == _objects)
     {
-        _objects = [self.sourceSectionInfo.objects filteredArrayUsingPredicate:self.filteredList.predicate];
+        NSPredicate *predicate = self.filteredList.predicate;
+        
+        if (nil == predicate)
+        {
+            predicate = [NSPredicate predicateWithValue:YES];
+        }
+        
+        _objects = [self.sourceSectionInfo.objects filteredArrayUsingPredicate:predicate];
     }
     
     return _objects;
