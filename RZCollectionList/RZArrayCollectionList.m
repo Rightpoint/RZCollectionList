@@ -542,7 +542,7 @@
         
         if (inRange)
         {
-            rowIndex = idx - section.indexOffset;
+            rowIndex = index - section.indexOffset;
             *stop = YES;
         }
         
