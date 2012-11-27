@@ -36,6 +36,10 @@
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;           // Defaults to NO
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate;
+- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
+
+// Begin/End CollectionList Observing
+- (void)beginObservingList;     // Adds self as an observer of collectionList - Create a retain cycle
+- (void)endObservingList;       // Removes self as an observer of collectionList - Breaks the retain cycle
 
 @end

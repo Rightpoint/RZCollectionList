@@ -25,7 +25,7 @@
         self.delegate = delegate;
         self.tableView = tableView;
         
-        [collectionList addCollectionListObserver:self];
+        [self beginObservingList];
         collectionList.delegate = self;
         
         tableView.dataSource = self;
@@ -34,7 +34,12 @@
     return self;
 }
 
-- (void)dealloc
+- (void)beginObservingList
+{
+    [self.collectionList addCollectionListObserver:self];
+}
+
+- (void)endObservingList
 {
     [self.collectionList removeCollectionListObserver:self];
 }
