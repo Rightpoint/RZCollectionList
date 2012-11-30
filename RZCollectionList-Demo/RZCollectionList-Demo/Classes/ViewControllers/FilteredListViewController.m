@@ -57,20 +57,17 @@
 
 - (NSArray*)listItemObjects
 {
-    return @[
-    [ListItemObject listItemObjectWithName:@"Item 0" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 1" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 2" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 3" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 4" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 5" subtitle:@"1 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 6" subtitle:@"2 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 7" subtitle:@"2 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 8" subtitle:@"2 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 9" subtitle:@"2 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 10" subtitle:@"2 Subtitle"],
-    [ListItemObject listItemObjectWithName:@"Item 11" subtitle:@"2 Subtitle"]
-    ];
+    NSUInteger numItems = 100;
+    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:numItems];
+    
+    for (int i=0; i < numItems; ++i)
+    {
+        NSString *itemName = [NSString stringWithFormat:@"Item %d", i];
+        NSString *itemSubtitle = [NSString stringWithFormat:@"%d Subtitle", i / 6];
+        [items addObject:[ListItemObject listItemObjectWithName:itemName subtitle:itemSubtitle]];
+    }
+    
+    return items;
 }
 
 - (void)didReceiveMemoryWarning
@@ -108,7 +105,7 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
-    NSPredicate * predicate = nil;
+    NSPredicate * predicate = [NSPredicate predicateWithValue:NO];
     
     if (searchText && [searchText length] > 0)
     {
