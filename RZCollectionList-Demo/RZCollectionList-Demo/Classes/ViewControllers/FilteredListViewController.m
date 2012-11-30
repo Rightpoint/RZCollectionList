@@ -105,7 +105,7 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
-    NSPredicate * predicate = [NSPredicate predicateWithValue:NO];
+    NSPredicate * predicate = nil;
     
     if (searchText && [searchText length] > 0)
     {
