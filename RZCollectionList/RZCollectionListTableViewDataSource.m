@@ -25,6 +25,8 @@
         self.delegate = delegate;
         self.tableView = tableView;
         
+        self.animateTableChanges = YES;
+        [self setAllAnimations:UITableViewRowAnimationFade];
         [self beginObservingList];
         collectionList.delegate = self;
         
@@ -42,6 +44,25 @@
 - (void)endObservingList
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setAllAnimations:(UITableViewRowAnimation)animation
+{
+    [self setAllSectionAnimations:animation];
+    [self setAllObjectAnimations:animation];
+}
+
+- (void)setAllSectionAnimations:(UITableViewRowAnimation)animation
+{
+    self.addSectionAnimation = animation;
+    self.removeSectionAnimation = animation;
+}
+
+- (void)setAllObjectAnimations:(UITableViewRowAnimation)animation
+{
+    self.addObjectAnimation = animation;
+    self.removeObjectAnimation = animation;
+    self.updateObjectAnimation = animation;
 }
 
 #pragma mark - UITableViewDataSource
@@ -157,54 +178,70 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    switch(type) {
-        case RZCollectionListChangeInsert:
-            [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-        case RZCollectionListChangeDelete:
-            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-        case RZCollectionListChangeMove:
-            [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
-            break;
-        case RZCollectionListChangeUpdate:
-        {
-            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    if (self.animateTableChanges)
+    {
+        switch(type) {
+            case RZCollectionListChangeInsert:
+                [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:self.addObjectAnimation];
+                break;
+            case RZCollectionListChangeDelete:
+                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.removeObjectAnimation];
+                break;
+            case RZCollectionListChangeMove:
+                [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
+                break;
+            case RZCollectionListChangeUpdate:
+            {
+                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
+            }
+                break;
+            default:
+                //uncaught type
+                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                break;
         }
-            break;
-        default:
-            //uncaught type
-            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-            break;
     }
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
-    switch(type) {
-        case RZCollectionListChangeInsert:
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case RZCollectionListChangeDelete:
-            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        default:
-            //uncaught type
-            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-            break;
+    if (self.animateTableChanges)
+    {
+        switch(type) {
+            case RZCollectionListChangeInsert:
+                [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:self.addSectionAnimation];
+                break;
+                
+            case RZCollectionListChangeDelete:
+                [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:self.removeSectionAnimation];
+                break;
+                
+            default:
+                //uncaught type
+                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                break;
+        }
     }
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
-    [self.tableView beginUpdates];
+    if (self.animateTableChanges)
+    {
+        [self.tableView beginUpdates];
+    }
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    [self.tableView endUpdates];
+    if (self.animateTableChanges)
+    {
+        [self.tableView endUpdates];
+    }
+    else
+    {
+        [self.tableView reloadData];
+    }
 }
 
 - (NSString *)collectionList:(id<RZCollectionList>)collectionList sectionIndexTitleForSectionName:(NSString *)sectionName

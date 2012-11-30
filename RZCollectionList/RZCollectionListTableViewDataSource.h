@@ -35,11 +35,24 @@
 
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;           // Defaults to NO
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
+@property (nonatomic, assign, getter = shouldAnimateTableChanges) BOOL animateTableChanges; // Defaults to YES
+
+@property (nonatomic, assign) UITableViewRowAnimation addSectionAnimation;      // Defaults to UITableViewRowAnimationFade
+@property (nonatomic, assign) UITableViewRowAnimation removeSectionAnimation;   // Defaults to UITableViewRowAnimationFade
+@property (nonatomic, assign) UITableViewRowAnimation addObjectAnimation;       // Defaults to UITableViewRowAnimationFade
+@property (nonatomic, assign) UITableViewRowAnimation removeObjectAnimation;    // Defaults to UITableViewRowAnimationFade
+@property (nonatomic, assign) UITableViewRowAnimation updateObjectAnimation;    // Defaults to UITableViewRowAnimationFade
+
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
 
 // Begin/End CollectionList Observing
 - (void)beginObservingList;     // Adds self as an observer of collectionList - Create a retain cycle
 - (void)endObservingList;       // Removes self as an observer of collectionList - Breaks the retain cycle
+
+// TableViewAnimations
+- (void)setAllAnimations:(UITableViewRowAnimation)animation;
+- (void)setAllSectionAnimations:(UITableViewRowAnimation)animation;
+- (void)setAllObjectAnimations:(UITableViewRowAnimation)animation;
 
 @end
