@@ -445,7 +445,11 @@
                 if (nil != currentSection)
                 {
                     currentSection.numberOfObjects = idx - currentSection.indexOffset;
-                    [sectionsInfo addObject:currentSection];
+                    
+                    if (nil != currentSection)
+                    {
+                        [sectionsInfo addObject:currentSection];
+                    }
                 }
                 
                 RZArrayCollectionListSectionInfo *nextSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:sectionName sectionIndexTitle:nil numberOfObjects:0];
@@ -457,7 +461,11 @@
         }];
         
         currentSection.numberOfObjects = [objects count] - currentSection.indexOffset;
-        [sectionsInfo addObject:currentSection];
+        
+        if (nil != currentSection)
+        {
+            [sectionsInfo addObject:currentSection];
+        }
         
         sections = sectionsInfo;
     }
