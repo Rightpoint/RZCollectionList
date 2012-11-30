@@ -32,6 +32,7 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.title = @"RZCollectionList Demo";
     }
     return self;
 }
@@ -40,6 +41,7 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:nil action:NULL];
     
     RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kCompositeCollectionList]  sectionNameKeyPath:nil];
     
