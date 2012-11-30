@@ -556,7 +556,7 @@ typedef enum {
 
 - (void)sendWillChangeContentNotifications
 {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Will Change");
 #endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -569,7 +569,7 @@ typedef enum {
 
 - (void)sendDidChangeContentNotifications
 {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change");
 #endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -582,7 +582,7 @@ typedef enum {
 
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
 #endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -595,7 +595,7 @@ typedef enum {
 
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type
 {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
     [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {

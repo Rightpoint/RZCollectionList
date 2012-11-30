@@ -132,7 +132,7 @@
 {
     if (self.controller == controller)
     {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
 #endif
         [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -150,7 +150,7 @@
     {
         if (NSFetchedResultsChangeInsert == type)
         {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
             NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
             [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -173,7 +173,7 @@
 {
     if (self.controller == controller)
     {
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
         self.removeSectionNotifications = [NSMutableSet set];
@@ -194,7 +194,7 @@
         // Send out all Removed Section Notifications
         [self.removeSectionNotifications enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             RZFetchedCollectionListSectionNotification *notification = (RZFetchedCollectionListSectionNotification*)obj;
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
             NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", notification.sectionInfo, notification.sectionIndex, notification.type);
 #endif
             [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -207,7 +207,7 @@
         
         self.removeSectionNotifications = nil;
         
-#if kRZCollectionListNotificationLogging
+#if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");
 #endif
         // Send out DidChange Notifications
