@@ -36,12 +36,13 @@
     // Do any additional setup after loading the view from its nib.
     self.navigationItem.rightBarButtonItem = self.addButton;
     
-    RZArrayCollectionList *staticList1 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item 1", @"Static Item 2", @"Static Item 3"] sectionNameKeyPath:nil];
-    RZArrayCollectionList *staticList2 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item A", @"Static Item B", @"Static Item C"] sectionNameKeyPath:nil];
-    self.dynamicList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:nil];
+    RZArrayCollectionList *staticList1 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item 1", @"Static Item 2", @"Static Item 3"] sections:@[[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Static 1" sectionIndexTitle:@"1" numberOfObjects:3]]];
+    RZArrayCollectionList *staticList2 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item A", @"Static Item B", @"Static Item C"] sections:@[[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Static 2" sectionIndexTitle:@"2" numberOfObjects:3]]];
+    self.dynamicList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:@"subtitle"];
     RZCompositeList *compositeList = [[RZCompositeList alloc] initWithSourceLists:@[staticList1, self.dynamicList, staticList2]];
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:compositeList delegate:self];
+    self.dataSource.showSectionHeaders = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -54,6 +55,12 @@
 {
     static NSUInteger totalCount = 0;
     ++totalCount;
+    
+    if ([self.dynamicList.sections count] == 0)
+    {
+        [self.dynamicList addSection:[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Dynamic" sectionIndexTitle:@"D" numberOfObjects:0]];
+    }
+    
     [self.dynamicList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Dynamic Item %u", totalCount] subtitle:@"Dynamic"] toSection:0];
 }
 
@@ -96,6 +103,11 @@
     if (UITableViewCellEditingStyleDelete)
     {
         [self.dynamicList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row inSection:0]];
+        
+        if (self.dynamicList.listObjects.count == 0)
+        {
+            [self.dynamicList removeSectionAtIndex:0];
+        }
     }
 }
 
