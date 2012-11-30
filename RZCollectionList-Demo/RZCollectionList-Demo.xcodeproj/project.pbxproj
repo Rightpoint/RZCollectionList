@@ -48,6 +48,10 @@
 		FE2DA2D0165C2D080035967E /* FetchedListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */; };
 		FEAED2A61651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */; };
 		FEAED2A71651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */; };
+		FEFDE80D166929A90052AE2D /* RZCompositeList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeList.m */; };
+		FEFDE80E166929A90052AE2D /* RZCompositeList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeList.m */; };
+		FEFDE81316693F1B0052AE2D /* CompositeListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */; };
+		FEFDE81416693F1B0052AE2D /* CompositeListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEFDE81216693F1B0052AE2D /* CompositeListViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +113,11 @@
 		FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FetchedListViewController.xib; sourceTree = "<group>"; };
 		FEAED2A41651A9BB00953BA0 /* RZFilteredCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZFilteredCollectionList.h; sourceTree = "<group>"; };
 		FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZFilteredCollectionList.m; sourceTree = "<group>"; };
+		FEFDE80B166929A90052AE2D /* RZCompositeList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCompositeList.h; sourceTree = "<group>"; };
+		FEFDE80C166929A90052AE2D /* RZCompositeList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCompositeList.m; sourceTree = "<group>"; };
+		FEFDE81016693F1B0052AE2D /* CompositeListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompositeListViewController.h; sourceTree = "<group>"; };
+		FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompositeListViewController.m; sourceTree = "<group>"; };
+		FEFDE81216693F1B0052AE2D /* CompositeListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CompositeListViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,6 +237,8 @@
 				FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */,
 				FEAED2A41651A9BB00953BA0 /* RZFilteredCollectionList.h */,
 				FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */,
+				FEFDE80B166929A90052AE2D /* RZCompositeList.h */,
+				FEFDE80C166929A90052AE2D /* RZCompositeList.m */,
 			);
 			name = RZCollectionList;
 			path = ../RZCollectionList;
@@ -267,6 +278,9 @@
 				FE2DA2CC165C2D070035967E /* FetchedListViewController.h */,
 				FE2DA2CD165C2D070035967E /* FetchedListViewController.m */,
 				FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */,
+				FEFDE81016693F1B0052AE2D /* CompositeListViewController.h */,
+				FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */,
+				FEFDE81216693F1B0052AE2D /* CompositeListViewController.xib */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -359,6 +373,7 @@
 				FE2DA2C1165BF12E0035967E /* FilteredListViewController.xib in Resources */,
 				FE2DA2CB165C24E60035967E /* ArrayListViewController.xib in Resources */,
 				FE2DA2D0165C2D080035967E /* FetchedListViewController.xib in Resources */,
+				FEFDE81416693F1B0052AE2D /* CompositeListViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,6 +423,8 @@
 				FE2DA2C0165BF12E0035967E /* FilteredListViewController.m in Sources */,
 				FE2DA2CA165C24E60035967E /* ArrayListViewController.m in Sources */,
 				FE2DA2CF165C2D080035967E /* FetchedListViewController.m in Sources */,
+				FEFDE80D166929A90052AE2D /* RZCompositeList.m in Sources */,
+				FEFDE81316693F1B0052AE2D /* CompositeListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +441,7 @@
 				FE02AD3D16079ED60096F3EA /* RZArrayCollectionList.m in Sources */,
 				FE02AD421607FA980096F3EA /* ListItemObject.m in Sources */,
 				FEAED2A71651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */,
+				FEFDE80E166929A90052AE2D /* RZCompositeList.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

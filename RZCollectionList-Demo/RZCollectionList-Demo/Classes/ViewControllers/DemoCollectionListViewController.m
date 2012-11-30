@@ -12,13 +12,14 @@
 #import "ArrayListViewController.h"
 #import "FetchedListViewController.h"
 #import "FilteredListViewController.h"
-
+#import "CompositeListViewController.h"
 
 
 NSString * const kArrayCollectionList =  @"ArrayCollectionList";
 NSString * const kFetchedCollectionListManual = @"FetchedCollectionList - Manual";
 NSString * const kFetchedCollectionListAuto = @"FetchedCollectionList - Auto";
 NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
+NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
 
 @interface DemoCollectionListViewController () <RZCollectionListDataSourceDelegate, UITableViewDelegate>
 
@@ -40,7 +41,7 @@ NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList]  sectionNameKeyPath:nil];
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kCompositeCollectionList]  sectionNameKeyPath:nil];
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:arrayList delegate:self];
     
@@ -89,6 +90,13 @@ NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
         filteredVC.title = @"Filtered List";
         
         [self.navigationController pushViewController:filteredVC animated:YES];
+    }
+    else if (kCompositeCollectionList == demoClass)
+    {
+        CompositeListViewController *compositeVC = [[CompositeListViewController alloc] init];
+        compositeVC.title = @"Composite List";
+        
+        [self.navigationController pushViewController:compositeVC animated:YES];
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
