@@ -8,7 +8,7 @@
 
 #import "CompositeListViewController.h"
 #import "RZArrayCollectionList.h"
-#import "RZCompositeList.h"
+#import "RZCompositeCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
 #import "ListItemObject.h"
 
@@ -39,7 +39,7 @@
     RZArrayCollectionList *staticList1 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item 1", @"Static Item 2", @"Static Item 3"] sections:@[[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Static 1" sectionIndexTitle:@"1" numberOfObjects:3]]];
     RZArrayCollectionList *staticList2 = [[RZArrayCollectionList alloc] initWithArray:@[@"Static Item A", @"Static Item B", @"Static Item C"] sections:@[[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Static 2" sectionIndexTitle:@"2" numberOfObjects:3]]];
     self.dynamicList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:@"subtitle"];
-    RZCompositeList *compositeList = [[RZCompositeList alloc] initWithSourceLists:@[staticList1, self.dynamicList, staticList2]];
+    RZCompositeCollectionList *compositeList = [[RZCompositeCollectionList alloc] initWithSourceLists:@[staticList1, self.dynamicList, staticList2]];
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:compositeList delegate:self];
     self.dataSource.showSectionHeaders = YES;

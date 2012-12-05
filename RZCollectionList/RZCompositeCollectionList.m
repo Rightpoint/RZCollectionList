@@ -1,14 +1,14 @@
 //
-//  RZCompositeList.m
+//  RZCompositeCollectionList.m
 //  RZCollectionList-Demo
 //
 //  Created by Joe Goullaud on 11/30/12.
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import "RZCompositeList.h"
+#import "RZCompositeCollectionList.h"
 
-@interface RZCompositeList ()
+@interface RZCompositeCollectionList ()
 
 @property (nonatomic, strong) NSMutableSet *collectionListObservers;
 @property (nonatomic, strong) NSMutableArray *sourceListSectionRanges;
@@ -28,7 +28,7 @@
 
 @end
 
-@implementation RZCompositeList
+@implementation RZCompositeCollectionList
 @synthesize delegate = _delegate;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists

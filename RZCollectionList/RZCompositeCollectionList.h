@@ -1,5 +1,5 @@
 //
-//  RZCompositeList.h
+//  RZCompositeCollectionList.h
 //  RZCollectionList-Demo
 //
 //  Created by Joe Goullaud on 11/30/12.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RZCollectionList.h"
 
-@interface RZCompositeList : NSObject <RZCollectionList, RZCollectionListObserver>
+@interface RZCompositeCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, copy) NSArray *sourceLists;
 
