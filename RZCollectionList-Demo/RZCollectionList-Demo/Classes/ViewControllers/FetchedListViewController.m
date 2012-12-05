@@ -80,7 +80,6 @@
 - (void)autoChangeDataModel
 {
     static BOOL ascending = YES;
-    static int runningCount = 0;
     
     if (self.fetchedList.listObjects.count <= 0)
     {
