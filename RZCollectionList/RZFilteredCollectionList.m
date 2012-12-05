@@ -7,7 +7,6 @@
 //
 
 #import "RZFilteredCollectionList.h"
-#import "RZArrayCollectionList.h"
 
 @interface RZFilteredCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
