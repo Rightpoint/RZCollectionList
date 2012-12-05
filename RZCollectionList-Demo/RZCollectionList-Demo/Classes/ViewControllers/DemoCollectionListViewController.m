@@ -12,6 +12,7 @@
 #import "ArrayListViewController.h"
 #import "FetchedListViewController.h"
 #import "FilteredListViewController.h"
+#import "SortedListViewController.h"
 #import "CompositeListViewController.h"
 
 
@@ -19,6 +20,7 @@ NSString * const kArrayCollectionList =  @"ArrayCollectionList";
 NSString * const kFetchedCollectionListManual = @"FetchedCollectionList - Manual";
 NSString * const kFetchedCollectionListAuto = @"FetchedCollectionList - Auto";
 NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
+NSString * const kSortedCollectionList =  @"SortedCollectionList";
 NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
 
 @interface DemoCollectionListViewController () <RZCollectionListDataSourceDelegate, UITableViewDelegate>
@@ -43,7 +45,7 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
     // Do any additional setup after loading the view from its nib.
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:nil action:NULL];
     
-    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kCompositeCollectionList]  sectionNameKeyPath:nil];
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kSortedCollectionList, kCompositeCollectionList]  sectionNameKeyPath:nil];
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:arrayList delegate:self];
     
@@ -92,6 +94,13 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
         filteredVC.title = @"Filtered List";
         
         [self.navigationController pushViewController:filteredVC animated:YES];
+    }
+    else if (kSortedCollectionList == demoClass)
+    {
+        SortedListViewController *sortedVC = [[SortedListViewController alloc] init];
+        sortedVC.title = @"Sorted List";
+        
+        [self.navigationController pushViewController:sortedVC animated:YES];
     }
     else if (kCompositeCollectionList == demoClass)
     {
