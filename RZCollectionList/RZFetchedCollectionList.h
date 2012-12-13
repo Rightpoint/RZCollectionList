@@ -15,6 +15,6 @@
 @property (nonatomic, strong) NSFetchedResultsController *controller;
 
 - (id)initWithFetchedResultsController:(NSFetchedResultsController*)controller;
-- (id)initWIthFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name;
+- (id)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name;
 
 @end

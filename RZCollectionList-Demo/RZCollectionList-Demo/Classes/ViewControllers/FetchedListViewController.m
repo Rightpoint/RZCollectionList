@@ -49,7 +49,7 @@
     self.navigationItem.rightBarButtonItem = self.addItemBarButton;
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"ListItem" sortDescriptorKey:@"itemName" ascending:YES];
-    self.fetchedList = [[RZFetchedCollectionList alloc] initWIthFetchRequest:request
+    self.fetchedList = [[RZFetchedCollectionList alloc] initWithFetchRequest:request
                                                                             managedObjectContext:self.moc
                                                                               sectionNameKeyPath:@"subtitle"
                                                                                        cacheName:nil];
