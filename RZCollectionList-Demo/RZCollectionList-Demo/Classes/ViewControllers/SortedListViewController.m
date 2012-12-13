@@ -12,7 +12,7 @@
 #import "RZCollectionListTableViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface SortedListViewController () <RZCollectionListDataSourceDelegate>
+@interface SortedListViewController () <RZCollectionListTableViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZSortedCollectionList *sortedList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;

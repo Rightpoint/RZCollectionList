@@ -12,7 +12,7 @@
 #import "RZCollectionListTableViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface CompositeListViewController () <RZCollectionListDataSourceDelegate>
+@interface CompositeListViewController () <RZCollectionListTableViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZArrayCollectionList *dynamicList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;

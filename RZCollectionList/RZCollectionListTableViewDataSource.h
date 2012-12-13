@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RZCollectionList.h"
 
-@protocol RZCollectionListDataSourceDelegate <NSObject>
+@protocol RZCollectionListTableViewDataSourceDelegate <NSObject>
 
 @required
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
@@ -31,7 +31,7 @@
 @property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readonly) UITableView *tableView;
 
-@property (nonatomic, weak) id<RZCollectionListDataSourceDelegate> delegate;
+@property (nonatomic, weak) id<RZCollectionListTableViewDataSourceDelegate> delegate;
 
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;           // Defaults to NO
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
@@ -44,7 +44,7 @@
 @property (nonatomic, assign) UITableViewRowAnimation updateObjectAnimation;    // Defaults to UITableViewRowAnimationFade
 
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
+- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
 
 // Begin/End CollectionList Observing
 - (void)beginObservingList;     // Adds self as an observer of collectionList - Create a retain cycle

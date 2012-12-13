@@ -23,7 +23,7 @@ NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
 NSString * const kSortedCollectionList =  @"SortedCollectionList";
 NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
 
-@interface DemoCollectionListViewController () <RZCollectionListDataSourceDelegate, UITableViewDelegate>
+@interface DemoCollectionListViewController () <RZCollectionListTableViewDataSourceDelegate, UITableViewDelegate>
 
 @end
 

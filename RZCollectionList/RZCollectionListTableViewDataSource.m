@@ -17,7 +17,7 @@
 
 @implementation RZCollectionListTableViewDataSource
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListDataSourceDelegate>)delegate
+- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
     if ((self = [super init]))
     {

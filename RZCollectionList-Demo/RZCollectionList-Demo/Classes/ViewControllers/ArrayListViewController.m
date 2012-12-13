@@ -11,7 +11,7 @@
 #import "RZCollectionListTableViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface ArrayListViewController () <RZCollectionListDataSourceDelegate>
+@interface ArrayListViewController () <RZCollectionListTableViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;

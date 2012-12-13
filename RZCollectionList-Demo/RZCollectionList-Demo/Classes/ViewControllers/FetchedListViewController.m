@@ -12,7 +12,7 @@
 #import "NSFetchRequest+RZCreationHelpers.h"
 #import "ListItem.h"
 
-@interface FetchedListViewController () <RZCollectionListDataSourceDelegate>
+@interface FetchedListViewController () <RZCollectionListTableViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZFetchedCollectionList *fetchedList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;
