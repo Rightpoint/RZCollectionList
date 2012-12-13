@@ -14,6 +14,7 @@
 #import "FilteredListViewController.h"
 #import "SortedListViewController.h"
 #import "CompositeListViewController.h"
+#import "ArrayListCollectionViewController.h"
 
 
 NSString * const kArrayCollectionList =  @"ArrayCollectionList";
@@ -22,6 +23,7 @@ NSString * const kFetchedCollectionListAuto = @"FetchedCollectionList - Auto";
 NSString * const kFilteredCollectionList =  @"FilteredCollectionList";
 NSString * const kSortedCollectionList =  @"SortedCollectionList";
 NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
+NSString * const kArrayListCollectionView =  @"ArrayList - Collection View";
 
 @interface DemoCollectionListViewController () <RZCollectionListTableViewDataSourceDelegate, UITableViewDelegate>
 
@@ -45,7 +47,7 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
     // Do any additional setup after loading the view from its nib.
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:nil action:NULL];
     
-    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kSortedCollectionList, kCompositeCollectionList]  sectionNameKeyPath:nil];
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:@[kArrayCollectionList, kFetchedCollectionListManual, kFetchedCollectionListAuto, kFilteredCollectionList, kSortedCollectionList, kCompositeCollectionList, kArrayListCollectionView]  sectionNameKeyPath:nil];
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:arrayList delegate:self];
     
@@ -108,6 +110,13 @@ NSString * const kCompositeCollectionList =  @"CompositeCollectionList";
         compositeVC.title = @"Composite List";
         
         [self.navigationController pushViewController:compositeVC animated:YES];
+    }
+    else if (kArrayListCollectionView == demoClass)
+    {
+        ArrayListCollectionViewController *arrayCollectionVC = [[ArrayListCollectionViewController alloc] init];
+        arrayCollectionVC.title = @"Array List Collection View";
+        
+        [self.navigationController pushViewController:arrayCollectionVC animated:YES];
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
