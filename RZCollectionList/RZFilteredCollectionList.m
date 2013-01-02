@@ -296,7 +296,7 @@ typedef enum {
 
 - (NSArray*)listObjects
 {
-    return [[self.sourceList listObjects] filteredArrayUsingPredicate:self.predicate];
+    return (self.predicate == nil ? [self.sourceList listObjects] : [[self.sourceList listObjects] filteredArrayUsingPredicate:self.predicate]);
 }
 
 - (NSArray*)sections
