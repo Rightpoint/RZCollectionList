@@ -60,7 +60,7 @@
         if (![self.observerAddresses containsObject:addressString])
         {
             [self.observerAddresses addObject:addressString];
-            objc_setAssociatedObject(self, [addressString UTF8String], observer, OBJC_ASSOCIATION_ASSIGN);
+            objc_setAssociatedObject(self, (__bridge const void *)(addressString), observer, OBJC_ASSOCIATION_ASSIGN);
         }
 #endif
     }
@@ -78,11 +78,12 @@
             [self.observerPointerArray removePointerAtIndex:observerIndex];
         }
 #else
+        // Need to get original instance of string in array
         NSString *addressString = [NSString stringWithFormat:@"%p", observer];
         if ([self.observerAddresses containsObject:addressString])
         {
             [self.observerAddresses removeObject:addressString];
-            objc_setAssociatedObject(self, [addressString UTF8String], nil, OBJC_ASSOCIATION_ASSIGN);
+            objc_setAssociatedObject(self, (__bridge const void *)(addressString), nil, OBJC_ASSOCIATION_ASSIGN);
         }
 #endif
     }
@@ -115,7 +116,7 @@
     NSMutableArray *observers = [NSMutableArray arrayWithCapacity:self.observerAddresses.count];
     for (NSString *obsKey in self.observerAddresses)
     {
-        id observer = objc_getAssociatedObject(self, [obsKey UTF8String]);
+        id observer = objc_getAssociatedObject(self, (__bridge const void *)(obsKey));
         if (observer){
             [observers addObject:observer];
         }
