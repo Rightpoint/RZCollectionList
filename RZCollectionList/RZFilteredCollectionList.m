@@ -7,6 +7,7 @@
 //
 
 #import "RZFilteredCollectionList.h"
+#import "RZObserverCollection.h"
 
 @interface RZFilteredCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
@@ -33,7 +34,7 @@ typedef enum {
 @property (nonatomic, strong) NSMutableArray *objectIndexesForSection;
 @property (nonatomic, strong) NSArray *cachedSourceSections;
 
-@property (nonatomic, strong) NSMutableSet *collectionListObservers;
+@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
 @property (nonatomic, assign) RZFilteredSourceListContentChangeState contentChangeState;
 
@@ -103,11 +104,11 @@ typedef enum {
     }
 }
 
-- (NSMutableSet*)collectionListObservers
+- (RZObserverCollection*)collectionListObservers
 {
     if (nil == _collectionListObservers)
     {
-        _collectionListObservers = [NSMutableSet set];
+        _collectionListObservers = [[RZObserverCollection alloc] init];
     }
     
     return _collectionListObservers;
@@ -558,7 +559,7 @@ typedef enum {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Will Change");
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionListWillChangeContent:self];
@@ -571,7 +572,7 @@ typedef enum {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change");
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionListDidChangeContent:self];
@@ -584,7 +585,7 @@ typedef enum {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
@@ -597,7 +598,7 @@ typedef enum {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];

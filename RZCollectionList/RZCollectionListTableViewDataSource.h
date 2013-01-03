@@ -46,10 +46,6 @@
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
 
-// Begin/End CollectionList Observing
-- (void)beginObservingList;     // Adds self as an observer of collectionList - Create a retain cycle
-- (void)endObservingList;       // Removes self as an observer of collectionList - Breaks the retain cycle
-
 // TableViewAnimations
 - (void)setAllAnimations:(UITableViewRowAnimation)animation;
 - (void)setAllSectionAnimations:(UITableViewRowAnimation)animation;

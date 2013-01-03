@@ -27,23 +27,13 @@
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
-        [self beginObservingList];
+        [self.collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
         tableView.dataSource = self;
     }
     
     return self;
-}
-
-- (void)beginObservingList
-{
-    [self.collectionList addCollectionListObserver:self];
-}
-
-- (void)endObservingList
-{
-    [self.collectionList removeCollectionListObserver:self];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
