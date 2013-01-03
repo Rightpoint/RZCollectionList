@@ -7,6 +7,7 @@
 //
 
 #import "RZArrayCollectionList.h"
+#import "RZObserverCollection.h"
 
 @interface RZArrayCollectionListSectionInfo ()
 
@@ -30,7 +31,7 @@
 
 @property (nonatomic, strong) NSMutableArray *sectionsInfo;
 @property (nonatomic, strong) NSMutableArray *objects;
-@property (nonatomic, strong) NSMutableSet *collectionListObservers;
+@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
@@ -88,11 +89,11 @@
     _flags._sendSectionIndexTitleForSectionName = [delegate respondsToSelector:@selector(collectionList:sectionIndexTitleForSectionName:)];
 }
 
-- (NSMutableSet*)collectionListObservers
+- (RZObserverCollection*)collectionListObservers
 {
     if (nil == _collectionListObservers)
     {
-        _collectionListObservers = [NSMutableSet set];
+        _collectionListObservers = [[RZObserverCollection alloc] init];
     }
     
     return _collectionListObservers;
@@ -357,7 +358,7 @@
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZArrayCollectionList Will Change");
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionListWillChangeContent:self];
@@ -370,7 +371,7 @@
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZArrayCollectionList Did Change");
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionListDidChangeContent:self];
@@ -383,7 +384,7 @@
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZArrayCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
@@ -396,7 +397,7 @@
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZArrayCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
-    [self.collectionListObservers enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
