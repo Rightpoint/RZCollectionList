@@ -1,6 +1,6 @@
 //
 //  RZObserverCollection.m
-//  Rue La La
+//  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 1/2/13.
 //  Copyright (c) 2013 Raizlabs Corporation. All rights reserved.
