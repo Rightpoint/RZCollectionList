@@ -11,9 +11,10 @@
 // will serve this purpose, but for earlier versions, it is necessary to use
 // associated objects.
 //
-// For versions less than iOS 6, observers are absolutely responsible for removing themselves
-// from the observer list when being deallocated, otherwise messages may be sent to deallocated instances.
-// However, it is suggested that observers remove themselves anyway for the sake of understandable code.
+// For versions less than iOS 6, the references are non-zeroing, so observers are absolutely
+// responsible for removing themselves from the observer list when being deallocated,
+// Otherwise messages may be sent to deallocated instances. However, it is suggested that
+// observers remove themselves anyway.
 
 #import <Foundation/Foundation.h>
 

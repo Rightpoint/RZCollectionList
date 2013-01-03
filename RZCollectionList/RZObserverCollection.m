@@ -78,7 +78,6 @@
             [self.observerPointerArray removePointerAtIndex:observerIndex];
         }
 #else
-        // Need to get original instance of string in array
         NSString *addressString = [NSString stringWithFormat:@"%p", observer];
         if ([self.observerAddresses containsObject:addressString])
         {
