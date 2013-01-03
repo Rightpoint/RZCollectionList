@@ -56,6 +56,8 @@
 		FE2DA2D0165C2D080035967E /* FetchedListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */; };
 		FEAED2A61651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */; };
 		FEAED2A71651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */; };
+		FEBD236E1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */; };
+		FEBD236F1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */; };
 		FEFDE80D166929A90052AE2D /* RZCompositeCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */; };
 		FEFDE80E166929A90052AE2D /* RZCompositeCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */; };
 		FEFDE81316693F1B0052AE2D /* CompositeListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */; };
@@ -131,6 +133,8 @@
 		FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FetchedListViewController.xib; sourceTree = "<group>"; };
 		FEAED2A41651A9BB00953BA0 /* RZFilteredCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZFilteredCollectionList.h; sourceTree = "<group>"; };
 		FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZFilteredCollectionList.m; sourceTree = "<group>"; };
+		FEBD236C1695F9DC00DF7BA7 /* RZObserverCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZObserverCollection.h; sourceTree = "<group>"; };
+		FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZObserverCollection.m; sourceTree = "<group>"; };
 		FEFDE80B166929A90052AE2D /* RZCompositeCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCompositeCollectionList.h; sourceTree = "<group>"; };
 		FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCompositeCollectionList.m; sourceTree = "<group>"; };
 		FEFDE81016693F1B0052AE2D /* CompositeListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompositeListViewController.h; sourceTree = "<group>"; };
@@ -244,6 +248,8 @@
 		FE02AD1616028A160096F3EA /* RZCollectionList */ = {
 			isa = PBXGroup;
 			children = (
+				FEBD236C1695F9DC00DF7BA7 /* RZObserverCollection.h */,
+				FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */,
 				FE02AD1716028A900096F3EA /* NSFetchRequest+RZCreationHelpers.h */,
 				FE02AD1816028A900096F3EA /* NSFetchRequest+RZCreationHelpers.m */,
 				FE02AD1B16037B570096F3EA /* RZCollectionList.h */,
@@ -459,6 +465,7 @@
 				FE25125C166EDF440098AC59 /* SortedListViewController.m in Sources */,
 				FE251328167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				FE251338167A350B0098AC59 /* ArrayListCollectionViewController.m in Sources */,
+				FEBD236E1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,6 +485,7 @@
 				FEFDE80E166929A90052AE2D /* RZCompositeCollectionList.m in Sources */,
 				FE251258166EC7A00098AC59 /* RZSortedCollectionList.m in Sources */,
 				FE251329167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
+				FEBD236F1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,7 +541,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "../../**";
+				HEADER_SEARCH_PATHS = "../**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				SDKROOT = iphoneos;
 			};
@@ -554,7 +562,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "../../**";
+				HEADER_SEARCH_PATHS = "../**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
