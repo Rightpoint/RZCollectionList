@@ -36,6 +36,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [self.collectionList removeCollectionListObserver:self];
+}
+
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
 {
     [self setAllSectionAnimations:animation];

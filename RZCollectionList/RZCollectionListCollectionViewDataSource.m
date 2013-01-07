@@ -26,7 +26,7 @@
         self.collectionView = collectionView;
         
         self.animateCollectionChanges = YES;
-        [self beginObservingList];
+        [self.collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
         collectionView.dataSource = self;
@@ -35,12 +35,7 @@
     return self;
 }
 
-- (void)beginObservingList
-{
-    [self.collectionList addCollectionListObserver:self];
-}
-
-- (void)endObservingList
+- (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
 }

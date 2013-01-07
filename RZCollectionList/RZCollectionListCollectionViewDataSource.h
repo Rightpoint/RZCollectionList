@@ -29,10 +29,6 @@
 
 @property (nonatomic, assign, getter = shouldAnimateCollectionChanges) BOOL animateCollectionChanges; // Defaults to YES
 
-- (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;  // Calls beginObservingList before returning
-
-// Begin/End CollectionList Observing
-- (void)beginObservingList;     // Adds self as an observer of collectionList - Create a retain cycle
-- (void)endObservingList;       // Removes self as an observer of collectionList - Breaks the retain cycle
+- (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
 
 @end
