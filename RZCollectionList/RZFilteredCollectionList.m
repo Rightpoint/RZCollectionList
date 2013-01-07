@@ -44,6 +44,8 @@ typedef enum {
 - (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath*)indexPath;
 - (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section;
 - (NSArray*)filteredSections;
+- (NSArray*)filteredCachedSections;
+- (NSArray*)filteredObjectsForSection:(RZFilteredCollectionListSectionInfo*)sectionInfo;
 
 // Mutation helpers
 - (void)addSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
@@ -293,11 +295,32 @@ typedef enum {
     return filteredSections;
 }
 
+- (NSArray*)filteredObjectsForSection:(RZFilteredCollectionListSectionInfo*)sectionInfo
+{
+    NSUInteger sourceSectionIndex = [self.sourceList.sections indexOfObject:sectionInfo.sourceSectionInfo];
+    NSIndexSet *indexesOfSectionObjects = [self.objectIndexesForSection objectAtIndex:sourceSectionIndex];
+    NSArray *filteredObjects = [sectionInfo.sourceSectionInfo.objects objectsAtIndexes:indexesOfSectionObjects];
+    
+    return filteredObjects;
+}
+
+- (NSArray*)filteredObjects
+{
+    NSMutableArray *filteredObjects = [NSMutableArray array];
+    NSArray *filteredSections = [self filteredSections];
+    
+    [filteredSections enumerateObjectsUsingBlock:^(RZFilteredCollectionListSectionInfo *section, NSUInteger idx, BOOL *stop) {
+        [filteredObjects addObjectsFromArray:section.objects];
+    }];
+    
+    return filteredObjects;
+}
+
 #pragma mark - RZCollectionList
 
 - (NSArray*)listObjects
 {
-    return (self.predicate == nil ? [self.sourceList listObjects] : [[self.sourceList listObjects] filteredArrayUsingPredicate:self.predicate]);
+    return (self.predicate == nil ? [self.sourceList listObjects] : [self filteredObjects]);
 }
 
 - (NSArray*)sections
@@ -406,8 +429,6 @@ typedef enum {
     
     if ([self.predicate evaluateWithObject:object] || nil == self.predicate)
     {
-        [sectionIndexSet addIndex:indexPath.row];
-        
         if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
         {
             [self sendWillChangeContentNotifications];
@@ -425,6 +446,8 @@ typedef enum {
             
             [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeInsert];
         }
+        
+        [sectionIndexSet addIndex:indexPath.row];
         
         NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
         
@@ -448,19 +471,23 @@ typedef enum {
         
         NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
         
+        [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
+        
         [self sendDidChangeObjectNotification:object atIndexPath:filteredIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
     }
-    
-    [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
+    else
+    {
+        [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
+    }
     
     if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
     {
         NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
         RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
         
-        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
-        
         [self.sectionIndexes removeIndex:indexPath.section];
+        
+        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
     }
 }
 
@@ -491,27 +518,28 @@ typedef enum {
         
         NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
         
+        [sectionIndexSet removeIndex:indexPath.row];
+        
         [self sendDidChangeObjectNotification:object atIndexPath:filteredIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
     }
-    
-    [sectionIndexSet removeIndex:indexPath.row];
+    else
+    {
+        [sectionIndexSet removeIndex:indexPath.row];
+    }
     
     if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
     {
         NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
         RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
         
-        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
-        
         [self.sectionIndexes removeIndex:indexPath.section];
+        
+        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
     }
 }
 
 - (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
-    [sectionIndexSet addIndex:indexPath.row];
-    
     if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
     {
         [self sendWillChangeContentNotifications];
@@ -529,6 +557,9 @@ typedef enum {
         
         [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeInsert];
     }
+    
+    NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+    [sectionIndexSet addIndex:indexPath.row];
     
     NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
     
@@ -690,19 +721,7 @@ typedef enum {
 
 - (NSArray*)objects
 {
-    if (nil == _objects)
-    {
-        NSPredicate *predicate = self.filteredList.predicate;
-        
-        if (nil == predicate)
-        {
-            predicate = [NSPredicate predicateWithValue:YES];
-        }
-        
-        _objects = [self.sourceSectionInfo.objects filteredArrayUsingPredicate:predicate];
-    }
-    
-    return _objects;
+    return [self.filteredList filteredObjectsForSection:self];
 }
 
 @end
