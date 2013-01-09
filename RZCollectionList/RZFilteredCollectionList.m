@@ -298,8 +298,28 @@ typedef enum {
 - (NSArray*)filteredObjectsForSection:(RZFilteredCollectionListSectionInfo*)sectionInfo
 {
     NSUInteger sourceSectionIndex = [self.sourceList.sections indexOfObject:sectionInfo.sourceSectionInfo];
-    NSIndexSet *indexesOfSectionObjects = [self.objectIndexesForSection objectAtIndex:sourceSectionIndex];
-    NSArray *filteredObjects = [sectionInfo.sourceSectionInfo.objects objectsAtIndexes:indexesOfSectionObjects];
+    
+    if (sourceSectionIndex == NSNotFound)
+    {
+        sourceSectionIndex = [self.sourceList.sections indexOfObjectPassingTest:^BOOL(id<RZCollectionListSectionInfo> obj, NSUInteger idx, BOOL *stop) {
+            BOOL found = (obj.name == sectionInfo.name || [obj.name isEqualToString:sectionInfo.name]);
+            
+            if (found)
+            {
+                *stop = YES;
+            }
+            
+            return found;
+        }];
+    }
+    
+    NSArray *filteredObjects = nil;
+    
+    if (sourceSectionIndex != NSNotFound)
+    {
+        NSIndexSet *indexesOfSectionObjects = [self.objectIndexesForSection objectAtIndex:sourceSectionIndex];
+        filteredObjects = [sectionInfo.sourceSectionInfo.objects objectsAtIndexes:indexesOfSectionObjects];
+    }
     
     return filteredObjects;
 }
