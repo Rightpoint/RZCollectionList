@@ -272,9 +272,9 @@ typedef enum {
     
     NSIndexPath *sortedIndexPath = [NSIndexPath indexPathForRow:objectIndex inSection:0];
     
-    [self sendDidChangeObjectNotification:object atIndexPath:sortedIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
-    
     [self.sortedListObjects removeObjectAtIndex:objectIndex];
+    
+    [self sendDidChangeObjectNotification:object atIndexPath:sortedIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
     
 //    if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
 //    {
