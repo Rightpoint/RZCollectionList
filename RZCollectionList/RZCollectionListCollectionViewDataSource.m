@@ -8,10 +8,13 @@
 
 #import "RZCollectionListCollectionViewDataSource.h"
 
+typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
+
 @interface RZCollectionListCollectionViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
+@property (nonatomic, strong) NSMutableArray *batchUpdates;
 
 @end
 
@@ -77,25 +80,36 @@
 {
     if (self.animateCollectionChanges)
     {
-        switch(type) {
-            case RZCollectionListChangeInsert:
-                [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
-                break;
-            case RZCollectionListChangeDelete:
-                [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
-                break;
-            case RZCollectionListChangeMove:
-                [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
-                break;
-            case RZCollectionListChangeUpdate:
-            {
-                [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+        RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
+            switch(type) {
+                case RZCollectionListChangeInsert:
+                    [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
+                    break;
+                case RZCollectionListChangeDelete:
+                    [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+                    break;
+                case RZCollectionListChangeMove:
+                    [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
+                    break;
+                case RZCollectionListChangeUpdate:
+                {
+                    [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+                }
+                    break;
+                default:
+                    //uncaught type
+                    NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                    break;
             }
-                break;
-            default:
-                //uncaught type
-                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                break;
+        };
+        
+        if (nil != self.batchUpdates)
+        {
+            [self.batchUpdates addObject:[objectChangeBlock copy]];
+        }
+        else
+        {
+            objectChangeBlock();
         }
     }
 }
@@ -104,19 +118,30 @@
 {
     if (self.animateCollectionChanges)
     {
-        switch(type) {
-            case RZCollectionListChangeInsert:
-                [self.collectionView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex]];
-                break;
-                
-            case RZCollectionListChangeDelete:
-                [self.collectionView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex]];
-                break;
-                
-            default:
-                //uncaught type
-                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                break;
+        RZCollectionListCollectionViewBatchUpdateBlock sectionChangeBlock = ^{
+            switch(type) {
+                case RZCollectionListChangeInsert:
+                    [self.collectionView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex]];
+                    break;
+                    
+                case RZCollectionListChangeDelete:
+                    [self.collectionView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex]];
+                    break;
+                    
+                default:
+                    //uncaught type
+                    NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                    break;
+            }
+        };
+        
+        if (nil != self.batchUpdates)
+        {
+            [self.batchUpdates addObject:[sectionChangeBlock copy]];
+        }
+        else
+        {
+            sectionChangeBlock();
         }
     }
 }
@@ -125,7 +150,7 @@
 {
     if (self.animateCollectionChanges)
     {
-        // TODO - collect updates for batch updating.
+        self.batchUpdates = [NSMutableArray array];
     }
 }
 
@@ -133,7 +158,17 @@
 {
     if (self.animateCollectionChanges)
     {
-        // TODO - execute batch updates using performBatchUpdates:completion:
+        if (nil != self.batchUpdates)
+        {
+            [self.collectionView performBatchUpdates:^{
+                [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
+                    changeBlock();
+                }];
+            } completion:^(BOOL finished) {
+                [self.batchUpdates removeAllObjects];
+                self.batchUpdates = nil;
+            }];
+        }
     }
     else
     {
