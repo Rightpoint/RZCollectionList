@@ -10,12 +10,16 @@
 #import "RZArrayCollectionList.h"
 #import "RZFilteredCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface FilteredListViewController () <RZCollectionListTableViewDataSourceDelegate>
+#define kRZCellIdentifier @"FilteredCellIdentifier"
+
+@interface FilteredListViewController () <RZCollectionListTableViewDataSourceDelegate, RZCollectionListCollectionViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZFilteredCollectionList *filteredList;
-@property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;
+@property (nonatomic, strong) RZCollectionListTableViewDataSource *listTableViewDataSource;
+@property (nonatomic, strong) RZCollectionListCollectionViewDataSource *listCollectionViewDataSource;
 
 - (NSArray*)listItemObjects;
 
@@ -46,9 +50,27 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:@"subtitle"];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        UIBarButtonItem *searchItem = [[UIBarButtonItem alloc] initWithCustomView:self.searchBar];
+        self.navigationItem.rightBarButtonItem = searchItem;
+    }
+    
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:nil];
     self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:arrayList predicate:nil];
-    self.listDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.filteredList delegate:self];
+    
+    if (self.tableView)
+    {
+        self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.filteredList delegate:self];
+    }
+    
+    if (self.collectionView)
+    {
+        self.listCollectionViewDataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView collectionList:self.filteredList delegate:self];
+        
+        [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
+        [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
+    }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
@@ -80,14 +102,13 @@
 
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *cellIdentifier = @"FilteredCellIdentifier";
     UITableViewCell *cell = nil;
     
-    cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    cell = [tableView dequeueReusableCellWithIdentifier:kRZCellIdentifier];
     
     if (nil == cell)
     {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kRZCellIdentifier];
     }
     
     ListItemObject *item = (ListItemObject*)object;
@@ -115,6 +136,34 @@
     self.filteredList.predicate = predicate;
 }
 
+#pragma mark - RZCollectionListCollectionViewDataSourceDelegate
+
+- (UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
+    [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    ListItemObject *item = (ListItemObject*)object;
+    
+    if ([item isKindOfClass:[ListItemObject class]])
+    {
+        CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, itemSize.width, itemSize.height/2)];
+        titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+        titleLabel.text = item.itemName;
+        
+        UILabel *detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, itemSize.height/2, itemSize.width, itemSize.height/2)];
+        detailLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+        detailLabel.text = item.subtitle;
+        
+        [cell.contentView addSubview:titleLabel];
+        [cell.contentView addSubview:detailLabel];
+    }
+    
+    return cell;
+}
+
 #pragma mark - UIKeyboard Notification Callbacks
 
 - (void)keyboardWillShow:(NSNotification*)notification
@@ -123,7 +172,7 @@
     UIViewAnimationCurve keyboardAnimCurve = [[notification.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
     CGRect keyboardFrame = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     
-    self.tableViewBottomSpaceConstraint.constant = -keyboardFrame.size.height;
+    self.bottomSpaceConstraint.constant = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)? -keyboardFrame.size.width : -keyboardFrame.size.height;
     
     [UIView animateWithDuration:keyboardAnimTime delay:0 options:keyboardAnimCurve animations:^{
         [self.view layoutIfNeeded];
@@ -135,7 +184,7 @@
     NSTimeInterval keyboardAnimTime = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve keyboardAnimCurve = [[notification.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
     
-    self.tableViewBottomSpaceConstraint.constant = 0;
+    self.bottomSpaceConstraint.constant = 0;
     
     [UIView animateWithDuration:keyboardAnimTime delay:0 options:keyboardAnimCurve animations:^{
         [self.view layoutIfNeeded];

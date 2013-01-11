@@ -10,6 +10,7 @@
 
 @interface FetchedListViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *addItemBarButton;
 
 @property (strong, nonatomic) NSManagedObjectContext *moc;

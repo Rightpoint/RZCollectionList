@@ -11,6 +11,7 @@
 @interface CompositeListViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *addButton;
 
 - (IBAction)addButtonTapped:(id)sender;

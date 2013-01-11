@@ -10,6 +10,7 @@
 
 @interface ArrayListViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *addItemBarButton;
 
 - (IBAction)addNewItemTapped:(id)sender;

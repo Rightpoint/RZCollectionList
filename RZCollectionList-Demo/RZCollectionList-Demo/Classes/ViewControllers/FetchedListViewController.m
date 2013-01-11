@@ -9,13 +9,17 @@
 #import "FetchedListViewController.h"
 #import "RZFetchedCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "NSFetchRequest+RZCreationHelpers.h"
 #import "ListItem.h"
 
-@interface FetchedListViewController () <RZCollectionListTableViewDataSourceDelegate>
+#define kRZCellIdentifier @"FetchedCellIdentifier"
+
+@interface FetchedListViewController () <RZCollectionListTableViewDataSourceDelegate, RZCollectionListCollectionViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZFetchedCollectionList *fetchedList;
-@property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;
+@property (nonatomic, strong) RZCollectionListTableViewDataSource *listTableViewDataSource;
+@property (nonatomic, strong) RZCollectionListCollectionViewDataSource *listCollectionViewDataSource;
 
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) NSUInteger totalCount;
@@ -54,7 +58,18 @@
                                                                               sectionNameKeyPath:@"subtitle"
                                                                                        cacheName:nil];
     
-    self.listDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.fetchedList delegate:self];
+    if (self.tableView)
+    {
+        self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.fetchedList delegate:self];
+    }
+    
+    if (self.collectionView)
+    {
+        self.listCollectionViewDataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView collectionList:self.fetchedList delegate:self];
+        
+        [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
+        [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
+    }
     
     self.totalCount = [self.fetchedList.listObjects count];
     
@@ -154,6 +169,34 @@
         
         [self.moc save:nil];
     }
+}
+
+#pragma mark - RZCollectionListCollectionViewDataSourceDelegate
+
+- (UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
+    [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    ListItem *item = (ListItem*)object;
+    
+    if ([item isKindOfClass:[ListItem class]])
+    {
+        CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, itemSize.width, itemSize.height/2)];
+        titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+        titleLabel.text = item.itemName;
+        
+        UILabel *detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, itemSize.height/2, itemSize.width, itemSize.height/2)];
+        detailLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+        detailLabel.text = item.subtitle;
+        
+        [cell.contentView addSubview:titleLabel];
+        [cell.contentView addSubview:detailLabel];
+    }
+    
+    return cell;
 }
 
 @end

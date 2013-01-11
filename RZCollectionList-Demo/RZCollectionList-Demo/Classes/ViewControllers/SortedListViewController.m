@@ -10,12 +10,16 @@
 #import "RZArrayCollectionList.h"
 #import "RZSortedCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface SortedListViewController () <RZCollectionListTableViewDataSourceDelegate>
+#define kRZCellIdentifier @"SortedCellIdentifier"
+
+@interface SortedListViewController () <RZCollectionListTableViewDataSourceDelegate, RZCollectionListCollectionViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZSortedCollectionList *sortedList;
-@property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;
+@property (nonatomic, strong) RZCollectionListTableViewDataSource *listTableViewDataSource;
+@property (nonatomic, strong) RZCollectionListCollectionViewDataSource *listCollectionViewDataSource;
 
 - (NSArray*)listItemObjects;
 
@@ -39,10 +43,28 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        UIBarButtonItem *segmentItem = [[UIBarButtonItem alloc] initWithCustomView:self.sortSegmentControl];
+        self.navigationItem.rightBarButtonItem = segmentItem;
+    }
+    
     RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:@"subtitle"];
     NSArray *sortDescriptors = [self sortDescriptorsForSegmentValue:self.sortSegmentControl.selectedSegmentIndex];
     self.sortedList = [[RZSortedCollectionList alloc] initWithSourceList:arrayList sortDescriptors:sortDescriptors];
-    self.listDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.sortedList delegate:self];
+    
+    if (self.tableView)
+    {
+        self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.sortedList delegate:self];
+    }
+    
+    if (self.collectionView)
+    {
+        self.listCollectionViewDataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView collectionList:self.sortedList delegate:self];
+        
+        [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
+        [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -108,6 +130,34 @@
     {
         cell.textLabel.text = item.itemName;
         cell.detailTextLabel.text = item.subtitle;
+    }
+    
+    return cell;
+}
+
+#pragma mark - RZCollectionListCollectionViewDataSourceDelegate
+
+- (UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
+    [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    ListItemObject *item = (ListItemObject*)object;
+    
+    if ([item isKindOfClass:[ListItemObject class]])
+    {
+        CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, itemSize.width, itemSize.height/2)];
+        titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+        titleLabel.text = item.itemName;
+        
+        UILabel *detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, itemSize.height/2, itemSize.width, itemSize.height/2)];
+        detailLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+        detailLabel.text = item.subtitle;
+        
+        [cell.contentView addSubview:titleLabel];
+        [cell.contentView addSubview:detailLabel];
     }
     
     return cell;

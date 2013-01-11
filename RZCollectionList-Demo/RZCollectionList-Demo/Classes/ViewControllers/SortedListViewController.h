@@ -10,6 +10,7 @@
 
 @interface SortedListViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *sortSegmentControl;
 
 - (IBAction)sortSegmentControlChanged:(id)sender;

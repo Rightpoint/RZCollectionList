@@ -46,8 +46,6 @@
 		FE25125D166EDF440098AC59 /* SortedListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FE25125B166EDF440098AC59 /* SortedListViewController.xib */; };
 		FE251328167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = FE251327167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m */; };
 		FE251329167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = FE251327167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m */; };
-		FE251338167A350B0098AC59 /* ArrayListCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE251336167A35090098AC59 /* ArrayListCollectionViewController.m */; };
-		FE251339167A350B0098AC59 /* ArrayListCollectionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FE251337167A350A0098AC59 /* ArrayListCollectionViewController.xib */; };
 		FE2DA2C0165BF12E0035967E /* FilteredListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE2DA2BE165BF12E0035967E /* FilteredListViewController.m */; };
 		FE2DA2C1165BF12E0035967E /* FilteredListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FE2DA2BF165BF12E0035967E /* FilteredListViewController.xib */; };
 		FE2DA2CA165C24E60035967E /* ArrayListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE2DA2C8165C24E60035967E /* ArrayListViewController.m */; };
@@ -58,6 +56,11 @@
 		FEAED2A71651A9BB00953BA0 /* RZFilteredCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */; };
 		FEBD236E1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */; };
 		FEBD236F1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */; };
+		FEBD245F16A06E9300DF7BA7 /* ArrayListViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEBD245E16A06E9200DF7BA7 /* ArrayListViewController~ipad.xib */; };
+		FEBD246916A07A6F00DF7BA7 /* SortedListViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEBD246516A07A6700DF7BA7 /* SortedListViewController~ipad.xib */; };
+		FEBD246A16A07A6F00DF7BA7 /* FilteredListViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEBD246616A07A6900DF7BA7 /* FilteredListViewController~ipad.xib */; };
+		FEBD246B16A07A6F00DF7BA7 /* CompositeListViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEBD246716A07A6C00DF7BA7 /* CompositeListViewController~ipad.xib */; };
+		FEBD246C16A07A6F00DF7BA7 /* FetchedListViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEBD246816A07A6E00DF7BA7 /* FetchedListViewController~ipad.xib */; };
 		FEFDE80D166929A90052AE2D /* RZCompositeCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */; };
 		FEFDE80E166929A90052AE2D /* RZCompositeCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */; };
 		FEFDE81316693F1B0052AE2D /* CompositeListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */; };
@@ -119,9 +122,6 @@
 		FE25125B166EDF440098AC59 /* SortedListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SortedListViewController.xib; sourceTree = "<group>"; };
 		FE251326167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListCollectionViewDataSource.h; sourceTree = "<group>"; };
 		FE251327167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListCollectionViewDataSource.m; sourceTree = "<group>"; };
-		FE251335167A35090098AC59 /* ArrayListCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayListCollectionViewController.h; sourceTree = "<group>"; };
-		FE251336167A35090098AC59 /* ArrayListCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArrayListCollectionViewController.m; sourceTree = "<group>"; };
-		FE251337167A350A0098AC59 /* ArrayListCollectionViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArrayListCollectionViewController.xib; sourceTree = "<group>"; };
 		FE2DA2BD165BF12E0035967E /* FilteredListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilteredListViewController.h; sourceTree = "<group>"; };
 		FE2DA2BE165BF12E0035967E /* FilteredListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilteredListViewController.m; sourceTree = "<group>"; };
 		FE2DA2BF165BF12E0035967E /* FilteredListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FilteredListViewController.xib; sourceTree = "<group>"; };
@@ -135,6 +135,11 @@
 		FEAED2A51651A9BB00953BA0 /* RZFilteredCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZFilteredCollectionList.m; sourceTree = "<group>"; };
 		FEBD236C1695F9DC00DF7BA7 /* RZObserverCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZObserverCollection.h; sourceTree = "<group>"; };
 		FEBD236D1695F9DC00DF7BA7 /* RZObserverCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZObserverCollection.m; sourceTree = "<group>"; };
+		FEBD245E16A06E9200DF7BA7 /* ArrayListViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ArrayListViewController~ipad.xib"; sourceTree = "<group>"; };
+		FEBD246516A07A6700DF7BA7 /* SortedListViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "SortedListViewController~ipad.xib"; sourceTree = "<group>"; };
+		FEBD246616A07A6900DF7BA7 /* FilteredListViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "FilteredListViewController~ipad.xib"; sourceTree = "<group>"; };
+		FEBD246716A07A6C00DF7BA7 /* CompositeListViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "CompositeListViewController~ipad.xib"; sourceTree = "<group>"; };
+		FEBD246816A07A6E00DF7BA7 /* FetchedListViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "FetchedListViewController~ipad.xib"; sourceTree = "<group>"; };
 		FEFDE80B166929A90052AE2D /* RZCompositeCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCompositeCollectionList.h; sourceTree = "<group>"; };
 		FEFDE80C166929A90052AE2D /* RZCompositeCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCompositeCollectionList.m; sourceTree = "<group>"; };
 		FEFDE81016693F1B0052AE2D /* CompositeListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompositeListViewController.h; sourceTree = "<group>"; };
@@ -300,21 +305,23 @@
 				FE2DA2BD165BF12E0035967E /* FilteredListViewController.h */,
 				FE2DA2BE165BF12E0035967E /* FilteredListViewController.m */,
 				FE2DA2BF165BF12E0035967E /* FilteredListViewController.xib */,
+				FEBD246616A07A6900DF7BA7 /* FilteredListViewController~ipad.xib */,
 				FE2DA2C7165C24E60035967E /* ArrayListViewController.h */,
 				FE2DA2C8165C24E60035967E /* ArrayListViewController.m */,
 				FE2DA2C9165C24E60035967E /* ArrayListViewController.xib */,
+				FEBD245E16A06E9200DF7BA7 /* ArrayListViewController~ipad.xib */,
 				FE2DA2CC165C2D070035967E /* FetchedListViewController.h */,
 				FE2DA2CD165C2D070035967E /* FetchedListViewController.m */,
 				FE2DA2CE165C2D080035967E /* FetchedListViewController.xib */,
+				FEBD246816A07A6E00DF7BA7 /* FetchedListViewController~ipad.xib */,
 				FEFDE81016693F1B0052AE2D /* CompositeListViewController.h */,
 				FEFDE81116693F1B0052AE2D /* CompositeListViewController.m */,
 				FEFDE81216693F1B0052AE2D /* CompositeListViewController.xib */,
+				FEBD246716A07A6C00DF7BA7 /* CompositeListViewController~ipad.xib */,
 				FE251259166EDF440098AC59 /* SortedListViewController.h */,
 				FE25125A166EDF440098AC59 /* SortedListViewController.m */,
 				FE25125B166EDF440098AC59 /* SortedListViewController.xib */,
-				FE251335167A35090098AC59 /* ArrayListCollectionViewController.h */,
-				FE251336167A35090098AC59 /* ArrayListCollectionViewController.m */,
-				FE251337167A350A0098AC59 /* ArrayListCollectionViewController.xib */,
+				FEBD246516A07A6700DF7BA7 /* SortedListViewController~ipad.xib */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -409,7 +416,11 @@
 				FE2DA2D0165C2D080035967E /* FetchedListViewController.xib in Resources */,
 				FEFDE81416693F1B0052AE2D /* CompositeListViewController.xib in Resources */,
 				FE25125D166EDF440098AC59 /* SortedListViewController.xib in Resources */,
-				FE251339167A350B0098AC59 /* ArrayListCollectionViewController.xib in Resources */,
+				FEBD245F16A06E9300DF7BA7 /* ArrayListViewController~ipad.xib in Resources */,
+				FEBD246916A07A6F00DF7BA7 /* SortedListViewController~ipad.xib in Resources */,
+				FEBD246A16A07A6F00DF7BA7 /* FilteredListViewController~ipad.xib in Resources */,
+				FEBD246B16A07A6F00DF7BA7 /* CompositeListViewController~ipad.xib in Resources */,
+				FEBD246C16A07A6F00DF7BA7 /* FetchedListViewController~ipad.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,7 +475,6 @@
 				FE251257166EC7A00098AC59 /* RZSortedCollectionList.m in Sources */,
 				FE25125C166EDF440098AC59 /* SortedListViewController.m in Sources */,
 				FE251328167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
-				FE251338167A350B0098AC59 /* ArrayListCollectionViewController.m in Sources */,
 				FEBD236E1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -576,7 +586,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-Demo/RZCollectionList-Demo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -587,7 +599,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-Demo/RZCollectionList-Demo-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

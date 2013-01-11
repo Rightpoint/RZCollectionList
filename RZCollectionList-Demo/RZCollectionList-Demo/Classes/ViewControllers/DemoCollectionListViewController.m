@@ -14,7 +14,6 @@
 #import "FilteredListViewController.h"
 #import "SortedListViewController.h"
 #import "CompositeListViewController.h"
-#import "ArrayListCollectionViewController.h"
 
 
 NSString * const kArrayCollectionList =  @"ArrayCollectionList";
@@ -66,12 +65,14 @@ NSString * const kArrayListCollectionView =  @"ArrayList - Collection View";
 {
     NSString *demoClass = [self.dataSource.collectionList objectAtIndexPath:indexPath];
     
+    UIViewController *listController = nil;
+    
     if (kArrayCollectionList == demoClass)
     {
         ArrayListViewController *arrayVC = [[ArrayListViewController alloc] init];
         arrayVC.title = @"Array List";
         
-        [self.navigationController pushViewController:arrayVC animated:YES];
+        listController = arrayVC;
     }
     else if (kFetchedCollectionListManual == demoClass)
     {
@@ -79,7 +80,7 @@ NSString * const kArrayListCollectionView =  @"ArrayList - Collection View";
         fetchVC.title = @"Fetched List Manual";
         fetchVC.moc = self.moc;
         
-        [self.navigationController pushViewController:fetchVC animated:YES];
+        listController = fetchVC;
     }
     else if (kFetchedCollectionListAuto == demoClass)
     {
@@ -88,38 +89,47 @@ NSString * const kArrayListCollectionView =  @"ArrayList - Collection View";
         fetchVC.moc = self.moc;
         fetchVC.autoAddRemove = YES;
         
-        [self.navigationController pushViewController:fetchVC animated:YES];
+        listController = fetchVC;
     }
     else if (kFilteredCollectionList == demoClass)
     {
         FilteredListViewController *filteredVC = [[FilteredListViewController alloc] init];
         filteredVC.title = @"Filtered List";
         
-        [self.navigationController pushViewController:filteredVC animated:YES];
+        listController = filteredVC;
     }
     else if (kSortedCollectionList == demoClass)
     {
         SortedListViewController *sortedVC = [[SortedListViewController alloc] init];
         sortedVC.title = @"Sorted List";
         
-        [self.navigationController pushViewController:sortedVC animated:YES];
+        listController = sortedVC;
     }
     else if (kCompositeCollectionList == demoClass)
     {
         CompositeListViewController *compositeVC = [[CompositeListViewController alloc] init];
         compositeVC.title = @"Composite List";
         
-        [self.navigationController pushViewController:compositeVC animated:YES];
+        listController = compositeVC;
     }
     else if (kArrayListCollectionView == demoClass)
     {
-        ArrayListCollectionViewController *arrayCollectionVC = [[ArrayListCollectionViewController alloc] init];
+        ArrayListViewController *arrayCollectionVC = [[ArrayListViewController alloc] initWithNibName:@"ArrayListViewController~ipad" bundle:nil];
         arrayCollectionVC.title = @"Array List Collection View";
         
-        [self.navigationController pushViewController:arrayCollectionVC animated:YES];
+        listController = arrayCollectionVC;
     }
     
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        UINavigationController *navController = (UINavigationController*)[self.splitViewController.viewControllers lastObject];
+        [navController setViewControllers:@[listController] animated:NO];
+    }
+    else
+    {
+        [self.navigationController pushViewController:listController animated:YES];
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
 }
 
 #pragma mark - RZCollectionListDataSourceDelegate

@@ -20,7 +20,18 @@
     DemoCollectionListViewController *demoVC = [[DemoCollectionListViewController alloc] initWithNibName:nil bundle:nil];
     demoVC.moc = self.managedObjectContext;
     
-    UINavigationController *rootVC = [[UINavigationController alloc] initWithRootViewController:demoVC];
+    UINavigationController *tableNav = [[UINavigationController alloc] initWithRootViewController:demoVC];
+    
+    UIViewController *rootVC = tableNav;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        UINavigationController *detailNav = [[UINavigationController alloc] initWithRootViewController:[[UIViewController alloc] init]];
+        UISplitViewController *splitVC = [[UISplitViewController alloc] init];
+        splitVC.viewControllers = @[tableNav, detailNav];
+        
+        rootVC = splitVC;
+    }
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.

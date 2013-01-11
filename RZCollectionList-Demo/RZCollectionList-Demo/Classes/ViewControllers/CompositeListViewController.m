@@ -10,12 +10,16 @@
 #import "RZArrayCollectionList.h"
 #import "RZCompositeCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface CompositeListViewController () <RZCollectionListTableViewDataSourceDelegate>
+#define kRZCellIdentifier @"CompositeCellIdentifier"
+
+@interface CompositeListViewController () <RZCollectionListTableViewDataSourceDelegate, RZCollectionListCollectionViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZArrayCollectionList *dynamicList;
-@property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;
+@property (nonatomic, strong) RZCollectionListTableViewDataSource *listTableViewDataSource;
+@property (nonatomic, strong) RZCollectionListCollectionViewDataSource *listCollectionViewDataSource;
 
 @end
 
@@ -41,8 +45,20 @@
     self.dynamicList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:@"subtitle"];
     RZCompositeCollectionList *compositeList = [[RZCompositeCollectionList alloc] initWithSourceLists:@[staticList1, self.dynamicList, staticList2]];
     
-    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:compositeList delegate:self];
-    self.dataSource.showSectionHeaders = YES;
+    
+    if (self.tableView)
+    {
+        self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:compositeList delegate:self];
+        self.listTableViewDataSource.showSectionHeaders = YES;
+    }
+    
+    if (self.collectionView)
+    {
+        self.listCollectionViewDataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView collectionList:compositeList delegate:self];
+        
+        [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
+        [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -109,6 +125,40 @@
             [self.dynamicList removeSectionAtIndex:0];
         }
     }
+}
+
+#pragma mark - RZCollectionListCollectionViewDataSourceDelegate
+
+- (UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
+    [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    ListItemObject *item = (ListItemObject*)object;
+    
+    CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;
+    
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, itemSize.width, itemSize.height/2)];
+    titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    
+    UILabel *detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, itemSize.height/2, itemSize.width, itemSize.height/2)];
+    detailLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+    
+    [cell.contentView addSubview:titleLabel];
+    [cell.contentView addSubview:detailLabel];
+    
+    if ([object isKindOfClass:[NSString class]])
+    {
+        titleLabel.text = object;
+        detailLabel.text = @"Static";
+    }
+    else if ([item isKindOfClass:[ListItemObject class]])
+    {
+        titleLabel.text = item.itemName;
+        detailLabel.text = item.subtitle;
+    }
+    
+    return cell;
 }
 
 @end

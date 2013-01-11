@@ -9,12 +9,16 @@
 #import "ArrayListViewController.h"
 #import "RZArrayCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "ListItemObject.h"
 
-@interface ArrayListViewController () <RZCollectionListTableViewDataSourceDelegate>
+#define kRZCellIdentifier @"ArrayCellIdentifier"
+
+@interface ArrayListViewController () <RZCollectionListTableViewDataSourceDelegate, RZCollectionListCollectionViewDataSourceDelegate>
 
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
-@property (nonatomic, strong) RZCollectionListTableViewDataSource *listDataSource;
+@property (nonatomic, strong) RZCollectionListTableViewDataSource *listTableViewDataSource;
+@property (nonatomic, strong) RZCollectionListCollectionViewDataSource *listCollectionViewDataSource;
 
 @end
 
@@ -36,7 +40,19 @@
     self.navigationItem.rightBarButtonItem = self.addItemBarButton;
     
     self.arrayList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:nil];
-    self.listDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.arrayList delegate:self];
+    
+    if (self.tableView)
+    {
+        self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.arrayList delegate:self];
+    }
+    
+    if (self.collectionView)
+    {
+        self.listCollectionViewDataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView collectionList:self.arrayList delegate:self];
+        
+        [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
+        [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -52,18 +68,17 @@
     [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %u", totalCount] subtitle:nil] toSection:0];
 }
 
-#pragma mark - RZCollectionListDataSourceDelegate
+#pragma mark - RZCollectionListTableViewDataSourceDelegate
 
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *cellIdentifier = @"ArrayCellIdentifier";
     UITableViewCell *cell = nil;
     
-    cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    cell = [tableView dequeueReusableCellWithIdentifier:kRZCellIdentifier];
     
     if (nil == cell)
     {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kRZCellIdentifier];
     }
     
     ListItemObject *item = (ListItemObject*)object;
@@ -83,6 +98,34 @@
     {
         [self.arrayList removeObjectAtIndexPath:indexPath];
     }
+}
+
+#pragma mark - RZCollectionListCollectionViewDataSourceDelegate
+
+- (UICollectionViewCell*)collectionView:(UICollectionView *)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath
+{
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
+    [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    ListItemObject *item = (ListItemObject*)object;
+    
+    if ([item isKindOfClass:[ListItemObject class]])
+    {
+        CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, itemSize.width, itemSize.height/2)];
+        titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+        titleLabel.text = item.itemName;
+        
+        UILabel *detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, itemSize.height/2, itemSize.width, itemSize.height/2)];
+        detailLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+        detailLabel.text = item.subtitle;
+        
+        [cell.contentView addSubview:titleLabel];
+        [cell.contentView addSubview:detailLabel];
+    }
+    
+    return cell;
 }
 
 @end
