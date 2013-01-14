@@ -29,6 +29,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         self.collectionView = collectionView;
         
         self.animateCollectionChanges = YES;
+        self.useBatchUpdating = YES;
         [self.collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
@@ -103,7 +104,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
             }
         };
         
-        if (nil != self.batchUpdates)
+        if (self.useBatchUpdating && nil != self.batchUpdates)
         {
             [self.batchUpdates addObject:[objectChangeBlock copy]];
         }
@@ -135,7 +136,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
             }
         };
         
-        if (nil != self.batchUpdates)
+        if (self.useBatchUpdating && nil != self.batchUpdates)
         {
             [self.batchUpdates addObject:[sectionChangeBlock copy]];
         }
@@ -150,7 +151,10 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
-        self.batchUpdates = [NSMutableArray array];
+        if (self.useBatchUpdating)
+        {
+            self.batchUpdates = [NSMutableArray array];
+        }
     }
 }
 
@@ -158,16 +162,19 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
-        if (nil != self.batchUpdates)
+        if (self.useBatchUpdating)
         {
-            [self.collectionView performBatchUpdates:^{
-                [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
-                    changeBlock();
+            if (nil != self.batchUpdates)
+            {
+                [self.collectionView performBatchUpdates:^{
+                    [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
+                        changeBlock();
+                    }];
+                } completion:^(BOOL finished) {
+                    [self.batchUpdates removeAllObjects];
+                    self.batchUpdates = nil;
                 }];
-            } completion:^(BOOL finished) {
-                [self.batchUpdates removeAllObjects];
-                self.batchUpdates = nil;
-            }];
+            }
         }
     }
     else
