@@ -127,7 +127,10 @@
 {
     NSIndexPath *indexPath = [self indexPathForObject:object];
     
-    [self removeObjectAtIndexPath:indexPath];
+    if (indexPath)
+    {
+        [self removeObjectAtIndexPath:indexPath];
+    }
 }
 
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath
@@ -558,7 +561,14 @@
         return inRange;
     }];
     
-    return [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+    NSIndexPath *indexPathForObject = nil;
+    
+    if (sectionIndex != NSNotFound)
+    {
+        indexPathForObject = [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+    }
+    
+    return indexPathForObject;
 }
 
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName
