@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ArrayListViewController : UIViewController
+@interface ArrayListViewController : UIViewController <UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *addItemBarButton;

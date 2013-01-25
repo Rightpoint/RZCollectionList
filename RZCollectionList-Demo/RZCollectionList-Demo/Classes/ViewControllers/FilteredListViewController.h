@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface FilteredListViewController : UIViewController <UISearchBarDelegate>
+@interface FilteredListViewController : UIViewController <UISearchBarDelegate, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;

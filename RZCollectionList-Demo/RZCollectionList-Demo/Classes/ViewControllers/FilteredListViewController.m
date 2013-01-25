@@ -57,11 +57,14 @@
     }
     
     RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:nil];
+    arrayList.objectUpdateNotifications = @[kRZCollectionListItemUpdateNotificationName];
+    
     self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:arrayList predicate:nil];
     
     if (self.tableView)
     {
         self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.filteredList delegate:self];
+        self.tableView.delegate = self;
     }
     
     if (self.collectionView)
@@ -74,7 +77,6 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    
 }
 
 - (NSArray*)listItemObjects
@@ -96,6 +98,26 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    ListItemObject *item = [self.filteredList objectAtIndexPath:indexPath];
+    
+    if ([item.itemName isEqualToString:@"Item Selected"])
+    {
+        item.itemName = @"Item Unselected";
+    }
+    else
+    {
+        item.itemName = @"Item Selected";
+    }
+    
+    [item commitChanges];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - RZCollectionListDataSourceDelegate

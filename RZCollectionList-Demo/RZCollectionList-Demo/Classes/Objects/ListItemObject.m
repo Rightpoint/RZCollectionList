@@ -26,4 +26,9 @@
     return self;
 }
 
+- (void)commitChanges
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kRZCollectionListItemUpdateNotificationName object:self];
+}
+
 @end

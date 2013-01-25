@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define kRZCollectionListItemUpdateNotificationName @"RZCollectionListItemUpdateNotificationName"
+
 @interface ListItemObject : NSObject
 
 @property (nonatomic, strong) NSString * itemName;
@@ -16,5 +18,7 @@
 + (id)listItemObjectWithName:(NSString*)itemName subtitle:(NSString*)subtitle;
 
 - (id)initWithItemName:(NSString*)itemName subtitle:(NSString*)subtitle;
+
+- (void)commitChanges;
 
 @end

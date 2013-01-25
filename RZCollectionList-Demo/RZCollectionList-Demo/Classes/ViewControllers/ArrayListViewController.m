@@ -40,10 +40,12 @@
     self.navigationItem.rightBarButtonItem = self.addItemBarButton;
     
     self.arrayList = [[RZArrayCollectionList alloc] initWithArray:@[] sectionNameKeyPath:nil];
+    self.arrayList.objectUpdateNotifications = @[kRZCollectionListItemUpdateNotificationName];
     
     if (self.tableView)
     {
         self.listTableViewDataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView collectionList:self.arrayList delegate:self];
+        self.tableView.delegate = self;
     }
     
     if (self.collectionView)
@@ -66,6 +68,26 @@
     static NSUInteger totalCount = 0;
     ++totalCount;
     [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %u", totalCount] subtitle:nil] toSection:0];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    ListItemObject *item = [self.arrayList objectAtIndexPath:indexPath];
+    
+    if ([item.itemName isEqualToString:@"Item Selected"])
+    {
+        item.itemName = @"Item Unselected";
+    }
+    else
+    {
+        item.itemName = @"Item Selected";
+    }
+    
+    [item commitChanges];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - RZCollectionListTableViewDataSourceDelegate
