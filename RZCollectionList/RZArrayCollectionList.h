@@ -19,6 +19,8 @@
 
 @interface RZArrayCollectionList : NSObject <RZCollectionList>
 
+@property (nonatomic, copy) NSArray *objectUpdateNotifications;
+
 - (id)initWithArray:(NSArray*)array sections:(NSArray*)sections;
 - (id)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
 

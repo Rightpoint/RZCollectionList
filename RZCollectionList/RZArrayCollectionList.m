@@ -52,6 +52,8 @@
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
+- (void)objectUpdateNotificationReceived:(NSNotification*)notification;
+
 @end
 
 @implementation RZArrayCollectionList
@@ -78,6 +80,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)setDelegate:(id<RZCollectionListDelegate>)delegate
 {
     if (delegate == _delegate)
@@ -98,6 +105,23 @@
     }
     
     return _collectionListObservers;
+}
+
+- (void)setObjectUpdateNotifications:(NSArray *)objectUpdateNotifications
+{
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter removeObserver:self];
+    
+    _objectUpdateNotifications = [objectUpdateNotifications copy];
+    
+    if (nil != _objectUpdateNotifications && _objectUpdateNotifications.count > 0)
+    {
+        [self.objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [_objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                [notificationCenter addObserver:self selector:@selector(objectUpdateNotificationReceived:) name:name object:obj];
+            }];
+        }];
+    }
 }
 
 #pragma mark - Mutators
@@ -249,6 +273,15 @@
     {
         [self.objects insertObject:object atIndex:index];
         
+        if (nil != self.objectUpdateNotifications)
+        {
+            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+            
+            [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                [notificationCenter addObserver:self selector:@selector(objectUpdateNotificationReceived:) name:name object:object];
+            }];
+        }
+        
         [self updateSection:sectionInfo withObjectCountChange:1];
         
         if (shouldSendNotifications)
@@ -272,6 +305,15 @@
     
     if (object)
     {
+        if (nil != self.objectUpdateNotifications)
+        {
+            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+            
+            [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                [notificationCenter removeObserver:self name:name object:object];
+            }];
+        }
+        
         [self.objects removeObjectAtIndex:index];
         
         [self updateSection:sectionInfo withObjectCountChange:-1];
@@ -292,6 +334,18 @@
         
         if (index < self.objects.count)
         {
+            id oldObject = [self.objects objectAtIndex:index];
+            
+            if (nil != self.objectUpdateNotifications && oldObject != object)
+            {
+                NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+                
+                [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                    [notificationCenter removeObserver:self name:name object:oldObject];
+                    [notificationCenter addObserver:self selector:@selector(objectUpdateNotificationReceived:) name:name object:object];
+                }];
+            }
+            
             [self.objects replaceObjectAtIndex:index withObject:object];
             
             if (shouldSendNotifications)
@@ -363,6 +417,16 @@
         [self updateSection:sectionInfo withObjectCountChange:-objectsToRemove.count];
         
         [objectsToRemove enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            if (nil != self.objectUpdateNotifications)
+            {
+                NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+                
+                [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                    [notificationCenter removeObserver:self name:name object:obj];
+                }];
+            }
+            
             if (shouldSendNotifications)
             {
                 [self sendDidChangeObjectNotification:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:sectionInfo.indexOffset] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
@@ -370,12 +434,15 @@
         }];
     }
     
-    [self.sectionsInfo removeObjectAtIndex:index];
-    sectionInfo.arrayList = nil;
-    
-    if (shouldSendNotifications)
+    if (index < self.sectionsInfo.count)
     {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:index forChangeType:RZCollectionListChangeDelete];
+        [self.sectionsInfo removeObjectAtIndex:index];
+        sectionInfo.arrayList = nil;
+        
+        if (shouldSendNotifications)
+        {
+            [self sendDidChangeSectionNotification:sectionInfo atIndex:index forChangeType:RZCollectionListChangeDelete];
+        }
     }
 }
 
@@ -431,6 +498,30 @@
             [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
         }
     }];
+}
+
+#pragma mark - ObjectUpdateObservation
+
+- (void)objectUpdateNotificationReceived:(NSNotification*)notification
+{
+    id object = notification.object;
+    
+    NSIndexPath *indexPath = [self indexPathForObject:object];
+    
+    if (nil != object && nil != indexPath)
+    {
+        if (!self.batchUpdating)
+        {
+            [self sendWillChangeContentNotifications];
+        }
+        
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        
+        if (!self.batchUpdating)
+        {
+            [self sendDidChangeContentNotifications];
+        }
+    }
 }
 
 #pragma mark - SectionInfo Helpers
