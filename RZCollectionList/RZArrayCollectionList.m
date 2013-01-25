@@ -36,6 +36,7 @@
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
 
+- (RZArrayCollectionListSectionInfo*)sectionInfoForSection:(NSUInteger)section;
 - (void)updateSection:(RZArrayCollectionListSectionInfo*)section withObjectCountChange:(NSInteger)countChange;
 
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications;
@@ -103,8 +104,7 @@
 
 - (void)addObject:(id)object toSection:(NSUInteger)section
 {
-    RZArrayCollectionListSectionInfo *sectionInfo = [self.sectionsInfo objectAtIndex:section];
-    
+    RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:section];
     [self insertObject:object atIndexPath:[NSIndexPath indexPathForRow:sectionInfo.numberOfObjects inSection:section]];
 }
 
@@ -242,92 +242,117 @@
 
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications
 {
-    RZArrayCollectionListSectionInfo *sectionInfo = [self.sectionsInfo objectAtIndex:indexPath.section];
+    RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
     NSUInteger index = sectionInfo.indexOffset + indexPath.row;
     
-    [self.objects insertObject:object atIndex:index];
-    
-    [self updateSection:sectionInfo withObjectCountChange:1];
-    
-    if (shouldSendNotifications)
+    if (nil != object && nil != indexPath && index <= self.objects.count)
     {
-        [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:indexPath];
+        [self.objects insertObject:object atIndex:index];
+        
+        [self updateSection:sectionInfo withObjectCountChange:1];
+        
+        if (shouldSendNotifications)
+        {
+            [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:indexPath];
+        }
     }
 }
 
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications
 {
-    RZArrayCollectionListSectionInfo *sectionInfo = [self.sectionsInfo objectAtIndex:indexPath.section];
+    RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
     NSUInteger index = sectionInfo.indexOffset + indexPath.row;
     
-    id object = [self.objects objectAtIndex:index];
+    id object = nil;
     
-    [self.objects removeObjectAtIndex:index];
-    
-    [self updateSection:sectionInfo withObjectCountChange:-1];
-    
-    if (shouldSendNotifications)
+    if (index < self.objects.count)
     {
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+        object = [self.objects objectAtIndex:index];
+    }
+    
+    if (object)
+    {
+        [self.objects removeObjectAtIndex:index];
+        
+        [self updateSection:sectionInfo withObjectCountChange:-1];
+        
+        if (shouldSendNotifications)
+        {
+            [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+        }
     }
 }
 
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object sendNotifications:(BOOL)shouldSendNotifications
 {
-    RZArrayCollectionListSectionInfo *sectionInfo = [self.sectionsInfo objectAtIndex:indexPath.section];
-    NSUInteger index = sectionInfo.indexOffset + indexPath.row;
-    
-    [self.objects replaceObjectAtIndex:index withObject:object];
-    
-    if (shouldSendNotifications)
+    if (nil != indexPath && nil != object)
     {
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
+        NSUInteger index = sectionInfo.indexOffset + indexPath.row;
+        
+        if (index < self.objects.count)
+        {
+            [self.objects replaceObjectAtIndex:index withObject:object];
+            
+            if (shouldSendNotifications)
+            {
+                [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+            }
+        }
     }
 }
 
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath sendNotifications:(BOOL)shouldSendNotifications
 {
-    NSIndexPath *destIndexPath = destinationIndexPath;
-    NSIndexPath *removeIndexPath = sourceIndexPath;
-    
-    if (sourceIndexPath.section == destinationIndexPath.section)
+    if (nil != sourceIndexPath && nil != destinationIndexPath)
     {
-        if (destinationIndexPath.row < sourceIndexPath.row)
+        NSIndexPath *destIndexPath = destinationIndexPath;
+        NSIndexPath *removeIndexPath = sourceIndexPath;
+        
+        if (sourceIndexPath.section == destinationIndexPath.section)
         {
-            removeIndexPath = [NSIndexPath indexPathForRow:(removeIndexPath.row + 1) inSection:removeIndexPath.section];
+            if (destinationIndexPath.row < sourceIndexPath.row)
+            {
+                removeIndexPath = [NSIndexPath indexPathForRow:(removeIndexPath.row + 1) inSection:removeIndexPath.section];
+            }
+            else
+            {
+                destIndexPath = [NSIndexPath indexPathForRow:(destIndexPath.row + 1) inSection:destIndexPath.section];
+            }
         }
-        else
+        
+        id object = [self objectAtIndexPath:sourceIndexPath];
+        
+        if (nil != object)
         {
-            destIndexPath = [NSIndexPath indexPathForRow:(destIndexPath.row + 1) inSection:destIndexPath.section];
+            [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
+            [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
+            
+            if (shouldSendNotifications)
+            {
+                [self sendDidChangeObjectNotification:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];
+            }
         }
     }
-    
-    id object = [self objectAtIndexPath:sourceIndexPath];
-    
-    [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
-    [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
-    
-    if (shouldSendNotifications)
-    {
-        [self sendDidChangeObjectNotification:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];
-    }
-    
 }
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications
 {
-    [self.sectionsInfo insertObject:section atIndex:index];
-    section.arrayList = self;
-    
-    if (shouldSendNotifications)
+    if (nil != section && index <= self.sectionsInfo.count)
     {
-        [self sendDidChangeSectionNotification:section atIndex:index forChangeType:RZCollectionListChangeInsert];
+        [self.sectionsInfo insertObject:section atIndex:index];
+        section.arrayList = self;
+        
+        if (shouldSendNotifications)
+        {
+            [self sendDidChangeSectionNotification:section atIndex:index forChangeType:RZCollectionListChangeInsert];
+        }
     }
 }
 
 - (void)removeSectionAtIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications
 {
-    RZArrayCollectionListSectionInfo *sectionInfo = [self.sectionsInfo objectAtIndex:index];
+    RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:index];
     
     if (sectionInfo.numberOfObjects > 0)
     {
@@ -477,6 +502,20 @@
     return sections;
 }
 
+- (RZArrayCollectionListSectionInfo*)sectionInfoForSection:(NSUInteger)section
+{
+    if (self.sectionsInfo.count == 0)
+    {
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %u not found. No sections exist.", section] userInfo:nil];
+    }
+    else if (section >= self.sectionsInfo.count)
+    {
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %u not found. Outside valid section index range 0..%u", section, self.sectionsInfo.count-1] userInfo:nil];
+    }
+    
+    return [self.sectionsInfo objectAtIndex:section];
+}
+
 - (void)updateSection:(RZArrayCollectionListSectionInfo*)section withObjectCountChange:(NSInteger)countChange
 {
     section.numberOfObjects += countChange;
@@ -529,7 +568,7 @@
 
 - (id)objectAtIndexPath:(NSIndexPath*)indexPath
 {
-    RZArrayCollectionListSectionInfo *section = [self.sectionsInfo objectAtIndex:indexPath.section];
+    RZArrayCollectionListSectionInfo *section = [self sectionInfoForSection:indexPath.section];
     
     NSUInteger index = section.indexOffset + indexPath.row;
     
@@ -594,7 +633,7 @@
 {
     if (sectionIndex < [self.sectionsInfo count])
     {
-        RZArrayCollectionListSectionInfo *section = [self.sectionsInfo objectAtIndex:sectionIndex];
+        RZArrayCollectionListSectionInfo *section = [self sectionInfoForSection:sectionIndex];
         
         if ([title isEqualToString:section.indexTitle])
         {
