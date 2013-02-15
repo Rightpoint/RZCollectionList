@@ -66,7 +66,11 @@
 {
     if ((self = [super init]))
     {
-        self.objects = [array mutableCopy];
+        if (array) {
+            self.objects = [array mutableCopy];
+        } else {
+            self.objects = [[NSArray array] mutableCopy];
+        }
         self.sectionsInfo = [sections mutableCopy];
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
