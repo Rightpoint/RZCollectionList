@@ -206,6 +206,15 @@
     }
 }
 
+- (void)removeAllObjects
+{
+    // avoid mutation during enumeration
+    NSArray *objects = [[self objects] copy];
+    [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self removeObject:obj];
+    }];
+}
+
 - (void)addSection:(RZArrayCollectionListSectionInfo*)section
 {
     [self insertSection:section atIndex:self.sectionsInfo.count];
