@@ -407,6 +407,11 @@
 {
     if (nil != section && index <= self.sectionsInfo.count)
     {
+        if (index > 0){
+            RZArrayCollectionListSectionInfo *prevSection = [self.sectionsInfo objectAtIndex:index-1];
+            section.indexOffset = prevSection.indexOffset + prevSection.numberOfObjects;
+        }
+        
         [self.sectionsInfo insertObject:section atIndex:index];
         section.arrayList = self;
         
