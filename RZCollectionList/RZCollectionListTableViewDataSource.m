@@ -31,6 +31,9 @@
         collectionList.delegate = self;
         
         tableView.dataSource = self;
+        
+        // reload data here to prep for collection list observations
+        [tableView reloadData];
     }
     
     return self;
