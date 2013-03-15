@@ -447,7 +447,7 @@
             
             if (shouldSendNotifications)
             {
-                [self sendDidChangeObjectNotification:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:sectionInfo.indexOffset] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
+                [self sendDidChangeObjectNotification:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:index] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
             }
         }];
     }
