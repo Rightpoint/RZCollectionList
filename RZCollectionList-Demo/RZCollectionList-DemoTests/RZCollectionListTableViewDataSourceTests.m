@@ -10,8 +10,16 @@
 #import "RZArrayCollectionList.h"
 #import "RZFilteredCollectionList.h"
 #import "RZSortedCollectionList.h"
-#import "RZFetchedCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
+
+// Comment this out to not pause as long between tests
+#define RZ_TESTS_USER_MODE
+
+#ifdef RZ_TESTS_USER_MODE
+#define kWaitTime   3.0
+#else
+#define kWaitTime   0.125
+#endif
 
 @interface RZCollectionListTableViewDataSourceTests () <RZCollectionListTableViewDataSourceDelegate>
 
@@ -50,8 +58,8 @@
 
 - (void)tearDown{
     [super tearDown];
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
 }
-
 
 #pragma mark - Tests
 
@@ -94,6 +102,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
 
     [self.arrayList beginUpdates];
 
@@ -101,18 +111,25 @@
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // insert object at second index
-    [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
-
+    NSMutableString *mutableFirstString = [NSMutableString stringWithString:@"is it first?"];
+    [self.arrayList insertObject:mutableFirstString atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    
+    [mutableFirstString deleteCharactersInRange:NSMakeRange(0, mutableFirstString.length)];
+    [mutableFirstString appendString:@"first"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:mutableFirstString];
+    
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    // add object at second index
-    [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    // add object at first index
+    [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    
+    // move to second index
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     
     // add objects at the end
     [self.arrayList insertObject:@"last" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:0]];
     [self.arrayList insertObject:@"penultimate" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:0]];
-
     
     // delete a few interediate objects
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
@@ -120,8 +137,22 @@
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     
-    // so we can see the result
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
+    // final order should be:
+    // first
+    // second
+    // 4
+    // 5
+    // 6
+    // 7
+    // 8
+    // 9
+    // penultimate
+    // last
+    
+    UITableViewCell *firstCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    STAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
+    UITableViewCell *secondCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    STAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
 }
 
 #pragma mark - Table View Data Source
