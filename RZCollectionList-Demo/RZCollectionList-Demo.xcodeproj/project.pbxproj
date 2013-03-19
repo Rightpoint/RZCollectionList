@@ -40,6 +40,7 @@
 		FE02AD3D16079ED60096F3EA /* RZArrayCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */; };
 		FE02AD411607FA980096F3EA /* ListItemObject.m in Sources */ = {isa = PBXBuildFile; fileRef = FE02AD401607FA980096F3EA /* ListItemObject.m */; };
 		FE02AD421607FA980096F3EA /* ListItemObject.m in Sources */ = {isa = PBXBuildFile; fileRef = FE02AD401607FA980096F3EA /* ListItemObject.m */; };
+		FE16938516F8BE18003AAD76 /* RZFilteredCollectionListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FE16938416F8BE18003AAD76 /* RZFilteredCollectionListTests.m */; };
 		FE251257166EC7A00098AC59 /* RZSortedCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FE251256166EC7A00098AC59 /* RZSortedCollectionList.m */; };
 		FE251258166EC7A00098AC59 /* RZSortedCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = FE251256166EC7A00098AC59 /* RZSortedCollectionList.m */; };
 		FE25125C166EDF440098AC59 /* SortedListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE25125A166EDF440098AC59 /* SortedListViewController.m */; };
@@ -115,6 +116,8 @@
 		FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZArrayCollectionList.m; sourceTree = "<group>"; };
 		FE02AD3F1607FA980096F3EA /* ListItemObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ListItemObject.h; path = Objects/ListItemObject.h; sourceTree = "<group>"; };
 		FE02AD401607FA980096F3EA /* ListItemObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ListItemObject.m; path = Objects/ListItemObject.m; sourceTree = "<group>"; };
+		FE16938316F8BE18003AAD76 /* RZFilteredCollectionListTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZFilteredCollectionListTests.h; sourceTree = "<group>"; };
+		FE16938416F8BE18003AAD76 /* RZFilteredCollectionListTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZFilteredCollectionListTests.m; sourceTree = "<group>"; };
 		FE251255166EC7A00098AC59 /* RZSortedCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZSortedCollectionList.h; sourceTree = "<group>"; };
 		FE251256166EC7A00098AC59 /* RZSortedCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZSortedCollectionList.m; sourceTree = "<group>"; };
 		FE251259166EDF440098AC59 /* SortedListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortedListViewController.h; sourceTree = "<group>"; };
@@ -237,6 +240,8 @@
 				FE02AD0B160289A40096F3EA /* RZCollectionList_DemoTests.h */,
 				FE02AD0C160289A40096F3EA /* RZCollectionList_DemoTests.m */,
 				FE02AD06160289A40096F3EA /* Supporting Files */,
+				FE16938316F8BE18003AAD76 /* RZFilteredCollectionListTests.h */,
+				FE16938416F8BE18003AAD76 /* RZFilteredCollectionListTests.m */,
 			);
 			path = "RZCollectionList-DemoTests";
 			sourceTree = "<group>";
@@ -496,6 +501,7 @@
 				FE251258166EC7A00098AC59 /* RZSortedCollectionList.m in Sources */,
 				FE251329167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				FEBD236F1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
+				FE16938516F8BE18003AAD76 /* RZFilteredCollectionListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
