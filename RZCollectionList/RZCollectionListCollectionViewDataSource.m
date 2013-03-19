@@ -7,6 +7,7 @@
 //
 
 #import "RZCollectionListCollectionViewDataSource.h"
+#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
@@ -15,6 +16,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
+
+@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
 
 @end
 
@@ -28,9 +31,11 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         self.delegate = delegate;
         self.collectionView = collectionView;
         
+        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
+        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        
         self.animateCollectionChanges = YES;
         self.useBatchUpdating = YES;
-        [self.collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
         collectionView.dataSource = self;
@@ -41,7 +46,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self];
+    [self.collectionList removeCollectionListObserver:self.observerAdapter];
 }
 
 #pragma mark - UICollectionViewDataSource
