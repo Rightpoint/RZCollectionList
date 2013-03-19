@@ -194,9 +194,7 @@
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
                 break;
             case RZCollectionListChangeUpdate:
-            {
                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
-            }
                 break;
             default:
                 //uncaught type

@@ -48,8 +48,12 @@
 
 - (void)adjustSectionIndicesBy:(NSInteger)sectionAdjustment rowIndicesBy:(NSInteger)rowAdjustment
 {
-    self.swizzledIndexPath = [NSIndexPath indexPathForRow:self.swizzledIndexPath.row + rowAdjustment inSection:self.swizzledIndexPath.section + sectionAdjustment];
-    self.swizzledNewIndexPath = [NSIndexPath indexPathForRow:self.swizzledNewIndexPath.row + rowAdjustment inSection:self.swizzledNewIndexPath.section + sectionAdjustment];
+    if (self.swizzledIndexPath){
+        self.swizzledIndexPath = [NSIndexPath indexPathForRow:self.swizzledIndexPath.row + rowAdjustment inSection:self.swizzledIndexPath.section + sectionAdjustment];
+    }
+    if (self.swizzledNewIndexPath){
+        self.swizzledNewIndexPath = [NSIndexPath indexPathForRow:self.swizzledNewIndexPath.row + rowAdjustment inSection:self.swizzledNewIndexPath.section + sectionAdjustment];
+    }
 }
 
 #ifdef RZCL_SWZ_DEBUG
@@ -177,7 +181,6 @@
 
 - (void)forwardObjectUpdateNotifications
 {
-    // TODO: May need to re-order these
     [self.swizzledSectionNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         
         RZCollectionListSwizzledSectionNotification *swizzledNotification = obj;
@@ -185,7 +188,6 @@
 #ifdef RZCL_SWZ_DEBUG
         [swizzledNotification logNotificationForward];
 #endif
-        
         [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [obj collectionList:self.sourceList
                didChangeSection:swizzledNotification.sectionInfo
@@ -234,15 +236,14 @@
         [self.swizzledObjectNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
            
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            if (otherNotification.originalIndexPath.section == indexPath.section)
-            {
-                if (otherNotification.changeType == RZCollectionListChangeDelete && otherNotification.originalIndexPath.row <= indexPath.row){
+            if (otherNotification.changeType == RZCollectionListChangeDelete){
+                if (otherNotification.originalIndexPath.section == indexPath.section && otherNotification.originalIndexPath.row <= indexPath.row){
                     rowAdjustment++;
                 }
-                else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if(indexPath.row < otherNotification.originalNewIndexPath.row){
-                        [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:-1];
-                    }
+            }
+            else if (otherNotification.changeType == RZCollectionListChangeInsert){
+                if(otherNotification.originalNewIndexPath.section == indexPath.section && indexPath.row < otherNotification.originalNewIndexPath.row){
+                    [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:-1];
                 }
             }
             
@@ -261,10 +262,11 @@
         [self.swizzledObjectNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            if (otherNotification.originalNewIndexPath.section == newIndexPath.section)
-            {
-                // only need to modify insertions if they happen at the same or lower index
-                if (otherNotification.changeType == RZCollectionListChangeInsert){
+            if (otherNotification.changeType == RZCollectionListChangeInsert){
+
+                if (otherNotification.originalNewIndexPath.section == newIndexPath.section)
+                {
+                    // only need to modify insertions if they happen at the same or lower index
                     
                     if (otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
                         [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:1];
@@ -277,19 +279,25 @@
         
         [swizzledNotification adjustSectionIndicesBy:0 rowIndicesBy:rowAdjustment];
     }
-    // Move
-    else if (type == RZCollectionListChangeMove){
-        
-        // TODO: Need to know if these happen before or after removals (assuming after)
-        
-        
-        
-    }
-    // Update
     else if (type == RZCollectionListChangeUpdate){
+
+#ifdef RZCL_SWZ_DEBUG
+        NSLog(@"Object reload at [%d, %d]", indexPath.section, indexPath.row);
+#endif
         
-                
+        __block NSInteger rowAdjustment = 0;
+        [self.swizzledObjectNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+            if (otherNotification.changeType == RZCollectionListChangeDelete){
+                if (otherNotification.originalIndexPath.section == indexPath.section && otherNotification.originalIndexPath.row <= indexPath.row){
+                    rowAdjustment++;
+                }
+            }
+            
+        }];
         
+        [swizzledNotification adjustSectionIndicesBy:0 rowIndicesBy:rowAdjustment];
     }
     
     [self.swizzledObjectNotifications addObject:swizzledNotification];
@@ -328,7 +336,6 @@
     }
     // Update
     else if (type == RZCollectionListChangeUpdate){
-        
         
         
         
