@@ -39,9 +39,6 @@
     NSArray *startArray = @[@"0",@"1",@"2",@"3",@"4",@"5",@"6",@"7",@"8",@"9"];
     
     self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
-    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
-                                                                      collectionList:self.arrayList
-                                                                            delegate:self];
     
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
     
@@ -59,14 +56,22 @@
 #pragma mark - Tests
 
 - (void)test1ArrayListNonBatch
-{    
+{
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
     for (int i=0; i<10; i++){
         STAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
     }
 }
 
 - (void)test2ArrayListBatchAddRemove
-{    
+{
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
     [self.arrayList beginUpdates];
     
     // remove a few objects at the beginning
@@ -85,23 +90,38 @@
 }
 
 - (void)test3ArrayListBatchAddRemoveRandomAccess
-{    
+{
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
 
     [self.arrayList beginUpdates];
 
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    // add object
-    [self.arrayList addObject:@"10" toSection:0];
+    // insert object at second index
+    [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
 
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    // add object at index 3
-    [self.arrayList insertObject:@"3" atIndexPath:[NSIndexPath indexPathForRow:3 inSection:0]];
+    // add object at second index
+    [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    
+    // add objects at the end
+    [self.arrayList insertObject:@"last" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:0]];
+    [self.arrayList insertObject:@"penultimate" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:0]];
+
+    
+    // delete a few interediate objects
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    
+    // so we can see the result
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
 }
 
 #pragma mark - Table View Data Source

@@ -239,8 +239,10 @@
                 if (otherNotification.changeType == RZCollectionListChangeDelete && otherNotification.originalIndexPath.row <= indexPath.row){
                     rowAdjustment++;
                 }
-                else if (otherNotification.changeType == RZCollectionListChangeInsert && indexPath.row < otherNotification.originalIndexPath.row){
-                    [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:-1];
+                else if (otherNotification.changeType == RZCollectionListChangeInsert){
+                    if(indexPath.row < otherNotification.originalNewIndexPath.row){
+                        [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:-1];
+                    }
                 }
             }
             
@@ -259,12 +261,14 @@
         [self.swizzledObjectNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            if (otherNotification.originalIndexPath.section == indexPath.section)
+            if (otherNotification.originalNewIndexPath.section == newIndexPath.section)
             {
-                if (otherNotification.changeType == RZCollectionListChangeDelete){
+                // only need to modify insertions if they happen at the same or lower index
+                if (otherNotification.changeType == RZCollectionListChangeInsert){
                     
-                }
-                else if (otherNotification.changeType == RZCollectionListChangeInsert){
+                    if (otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
+                        [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:1];
+                    }
                     
                 }
             }
