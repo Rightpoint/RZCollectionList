@@ -31,14 +31,14 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         self.delegate = delegate;
         self.collectionView = collectionView;
         
-        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        [self.collectionList addCollectionListObserver:self];
         
         self.animateCollectionChanges = YES;
         self.useBatchUpdating = YES;
         collectionList.delegate = self;
         
         collectionView.dataSource = self;
+        [collectionView reloadData];
     }
     
     return self;
@@ -47,6 +47,29 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self.observerAdapter];
+}
+
+#pragma mark - Properties
+
+- (void)setUseBatchUpdating:(BOOL)useBatchUpdating
+{
+    if (_useBatchUpdating != useBatchUpdating){
+        
+        // Can't use adapter for non-batch updates
+        if (!useBatchUpdating){
+            if (self.observerAdapter != nil){
+                [self.collectionList removeCollectionListObserver:self.observerAdapter];
+                self.observerAdapter = nil;
+            }
+            [self.collectionList addCollectionListObserver:self];
+        }
+        else{
+            self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
+            [self.collectionList removeCollectionListObserver:self];
+            [self.collectionList addCollectionListObserver:self.observerAdapter];
+        }
+    }
+    _useBatchUpdating = useBatchUpdating;
 }
 
 #pragma mark - UICollectionViewDataSource

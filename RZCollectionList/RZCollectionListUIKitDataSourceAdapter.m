@@ -10,7 +10,7 @@
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
-//#define RZCL_SWZ_DEBUG
+#define RZCL_SWZ_DEBUG
 
 // ================================================================================================
 
@@ -110,7 +110,7 @@
 
 @interface RZCollectionListSwizzledSectionNotification : NSObject
 
-@property (nonatomic, weak)     id<RZCollectionListSectionInfo> sectionInfo;
+@property (nonatomic, strong)     id<RZCollectionListSectionInfo> sectionInfo;
 @property (nonatomic, assign)   RZCollectionListChangeType changeType;
 @property (nonatomic, assign)   NSInteger originalIndex;
 @property (nonatomic, assign)   NSInteger swizzledIndex;
@@ -434,6 +434,24 @@
         
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
         
+        // Cancel updates at this index path
+        NSMutableSet *notificationsToCancel = [NSMutableSet setWithCapacity:8];
+        [self.swizzledObjectUpdateNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+           
+            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+            if ([otherNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
+                [notificationsToCancel addObject:obj];
+#ifdef RZCL_SWZ_DEBUG
+                NSLog(@"Update cancelled for [%d, %d]", otherNotification.swizzledIndexPath.section, otherNotification.swizzledIndexPath.section);
+#endif
+            }
+            
+        }];
+        
+        [notificationsToCancel enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            [self.swizzledObjectUpdateNotifications removeObject:obj];
+        }];
+        
         // Avoid duplicates
         if (![swizzledNotification existsInArray:self.swizzledSectionRemoveNotifications]){
             [self.swizzledObjectRemoveNotifications addObject:swizzledNotification];
@@ -473,13 +491,48 @@
 #ifdef RZCL_SWZ_DEBUG
         NSLog(@"Object reload at [%d, %d]", indexPath.section, indexPath.row);
 #endif
+    
+        // Adjust section index for section deletions first
+        __block NSInteger sectionAdjustment = 0;
         
-        // Don't allow newly-inserted cells to be updated
+        [self.swizzledSectionInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            RZCollectionListSwizzledSectionNotification *sectionNotification = obj;
+            if (sectionNotification.swizzledIndex <= indexPath.section){
+                sectionAdjustment--;
+            }
+        }];
+        
+        [self.swizzledSectionRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledSectionNotification *sectionNotification = obj;
+            if (sectionNotification.originalIndex <= indexPath.section){
+                sectionAdjustment++;
+            }
+            
+        }];
+
+        
+        [swizzledNotification adjustIndexPathSectionBy:sectionAdjustment rowBy:0];
+        
+        
+        __block NSInteger rowAdjustment = 0;
+        [self.swizzledObjectRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+            if (otherNotification.originalIndexPath.section == indexPath.section && otherNotification.originalIndexPath.row <= indexPath.row){
+                rowAdjustment++;
+            }
+            
+        }];
+        
+        [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
+        
+        // Don't allow newly-inserted or previously removed cells to be updated
         __block BOOL validUpdate = YES;
         [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-           
+            
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            if ([otherNotification.originalNewIndexPath isEqual:indexPath]){
+            if ([otherNotification.swizzledNewIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
                 validUpdate = NO;
                 *stop = YES;
             }
@@ -487,46 +540,21 @@
         }];
         
         if (validUpdate){
-            
-            // Adjust section index for section deletions first
-            __block NSInteger sectionAdjustment = 0;
-            
-            [self.swizzledSectionInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                RZCollectionListSwizzledSectionNotification *sectionNotification = obj;
-                if (sectionNotification.swizzledIndex <= indexPath.section){
-                    sectionAdjustment--;
-                }
-            }];
-            
             [self.swizzledSectionRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 
-                RZCollectionListSwizzledSectionNotification *sectionNotification = obj;
-                if (sectionNotification.originalIndex <= indexPath.section){
-                    sectionAdjustment++;
-                }
-                
-            }];
-
-            
-            [swizzledNotification adjustIndexPathSectionBy:sectionAdjustment rowBy:0];
-            
-            
-            __block NSInteger rowAdjustment = 0;
-            [self.swizzledObjectRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                
                 RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-                if (otherNotification.originalIndexPath.section == indexPath.section && otherNotification.originalIndexPath.row <= indexPath.row){
-                    rowAdjustment++;
+                if ([otherNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
+                    validUpdate = NO;
+                    *stop = YES;
                 }
                 
             }];
-            
-            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
-                    
-            if (![swizzledNotification existsInArray:self.swizzledObjectUpdateNotifications]){
-                [self.swizzledObjectUpdateNotifications addObject:swizzledNotification];
-            }
         }
+        
+        if (validUpdate && ![swizzledNotification existsInArray:self.swizzledObjectUpdateNotifications]){
+            [self.swizzledObjectUpdateNotifications addObject:swizzledNotification];
+        }
+    
     }
     else if (type == RZCollectionListChangeMove){
         // Treat like Removal - need to calculate original index paths prior to removals
