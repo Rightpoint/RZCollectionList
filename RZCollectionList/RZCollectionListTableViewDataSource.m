@@ -7,11 +7,14 @@
 //
 
 #import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 @interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
+
+@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
 
 @end
 
@@ -25,9 +28,11 @@
         self.delegate = delegate;
         self.tableView = tableView;
         
+        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
+        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
-        [self.collectionList addCollectionListObserver:self];
         collectionList.delegate = self;
         
         tableView.dataSource = self;
@@ -41,7 +46,7 @@
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self];
+    [self.collectionList removeCollectionListObserver:self.observerAdapter];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
@@ -189,9 +194,7 @@
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
                 break;
             case RZCollectionListChangeUpdate:
-            {
                 [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
-            }
                 break;
             default:
                 //uncaught type
