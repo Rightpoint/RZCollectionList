@@ -207,17 +207,11 @@
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     
-    // update title of second cell
-    NSMutableString *twoString = [startArray objectAtIndex:2];
-    [twoString deleteCharactersInRange:NSMakeRange(0, twoString.length)];
-    [twoString appendString:@"third"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:twoString];
-    
     // add object at first index
     [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     
     // move to second index
-//    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     
     // add objects at the end
     [self.arrayList insertObject:@"last" atIndexPath:[NSIndexPath indexPathForRow:11 inSection:1]];
@@ -226,13 +220,13 @@
     // delete a few interediate objects
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:1]];
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:1]];
-    
+
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
 
-//    UITableViewCell *firstCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-//    STAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
-//    UITableViewCell *secondCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
-//    STAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
+    UITableViewCell *firstCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    STAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
+    UITableViewCell *secondCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]];
+    STAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
 }
 
 #pragma mark - Table View Data Source

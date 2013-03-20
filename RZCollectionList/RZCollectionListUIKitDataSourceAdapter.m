@@ -25,7 +25,8 @@
 @property (nonatomic, strong) NSIndexPath *swizzledNewIndexPath;
 
 - (id)initWithChangeType:(RZCollectionListChangeType)changeType object:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath;
-- (void)adjustSectionIndicesBy:(NSInteger)sectionAdjustment rowIndicesBy:(NSInteger)rowAdjustment;
+- (void)adjustIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment;
+- (void)adjustNewIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment;
 
 #ifdef RZCL_SWZ_DEBUG
 - (void)logNotificationForward;
@@ -46,11 +47,15 @@
     return self;
 }
 
-- (void)adjustSectionIndicesBy:(NSInteger)sectionAdjustment rowIndicesBy:(NSInteger)rowAdjustment
+- (void)adjustIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment
 {
     if (self.swizzledIndexPath){
         self.swizzledIndexPath = [NSIndexPath indexPathForRow:self.swizzledIndexPath.row + rowAdjustment inSection:self.swizzledIndexPath.section + sectionAdjustment];
     }
+}
+
+- (void)adjustNewIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment
+{
     if (self.swizzledNewIndexPath){
         self.swizzledNewIndexPath = [NSIndexPath indexPathForRow:self.swizzledNewIndexPath.row + rowAdjustment inSection:self.swizzledNewIndexPath.section + sectionAdjustment];
     }
@@ -243,13 +248,13 @@
             }
             else if (otherNotification.changeType == RZCollectionListChangeInsert){
                 if(otherNotification.originalNewIndexPath.section == indexPath.section && indexPath.row < otherNotification.originalNewIndexPath.row){
-                    [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:-1];
+                    [otherNotification adjustNewIndexPathSectionBy:0 rowBy:-1];
                 }
             }
             
         }];
         
-        [swizzledNotification adjustSectionIndicesBy:0 rowIndicesBy:rowAdjustment];
+        [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
         
     }
     // Insert
@@ -269,7 +274,7 @@
                     // only need to modify insertions if they happen at the same or lower index
                     
                     if (otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
-                        [otherNotification adjustSectionIndicesBy:0 rowIndicesBy:1];
+                        [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
                     }
                     
                 }
@@ -277,9 +282,11 @@
             
         }];
         
-        [swizzledNotification adjustSectionIndicesBy:0 rowIndicesBy:rowAdjustment];
+        [swizzledNotification adjustNewIndexPathSectionBy:0 rowBy:rowAdjustment];
     }
     else if (type == RZCollectionListChangeUpdate){
+        
+        // Treat like Removal - need to calculate original index path prior to removals
 
 #ifdef RZCL_SWZ_DEBUG
         NSLog(@"Object reload at [%d, %d]", indexPath.section, indexPath.row);
@@ -297,8 +304,41 @@
             
         }];
         
-        [swizzledNotification adjustSectionIndicesBy:0 rowIndicesBy:rowAdjustment];
+        [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
     }
+    else if (type == RZCollectionListChangeMove){
+        // Treat like Removal - need to calculate original index paths prior to removals
+        
+#ifdef RZCL_SWZ_DEBUG
+        NSLog(@"Object move from [%d, %d] to [%d, %d]", indexPath.section, indexPath.row, newIndexPath.section, newIndexPath.row);
+#endif
+        
+        __block NSInteger rowAdjustment = 0;
+        __block NSInteger newRowAdjustment = 0;
+        [self.swizzledObjectNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+            if (otherNotification.changeType == RZCollectionListChangeDelete){
+                
+                if (otherNotification.originalIndexPath.section == indexPath.section){
+                    
+                    if (otherNotification.originalIndexPath.row <= indexPath.row){
+                        rowAdjustment++;
+                    }
+                    
+                    if (otherNotification.originalIndexPath.row <= newIndexPath.row){
+                        newRowAdjustment++;
+                    }
+                }
+            }
+            
+        }];
+        
+        [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
+        [swizzledNotification adjustNewIndexPathSectionBy:0 rowBy:newRowAdjustment];
+        
+    }
+        
     
     [self.swizzledObjectNotifications addObject:swizzledNotification];
 }
