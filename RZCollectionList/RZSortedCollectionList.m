@@ -38,6 +38,8 @@ typedef enum {
 
 @property (nonatomic, assign) RZSortedSourceListContentChangeState contentChangeState;
 
+@property (nonatomic, strong) NSMutableArray *delayedUpdateNotifications;
+
 - (NSArray*)sortedSections;
 
 // Mutation helpers
@@ -85,25 +87,25 @@ typedef enum {
     {
         [self sendWillChangeContentNotifications];
         
-        [self.sortedListObjects enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self removeSourceObject:obj];
-        }];
+        NSArray *oldSortedObjects = self.sortedListObjects;
+        NSArray *sortedObjects = [self.sourceList.listObjects sortedArrayUsingDescriptors:sortDescriptors];
         
-        [self sendDidChangeContentNotifications];
+        [oldSortedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSUInteger toIndex = [sortedObjects indexOfObject:obj];
+            
+            if (toIndex != idx)
+            {
+                NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+                NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:toIndex inSection:0];
+                [self sendDidChangeObjectNotification:obj atIndexPath:fromIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
+            }
+        }];
         
         _sortDescriptors = [sortDescriptors copy];
         
-        NSArray *sortedObjects = [self.sourceList.listObjects sortedArrayUsingDescriptors:sortDescriptors];
-        
-        [self sendWillChangeContentNotifications];
-        
-        [sortedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self addSourceObject:obj];
-        }];
+        self.sortedListObjects = [sortedObjects mutableCopy];
         
         [self sendDidChangeContentNotifications];
-        
-        self.sortedListObjects = [sortedObjects mutableCopy];
     }
 }
 
@@ -115,6 +117,16 @@ typedef enum {
     }
     
     return _collectionListObservers;
+}
+
+- (NSMutableArray*)delayedUpdateNotifications
+{
+    if (nil == _delayedUpdateNotifications)
+    {
+        _delayedUpdateNotifications = [NSMutableArray array];
+    }
+    
+    return _delayedUpdateNotifications;
 }
 
 - (NSArray*)sortedSections
@@ -289,20 +301,66 @@ typedef enum {
 
 - (void)updateSourceObject:(id)object
 {
-    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges){
+    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
+    {
         [self sendWillChangeContentNotifications];
     }
     
     self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
     
     NSIndexPath *indexPath = [self indexPathForObject:object];
-    [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+    
+    NSMutableArray *sortedListCopy = [self.sortedListObjects mutableCopy];
+    
+    NSUInteger currentIndex = [sortedListCopy indexOfObject:object];
+    
+    [sortedListCopy removeObjectAtIndex:currentIndex];
+    
+    NSUInteger insertIndex = [sortedListCopy indexOfObject:object inSortedRange:NSMakeRange(0, sortedListCopy.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
+        __block NSComparisonResult compResult = NSOrderedSame;
+        
+        [self.sortDescriptors enumerateObjectsUsingBlock:^(NSSortDescriptor *sortDesc, NSUInteger idx, BOOL *stop) {
+            compResult = [sortDesc compareObject:obj1 toObject:obj2];
+            
+            if (compResult != NSOrderedSame)
+            {
+                *stop = YES;
+            }
+        }];
+        
+        return compResult;
+    }];
+    
+    [sortedListCopy insertObject:object atIndex:insertIndex];
+    
+    if (currentIndex != insertIndex)
+    {
+        self.sortedListObjects = sortedListCopy;
+        
+        NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:insertIndex inSection:0];
+        
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
+        
+        __block RZSortedCollectionList *bself = self;
+        
+        [self.delayedUpdateNotifications addObject:[^{
+            NSIndexPath *updateIndexPath = [bself indexPathForObject:object];
+            [bself sendDidChangeObjectNotification:object atIndexPath:updateIndexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        } copy]];
+    }
+    else
+    {
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+    }
+    
+
 }
 
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZSortedSourceListContentChangeStatePotentialChanges;
 //    self.cachedSourceSections = [self.sourceList.sections copy];
+    [self.delayedUpdateNotifications removeAllObjects];
 }
 
 - (void)endPotentialUpdates
@@ -310,6 +368,19 @@ typedef enum {
     if (self.contentChangeState == RZSortedSourceListContentChangeStateChanged)
     {
         [self sendDidChangeContentNotifications];
+        
+        if (self.delayedUpdateNotifications.count > 0)
+        {
+            [self sendWillChangeContentNotifications];
+            
+            [self.delayedUpdateNotifications enumerateObjectsUsingBlock:^(void (^updateBlock)(), NSUInteger idx, BOOL *stop) {
+                updateBlock();
+            }];
+            
+            [self sendDidChangeContentNotifications];
+            
+            [self.delayedUpdateNotifications removeAllObjects];
+        }
     }
     
     self.contentChangeState = RZSortedSourceListContentChangeStateNoChanges;
