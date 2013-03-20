@@ -297,6 +297,36 @@ typedef enum {
     
     NSIndexPath *indexPath = [self indexPathForObject:object];
     [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+    
+    NSMutableArray *sortedListCopy = [self.sortedListObjects mutableCopy];
+    
+    NSUInteger currentIndex = [sortedListCopy indexOfObject:object];
+    
+    [sortedListCopy removeObjectAtIndex:currentIndex];
+    
+    NSUInteger insertIndex = [sortedListCopy indexOfObject:object inSortedRange:NSMakeRange(0, sortedListCopy.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
+        __block NSComparisonResult compResult = NSOrderedSame;
+        
+        [self.sortDescriptors enumerateObjectsUsingBlock:^(NSSortDescriptor *sortDesc, NSUInteger idx, BOOL *stop) {
+            compResult = [sortDesc compareObject:obj1 toObject:obj2];
+            
+            if (compResult != NSOrderedSame)
+            {
+                *stop = YES;
+            }
+        }];
+        
+        return compResult;
+    }];
+    
+    [sortedListCopy insertObject:object atIndex:insertIndex];
+    
+    if (currentIndex != insertIndex)
+    {
+        self.sortedListObjects = sortedListCopy;
+        
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeMove newIndexPath:[NSIndexPath indexPathForRow:insertIndex inSection:0]];
+    }
 }
 
 - (void)beginPotentialUpdates
