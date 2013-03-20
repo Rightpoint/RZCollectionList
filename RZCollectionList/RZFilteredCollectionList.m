@@ -540,7 +540,81 @@ typedef enum {
 
 - (void)moveSourceObject:(id)object fromSourceIndexPath:(NSIndexPath*)indexPath toSourceIndexPath:(NSIndexPath*)newIndexPath
 {
-    
+    NSUInteger sectionCount = self.objectIndexesForSection.count;
+    if (indexPath.section >= 0 && indexPath.section < sectionCount && newIndexPath.section >= 0 && newIndexPath.section < sectionCount)
+    {
+        BOOL isObjectInFilteredList = [self sourceIndexPathIsInFilteredList:indexPath];
+        
+        NSMutableIndexSet *fromSectionObjectIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+        NSMutableIndexSet *toSectionObjectIndexSet = [self.objectIndexesForSection objectAtIndex:newIndexPath.section];
+        
+        NSIndexPath *fromFilteredIndexPath = nil;
+        NSIndexPath *toFilteredIndexPath = nil;
+        
+        if (isObjectInFilteredList)
+        {
+            // Unfilter toSection and send Add Section Notification if toSection is filtered out
+            if (![self.sectionIndexes containsIndex:newIndexPath.section])
+            {
+                if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
+                {
+                    [self sendWillChangeContentNotifications];
+                }
+                
+                self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+                
+                [self.sectionIndexes addIndex:newIndexPath.section];
+                
+                NSUInteger toFilteredSection = [self filteredSectionIndexForSourceSectionIndex:newIndexPath.section];
+                
+                RZFilteredCollectionListSectionInfo *toFilteredSectionInfo = [[self filteredSections] objectAtIndex:toFilteredSection];
+                
+                [self sendDidChangeSectionNotification:toFilteredSectionInfo atIndex:toFilteredSection forChangeType:RZCollectionListChangeInsert];
+            }
+            
+            // With possible new section added get fromFilteredIndexPath
+            fromFilteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
+        }
+        
+        // Remove fromIndex from fromSection
+        [fromSectionObjectIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
+        
+        // Make room at toIndex in toSection
+        [toSectionObjectIndexSet shiftIndexesStartingAtIndex:newIndexPath.row by:1];
+        
+        if (isObjectInFilteredList)
+        {
+            // Unfilter toIndex if object is in filtered list
+            [toSectionObjectIndexSet addIndex:newIndexPath.row];
+            
+            // Get new toFilteredIndexPath
+            toFilteredIndexPath = [self filteredIndexPathForSourceIndexPath:newIndexPath];
+            
+            // If filtered from and to index paths are different, send out move notification
+            if (![fromFilteredIndexPath isEqual:toFilteredIndexPath])
+            {
+                if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
+                {
+                    [self sendWillChangeContentNotifications];
+                }
+                
+                self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+                
+                [self sendDidChangeObjectNotification:object atIndexPath:fromFilteredIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:toFilteredIndexPath];
+                
+                // Filter fromSection and send Remove Section Notification if fromSection has no objects remaining
+                if ([fromSectionObjectIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+                {
+                    NSUInteger fromFilteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
+                    RZFilteredCollectionListSectionInfo *fromFilteredSectionInfo = [[self filteredCachedSections] objectAtIndex:fromFilteredSection];
+                    
+                    [self.sectionIndexes removeIndex:indexPath.section];
+                    
+                    [self sendDidChangeSectionNotification:fromFilteredSectionInfo atIndex:fromFilteredSection forChangeType:RZCollectionListChangeDelete];
+                }
+            }
+        }
+    }
 }
 
 - (void)updateSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath

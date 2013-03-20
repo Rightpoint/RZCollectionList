@@ -31,4 +31,9 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:kRZCollectionListItemUpdateNotificationName object:self];
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"Item: %@ | Subtitle: %@", self.itemName, self.subtitle];
+}
+
 @end
