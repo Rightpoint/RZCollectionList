@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A7FD31F16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A7FD31E16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m */; };
+		9A7FD32216F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A7FD32116F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m */; };
+		9A7FD32316F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A7FD32116F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m */; };
 		FE02ACDC160289A40096F3EA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACDB160289A40096F3EA /* UIKit.framework */; };
 		FE02ACDE160289A40096F3EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACDD160289A40096F3EA /* Foundation.framework */; };
 		FE02ACE0160289A40096F3EA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACDF160289A40096F3EA /* CoreGraphics.framework */; };
@@ -79,6 +82,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9A7FD31D16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListTableViewDataSourceTests.h; sourceTree = "<group>"; };
+		9A7FD31E16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListTableViewDataSourceTests.m; sourceTree = "<group>"; };
+		9A7FD32016F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListUIKitDataSourceAdapter.h; sourceTree = "<group>"; };
+		9A7FD32116F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListUIKitDataSourceAdapter.m; sourceTree = "<group>"; };
 		FE02ACD7160289A40096F3EA /* RZCollectionList-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RZCollectionList-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE02ACDB160289A40096F3EA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		FE02ACDD160289A40096F3EA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -239,6 +246,8 @@
 			children = (
 				FE02AD0B160289A40096F3EA /* RZCollectionList_DemoTests.h */,
 				FE02AD0C160289A40096F3EA /* RZCollectionList_DemoTests.m */,
+				9A7FD31D16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.h */,
+				9A7FD31E16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m */,
 				FE02AD06160289A40096F3EA /* Supporting Files */,
 				FE16938316F8BE18003AAD76 /* RZFilteredCollectionListTests.h */,
 				FE16938416F8BE18003AAD76 /* RZFilteredCollectionListTests.m */,
@@ -267,6 +276,8 @@
 				FE02AD1D1603863F0096F3EA /* RZFetchedCollectionList.m */,
 				FE02AD201603B3F00096F3EA /* RZCollectionListTableViewDataSource.h */,
 				FE02AD211603B3F00096F3EA /* RZCollectionListTableViewDataSource.m */,
+				9A7FD32016F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.h */,
+				9A7FD32116F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m */,
 				FE02AD3A16079ED60096F3EA /* RZArrayCollectionList.h */,
 				FE02AD3B16079ED60096F3EA /* RZArrayCollectionList.m */,
 				FEAED2A41651A9BB00953BA0 /* RZFilteredCollectionList.h */,
@@ -481,6 +492,7 @@
 				FE25125C166EDF440098AC59 /* SortedListViewController.m in Sources */,
 				FE251328167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				FEBD236E1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
+				9A7FD32216F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,6 +514,8 @@
 				FE251329167A2B800098AC59 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				FEBD236F1695F9DC00DF7BA7 /* RZObserverCollection.m in Sources */,
 				FE16938516F8BE18003AAD76 /* RZFilteredCollectionListTests.m in Sources */,
+				9A7FD31F16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m in Sources */,
+				9A7FD32316F8E4AC00739D8A /* RZCollectionListUIKitDataSourceAdapter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

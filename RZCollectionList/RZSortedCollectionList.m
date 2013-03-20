@@ -289,6 +289,12 @@ typedef enum {
 
 - (void)updateSourceObject:(id)object
 {
+    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges){
+        [self sendWillChangeContentNotifications];
+    }
+    
+    self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
+    
     NSIndexPath *indexPath = [self indexPathForObject:object];
     [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
 }
