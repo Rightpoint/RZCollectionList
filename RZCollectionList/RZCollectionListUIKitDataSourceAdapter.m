@@ -10,7 +10,7 @@
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
-#define RZCL_SWZ_DEBUG
+//#define RZCL_SWZ_DEBUG
 
 // ================================================================================================
 
