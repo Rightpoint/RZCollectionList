@@ -38,6 +38,8 @@ typedef enum {
 
 @property (nonatomic, assign) RZSortedSourceListContentChangeState contentChangeState;
 
+@property (nonatomic, strong) NSMutableArray *delayedUpdateNotifications;
+
 - (NSArray*)sortedSections;
 
 // Mutation helpers
@@ -115,6 +117,16 @@ typedef enum {
     }
     
     return _collectionListObservers;
+}
+
+- (NSMutableArray*)delayedUpdateNotifications
+{
+    if (nil == _delayedUpdateNotifications)
+    {
+        _delayedUpdateNotifications = [NSMutableArray array];
+    }
+    
+    return _delayedUpdateNotifications;
 }
 
 - (NSArray*)sortedSections
@@ -297,7 +309,6 @@ typedef enum {
     self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
     
     NSIndexPath *indexPath = [self indexPathForObject:object];
-    [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
     
     NSMutableArray *sortedListCopy = [self.sortedListObjects mutableCopy];
     
@@ -326,14 +337,30 @@ typedef enum {
     {
         self.sortedListObjects = sortedListCopy;
         
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeMove newIndexPath:[NSIndexPath indexPathForRow:insertIndex inSection:0]];
+        NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:insertIndex inSection:0];
+        
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
+        
+        __block RZSortedCollectionList *bself = self;
+        
+        [self.delayedUpdateNotifications addObject:[^{
+            NSIndexPath *updateIndexPath = [bself indexPathForObject:object];
+            [bself sendDidChangeObjectNotification:object atIndexPath:updateIndexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        } copy]];
     }
+    else
+    {
+        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+    }
+    
+
 }
 
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZSortedSourceListContentChangeStatePotentialChanges;
 //    self.cachedSourceSections = [self.sourceList.sections copy];
+    [self.delayedUpdateNotifications removeAllObjects];
 }
 
 - (void)endPotentialUpdates
@@ -341,6 +368,19 @@ typedef enum {
     if (self.contentChangeState == RZSortedSourceListContentChangeStateChanged)
     {
         [self sendDidChangeContentNotifications];
+        
+        if (self.delayedUpdateNotifications.count > 0)
+        {
+            [self sendWillChangeContentNotifications];
+            
+            [self.delayedUpdateNotifications enumerateObjectsUsingBlock:^(void (^updateBlock)(), NSUInteger idx, BOOL *stop) {
+                updateBlock();
+            }];
+            
+            [self sendDidChangeContentNotifications];
+            
+            [self.delayedUpdateNotifications removeAllObjects];
+        }
     }
     
     self.contentChangeState = RZSortedSourceListContentChangeStateNoChanges;
