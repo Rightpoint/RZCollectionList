@@ -28,6 +28,8 @@
 - (void)adjustIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment;
 - (void)adjustNewIndexPathSectionBy:(NSInteger)sectionAdjustment rowBy:(NSInteger)rowAdjustment;
 
+- (BOOL)existsInArray:(NSArray*)array;
+
 #ifdef RZCL_SWZ_DEBUG
 - (void)logNotificationForward;
 #endif
@@ -61,6 +63,29 @@
     }
 }
 
+- (BOOL)existsInArray:(NSArray *)array
+{
+    __block BOOL exists = NO;
+    [array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+       
+        if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
+            
+            RZCollectionListSwizzledObjectNotification *other = obj;
+            if (self.swizzledIndexPath != nil && [other.swizzledIndexPath isEqual:self.swizzledIndexPath]){
+                exists = YES;
+                *stop = YES;
+            }
+            else if (self.swizzledNewIndexPath != nil && [other.swizzledNewIndexPath isEqual:self.swizzledNewIndexPath]){
+                exists = YES;
+                *stop = YES;
+            }
+        }
+        
+    }];
+    
+    return exists;
+}
+
 #ifdef RZCL_SWZ_DEBUG
 - (void)logNotificationForward
 {
@@ -91,6 +116,7 @@
 @property (nonatomic, assign)   NSInteger swizzledIndex;
 
 - (id)initWithChangeType:(RZCollectionListChangeType)changeType sectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSInteger)sectionIndex;
+- (BOOL)existsInArray:(NSArray*)array;
 
 #ifdef RZCL_SWZ_DEBUG
 - (void)logNotificationForward;
@@ -109,6 +135,22 @@
         self.originalIndex = self.swizzledIndex = sectionIndex;
     }
     return self;
+}
+
+- (BOOL)existsInArray:(NSArray *)array
+{
+    __block BOOL exists = NO;
+    [array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[RZCollectionListSwizzledSectionNotification class]]){
+            
+            if ([obj swizzledIndex] == self.swizzledIndex){
+                exists = YES;
+                *stop = YES;
+            }
+            
+        }
+    }];
+    return exists;
 }
 
 #ifdef RZCL_SWZ_DEBUG
@@ -377,7 +419,11 @@
         }];
         
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
-        [self.swizzledObjectRemoveNotifications addObject:swizzledNotification];
+        
+        // Avoid duplicates
+        if (![swizzledNotification existsInArray:self.swizzledSectionRemoveNotifications]){
+            [self.swizzledObjectRemoveNotifications addObject:swizzledNotification];
+        }
         
     }
     // Insert
@@ -401,7 +447,10 @@
         }];
         
         [swizzledNotification adjustNewIndexPathSectionBy:0 rowBy:rowAdjustment];
-        [self.swizzledObjectInsertNotifications addObject:swizzledNotification];
+        
+        if (![swizzledNotification existsInArray:self.swizzledObjectInsertNotifications]){
+            [self.swizzledObjectInsertNotifications addObject:swizzledNotification];
+        }
     }
     else if (type == RZCollectionListChangeUpdate){
         
@@ -422,7 +471,10 @@
         }];
         
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
-        [self.swizzledObjectUpdateNotifications addObject:swizzledNotification];
+        
+        if (![swizzledNotification existsInArray:self.swizzledObjectUpdateNotifications]){
+            [self.swizzledObjectUpdateNotifications addObject:swizzledNotification];
+        }
     }
     else if (type == RZCollectionListChangeMove){
         // Treat like Removal - need to calculate original index paths prior to removals
@@ -451,8 +503,10 @@
         
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
         [swizzledNotification adjustNewIndexPathSectionBy:0 rowBy:newRowAdjustment];
-        [self.swizzledObjectMoveNotifications addObject:swizzledNotification];
         
+        if (![swizzledNotification existsInArray:self.swizzledObjectMoveNotifications]){
+            [self.swizzledObjectMoveNotifications addObject:swizzledNotification];
+        }
     }
 }
 
@@ -504,7 +558,9 @@
             
         }];
         
-        [self.swizzledSectionRemoveNotifications addObject:swizzledNotification];
+        if (![swizzledNotification existsInArray:self.swizzledSectionRemoveNotifications]){
+            [self.swizzledSectionRemoveNotifications addObject:swizzledNotification];
+        }
         
     }
     // Insert
@@ -524,7 +580,9 @@
             
         }];
         
-        [self.swizzledSectionInsertNotifications addObject:swizzledNotification];
+        if (![swizzledNotification existsInArray:self.swizzledSectionInsertNotifications]){
+            [self.swizzledSectionInsertNotifications addObject:swizzledNotification];
+        }
     }
 
 }
