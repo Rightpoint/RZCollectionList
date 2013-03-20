@@ -289,7 +289,8 @@ typedef enum {
 
 - (void)updateSourceObject:(id)object
 {
-    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges){
+    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
+    {
         [self sendWillChangeContentNotifications];
     }
     
