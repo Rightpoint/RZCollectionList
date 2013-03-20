@@ -85,25 +85,25 @@ typedef enum {
     {
         [self sendWillChangeContentNotifications];
         
-        [self.sortedListObjects enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self removeSourceObject:obj];
-        }];
+        NSArray *oldSortedObjects = self.sortedListObjects;
+        NSArray *sortedObjects = [self.sourceList.listObjects sortedArrayUsingDescriptors:sortDescriptors];
         
-        [self sendDidChangeContentNotifications];
+        [oldSortedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSUInteger toIndex = [sortedObjects indexOfObject:obj];
+            
+            if (toIndex != idx)
+            {
+                NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+                NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:toIndex inSection:0];
+                [self sendDidChangeObjectNotification:obj atIndexPath:fromIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
+            }
+        }];
         
         _sortDescriptors = [sortDescriptors copy];
         
-        NSArray *sortedObjects = [self.sourceList.listObjects sortedArrayUsingDescriptors:sortDescriptors];
-        
-        [self sendWillChangeContentNotifications];
-        
-        [sortedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self addSourceObject:obj];
-        }];
+        self.sortedListObjects = [sortedObjects mutableCopy];
         
         [self sendDidChangeContentNotifications];
-        
-        self.sortedListObjects = [sortedObjects mutableCopy];
     }
 }
 
