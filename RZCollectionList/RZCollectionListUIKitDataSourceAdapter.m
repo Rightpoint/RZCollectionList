@@ -301,7 +301,6 @@
         
     }];
     
-    
     [self.swizzledSectionRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         
         RZCollectionListSwizzledSectionNotification *swizzledNotification = obj;
@@ -442,7 +441,7 @@
             if ([otherNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
                 [notificationsToCancel addObject:obj];
 #ifdef RZCL_SWZ_DEBUG
-                NSLog(@"Update cancelled for [%d, %d]", otherNotification.swizzledIndexPath.section, otherNotification.swizzledIndexPath.section);
+                NSLog(@"Update cancelled for [%d, %d]", otherNotification.swizzledIndexPath.section, otherNotification.swizzledIndexPath.row);
 #endif
             }
             
