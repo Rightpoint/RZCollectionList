@@ -335,7 +335,7 @@
 #ifdef RZCL_SWZ_DEBUG
         NSLog(@"Object removal at [%d, %d]", indexPath.section, indexPath.row);
 #endif
-        // First shift section index
+        // Adjust section index for section deletions first
         __block NSInteger sectionAdjustment = 0;
         [self.swizzledSectionRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
            
@@ -349,6 +349,7 @@
         [swizzledNotification adjustIndexPathSectionBy:sectionAdjustment rowBy:0];
         
         
+        // Adjust row index for exiting deletions
         __block NSInteger rowAdjustment = 0;
         [self.swizzledObjectRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
            
@@ -358,6 +359,7 @@
             }
         }];
         
+        // Adjust for existing insertions
         [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
@@ -466,7 +468,8 @@
 #ifdef RZCL_SWZ_DEBUG
         NSLog(@"Section removal at %d", sectionIndex);
 #endif
-                
+        
+        // adjust for existing removals
         [self.swizzledSectionRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
            
             RZCollectionListSwizzledSectionNotification *otherNotification = obj;
@@ -476,6 +479,7 @@
             
         }];
         
+        // adjust for existing insertions
         [self.swizzledSectionInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledSectionNotification *otherNotification = obj;
@@ -510,6 +514,7 @@
         NSLog(@"Section insertion at %d", sectionIndex);
 #endif
       
+        // move other insertions up by one
         [self.swizzledSectionInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledSectionNotification *otherNotification = obj;
