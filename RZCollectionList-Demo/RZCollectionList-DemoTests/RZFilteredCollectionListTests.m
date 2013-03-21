@@ -98,7 +98,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
@@ -148,25 +148,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
@@ -203,7 +203,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
@@ -417,7 +417,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
                 
                 break;
             default:
-                STAssertTrue(NO, @"Section Change Type is not Insert or Delete.");
+                STFail(@"Section Change Type is not Insert or Delete.");
                 break;
         }
         
@@ -472,25 +472,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     }];
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
@@ -514,25 +514,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     }];
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
@@ -556,25 +556,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     }];
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
@@ -598,25 +598,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     }];
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
@@ -640,25 +640,25 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     }];
     
     RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Will Change was called when it shouldn't be.");
+        STFail(@"Will Change was called when it shouldn't be.");
     };
     
     self.willChangeBlock = willChangeBlock;
     
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
-        STAssertTrue(NO, @"Did Change Section was called when it shouldn't be.");
+        STFail(@"Did Change Section was called when it shouldn't be.");
     };
     
     self.didChangeSectionBlock = didChangeSectionBlock;
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
-        STAssertTrue(NO, @"Did Change Object was called when it shouldn't be.");
+        STFail(@"Did Change Object was called when it shouldn't be.");
     };
     
     self.didChangeObjectBlock = didChangeObjectBlock;
     
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
-        STAssertTrue(NO, @"Did Change was called when it shouldn't be.");
+        STFail(@"Did Change was called when it shouldn't be.");
     };
     
     self.didChangeBlock = didChangeBlock;
