@@ -46,10 +46,15 @@
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {
         UIBarButtonItem *segmentItem = [[UIBarButtonItem alloc] initWithCustomView:self.sortSegmentControl];
-        self.navigationItem.rightBarButtonItem = segmentItem;
+        self.navigationItem.rightBarButtonItems = @[segmentItem, self.makeMiddleNegativeBarButtonItem];
+    }
+    else
+    {
+        self.navigationItem.rightBarButtonItem = self.makeMiddleNegativeBarButtonItem;
     }
     
     RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:[self listItemObjects] sectionNameKeyPath:@"subtitle"];
+    arrayList.objectUpdateNotifications = @[kRZCollectionListItemUpdateNotificationName];
     NSArray *sortDescriptors = [self sortDescriptorsForSegmentValue:self.sortSegmentControl.selectedSegmentIndex];
     self.sortedList = [[RZSortedCollectionList alloc] initWithSourceList:arrayList sortDescriptors:sortDescriptors];
     
@@ -170,5 +175,31 @@
     NSUInteger segmentIndex = self.sortSegmentControl.selectedSegmentIndex;
     NSArray *sortDescriptors = [self sortDescriptorsForSegmentValue:segmentIndex];
     self.sortedList.sortDescriptors = sortDescriptors;
+}
+
+- (IBAction)makeMiddleNegativeButtonTapped:(id)sender
+{
+    static BOOL isNegative = NO;
+    static NSString *lastName = nil;
+    
+    ListItemObject *lastObject = [self.sortedList.sourceList.listObjects lastObject];
+
+    if (lastName == nil)
+    {
+        lastName = lastObject.itemName;
+    }
+    
+    if (isNegative)
+    {
+        lastObject.itemName = lastName;
+    }
+    else
+    {
+        lastObject.itemName = @"Item -1";
+    }
+    
+    [lastObject commitChanges];
+    
+    isNegative = !isNegative;
 }
 @end
