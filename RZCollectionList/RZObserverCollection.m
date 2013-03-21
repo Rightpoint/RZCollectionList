@@ -68,10 +68,7 @@
 
 - (void)removeObject:(id)observer
 {
-    if (observer == nil){
-        [NSException raise:NSInternalInconsistencyException format:@"Attempting to remove nil observer from RZObserverCollection"];
-    }
-    else{
+    if (observer != nil){
 #if RZOCL_POINTER_ARRAY_AVAILABLE
         NSUInteger observerIndex = [self indexOfObserverInPointerArray:observer];
         if (observerIndex != NSNotFound){
