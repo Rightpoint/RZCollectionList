@@ -219,7 +219,7 @@
     [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // move to second index - move does not play nice with section updates
-    //[self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // add objects at the end
     NSInteger last = [[self.arrayList.sections objectAtIndex:0] numberOfObjects];
@@ -298,12 +298,24 @@
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
     }];
     
+    newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
+    [self.arrayList insertSection:newSection atIndex:0];
+    
+    firstSectionStrings = @[@"Delete",@"Me"];
+    [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+    }];
+    
+    
     
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
     [self.arrayList beginUpdates];
+    
+    // Delete first section
+    [self.arrayList removeSectionAtIndex:0];
     
     // swap 0 and 1
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:1] toIndexPath:[NSIndexPath indexPathForItem:0 inSection:1]];
@@ -321,6 +333,8 @@
     NSInteger last = [[self.arrayList.sections objectAtIndex:1] numberOfObjects] - 1;
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:1] toIndexPath:[NSIndexPath indexPathForItem:last inSection:1]];
 
+    // remove first section again
+    [self.arrayList removeSectionAtIndex:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     
