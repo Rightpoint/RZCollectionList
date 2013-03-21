@@ -120,16 +120,16 @@
     
     // insert object at second index
     [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
-    
+
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    
+
     // update title of second cell
     NSMutableString *twoString = [startArray objectAtIndex:2];
     [twoString deleteCharactersInRange:NSMakeRange(0, twoString.length)];
     [twoString appendString:@"third"];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:twoString];
-    
+
     // add object at first index
     [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
@@ -171,10 +171,6 @@
     
     self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
     
-    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
-                                                                      collectionList:self.arrayList
-                                                                            delegate:self];
-    
     self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
     
     // Insert section before and after numbers
@@ -194,18 +190,24 @@
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:2]];
     }];
     
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
     // batch modify sections and objects
         
     [self.arrayList beginUpdates];
     
+    [self.arrayList removeSectionAtIndex:0];
+    
     // remove first object
-    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // insert object at second index
-    [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]];
+    [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     
     // remove first object
-    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // update title of second cell
     NSMutableString *twoString = [startArray objectAtIndex:2];
@@ -214,36 +216,30 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:twoString];
     
     // add object at first index
-    [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    // move to second index
-    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    // move to second index - move does not play nice with section updates
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // add objects at the end
-    [self.arrayList insertObject:@"last" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:1]];
-    [self.arrayList insertObject:@"penultimate" atIndexPath:[NSIndexPath indexPathForRow:10 inSection:1]];
+    NSInteger last = [[self.arrayList.sections objectAtIndex:0] numberOfObjects];
+    [self.arrayList insertObject:@"last" atIndexPath:[NSIndexPath indexPathForRow:last inSection:0]];
+    [self.arrayList insertObject:@"penultimate" atIndexPath:[NSIndexPath indexPathForRow:last inSection:0]];
     
     // delete a few interediate objects
-    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:1]];
-    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:1]];
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:5 inSection:0]];
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:5 inSection:0]];
 
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
 
-    UITableViewCell *firstCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
-    STAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
-    UITableViewCell *secondCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]];
-    STAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
 }
 
 - (void)test5ModifySectionsAndRows
 {
-    NSArray *startArray = @[@"0",@"1",[NSMutableString stringWithString:@"2"],@"3",@"3",@"4",@"5",@"6",@"7",@"8",@"9"];
+    NSArray *startArray = @[@"0",@"1",[NSMutableString stringWithString:@"2"],@"3",@"4",@"5",@"6",@"7",@"8",@"9"];
     
     self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
-    
-    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
-                                                                      collectionList:self.arrayList
-                                                                            delegate:self];
+
     
     // Insert section before and after numbers
     RZArrayCollectionListSectionInfo *newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
@@ -262,6 +258,10 @@
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:2]];
     }];
     
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
     [self.arrayList beginUpdates];
     
     // remove "0"
@@ -278,6 +278,91 @@
     
     // remove section 2
     [self.arrayList removeSectionAtIndex:1];
+    
+    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+
+}
+
+- (void)test6BatchMove
+{
+    NSArray *startArray = @[@"0",@"1",[NSMutableString stringWithString:@"2"],@"3",@"4"];
+    
+    self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
+    
+    // Insert section before and after numbers
+    RZArrayCollectionListSectionInfo *newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
+    [self.arrayList insertSection:newSection atIndex:0];
+    
+    NSArray *firstSectionStrings = @[@"A",@"B",@"C"];
+    [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+    }];
+    
+    newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
+    [self.arrayList insertSection:newSection atIndex:0];
+    
+    firstSectionStrings = @[@"Delete",@"Me"];
+    [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+    }];
+    
+    
+    
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
+    [self.arrayList beginUpdates];
+    
+    // Delete first section
+    [self.arrayList removeSectionAtIndex:0];
+    
+    // swap 0 and 1
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:1] toIndexPath:[NSIndexPath indexPathForItem:0 inSection:1]];
+    
+    // swap 0 and 2
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:1] toIndexPath:[NSIndexPath indexPathForItem:1 inSection:1]];
+    
+    // remove 0
+    [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:1]];
+
+    // insert after 3
+    [self.arrayList insertObject:@"BLAH" atIndexPath:[NSIndexPath indexPathForItem:3 inSection:1]];
+
+    // move 3 to end
+    NSInteger last = [[self.arrayList.sections objectAtIndex:1] numberOfObjects] - 1;
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:1] toIndexPath:[NSIndexPath indexPathForItem:last inSection:1]];
+
+    // remove first section again
+    [self.arrayList removeSectionAtIndex:0];
+    
+    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
+    
+    // start over - test moving row to another section
+
+    self.dataSource = nil;
+    
+    self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
+    
+    newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
+    [self.arrayList insertSection:newSection atIndex:0];
+
+    [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
+    }];
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
+    [self.arrayList beginUpdates];
+    
+    // insert at first row
+    [self.arrayList insertObject:@"TEST" atIndexPath:[NSIndexPath indexPathForItem:0 inSection:1]];
+    
+    // move 1,1 to 0,0
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
 
