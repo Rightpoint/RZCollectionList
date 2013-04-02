@@ -368,6 +368,37 @@
 
 }
 
+- (void)test7UpdateAndAddSection
+{
+    NSArray *startArray = @[[NSMutableString stringWithString:@"0"], [NSMutableString stringWithString:@"1"]];
+    
+    self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];    
+    self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
+
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
+    [self.arrayList beginUpdates];
+    
+    NSMutableString *zeroString = [startArray objectAtIndex:0];
+    [zeroString deleteCharactersInRange:NSMakeRange(0, zeroString.length)];
+    [zeroString appendString:@"zero"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:zeroString];
+    
+    NSMutableString *oneString = [startArray objectAtIndex:1];
+    [oneString deleteCharactersInRange:NSMakeRange(0, oneString.length)];
+    [oneString appendString:@"one"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"updateMyObject" object:oneString];
+    
+    RZArrayCollectionListSectionInfo *sectionZero = [[RZArrayCollectionListSectionInfo alloc] initWithName:@"zero" sectionIndexTitle:@"zero" numberOfObjects:0];
+    [self.arrayList insertSection:sectionZero atIndex:0];
+    
+    [self.arrayList addObject:@"Pre-Numbers" toSection:0];
+    
+    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+}
+
 #pragma mark - Table View Data Source
 
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath

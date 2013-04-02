@@ -10,7 +10,7 @@
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
-// #define RZCL_SWZ_DEBUG
+//#define RZCL_SWZ_DEBUG
 
 // ================================================================================================
 
@@ -488,21 +488,34 @@
 #ifdef RZCL_SWZ_DEBUG
         NSLog(@"Object insertion at [%d, %d]", newIndexPath.section, newIndexPath.row);
 #endif        
-        // only need to modify insertions if they happen at the same or lower index
-
-
-        [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        // don't allow insertions to newly inserted sections
+        __block BOOL isValidInsertion = YES;
+        [self.swizzledSectionInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+           
+            RZCollectionListSwizzledSectionNotification *sectionNotificaiton = obj;
             
-            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-
-            if (otherNotification.swizzledNewIndexPath.section == newIndexPath.section && otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
-                [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];                
+            if (newIndexPath.section == sectionNotificaiton.swizzledIndex){
+                isValidInsertion = NO;
+                *stop = YES;
             }
             
         }];
         
-        if (![swizzledNotification existsInArray:self.swizzledObjectInsertNotifications]){
-            [self.swizzledObjectInsertNotifications addObject:swizzledNotification];
+        if (isValidInsertion){
+            // only need to modify insertions if they happen at the same or lower index
+            [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                
+                RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+
+                if (otherNotification.swizzledNewIndexPath.section == newIndexPath.section && otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
+                    [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];                
+                }
+                
+            }];
+            
+            if (![swizzledNotification existsInArray:self.swizzledObjectInsertNotifications]){
+                [self.swizzledObjectInsertNotifications addObject:swizzledNotification];
+            }
         }
     }
     
