@@ -147,8 +147,8 @@
     NSIndexPath * oneIndexPath = [self.arrayList indexPathForObject:@"1"];
     [self.arrayList moveObjectAtIndexPath:oneIndexPath toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
 
-//    NSIndexPath * sixIndexPath = [self.arrayList indexPathForObject:@"6"];
-//    [self.arrayList moveObjectAtIndexPath:sixIndexPath toIndexPath:[NSIndexPath indexPathForRow:6 inSection:0]];
+    NSIndexPath * sixIndexPath = [self.arrayList indexPathForObject:@"6"];
+    [self.arrayList moveObjectAtIndexPath:sixIndexPath toIndexPath:[NSIndexPath indexPathForRow:6 inSection:0]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Collection View exception");
 }

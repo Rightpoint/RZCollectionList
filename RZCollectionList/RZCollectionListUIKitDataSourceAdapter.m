@@ -420,11 +420,13 @@
                     RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                     
                     if (otherNotification.changeType == RZCollectionListChangeInsert){
-                        if (otherNotification.originalIndexPath.section == newIndexPath.section){
-                            if (otherNotification.swizzledNewIndexPath.row >= newIndexPath.row){
+                        
+                        if (otherNotification.originalNewIndexPath.section == newIndexPath.section){
+                            if (newIndexPath.row <= otherNotification.swizzledNewIndexPath.row){
                                 [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
                             }
                         }
+                        
                     }
                     else if (otherNotification.changeType == RZCollectionListChangeMove){
                         
