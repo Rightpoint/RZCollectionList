@@ -312,9 +312,6 @@
                         }
                     }
                 }
-                else if (otherNotification.changeType == RZCollectionListChangeMove){
-                    
-                }
                 
             }
             else{
@@ -427,11 +424,7 @@
                             }
                         }
                         
-                    }
-                    else if (otherNotification.changeType == RZCollectionListChangeMove){
-                        
-                    }
-                    
+                    }                
                 }
             }];
             
@@ -471,9 +464,6 @@
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
                     }
-                }
-                else if (otherNotification.changeType == RZCollectionListChangeMove){
-                    
                 }
                 
             }
@@ -556,7 +546,18 @@
                     }
                 }
                 else if (otherNotification.changeType == RZCollectionListChangeMove){
-                    
+                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                        if ((otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row) &&
+                            (otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row <=swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row >= swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                        }
+                    }
                 }
                 
             }
@@ -579,7 +580,6 @@
         }];
                 
         if (![swizzledNotification existsInArray:self.swizzledNotifications]){
-
             [self.swizzledNotifications addObject:swizzledNotification];
         }
     }
