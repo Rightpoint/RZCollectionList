@@ -427,7 +427,7 @@
         NSLog(@"Object reload at [%d, %d]", indexPath.section, indexPath.row);
 #endif
         
-        // just mark as needs reload
+        // just mark as needs reload - dont' forward updates
         self.needsReload = YES;
     }
     

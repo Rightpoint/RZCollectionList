@@ -201,7 +201,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                 } completion:^(BOOL finished) {
                     if (self.observerAdapter.needsReload){
                         [self.collectionView reloadData];
-                    }
+                    }   
                     [self.batchUpdates removeAllObjects];
                     self.batchUpdates = nil;
                 }];
