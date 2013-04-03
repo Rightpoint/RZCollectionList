@@ -299,14 +299,14 @@
                 RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                 
                 if (otherNotification.changeType == RZCollectionListChangeDelete){
-                    if (otherNotification.originalIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
                         }
                     }
                 }
                 else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
@@ -342,7 +342,9 @@
                     RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                     
                     if (otherNotification.changeType == RZCollectionListChangeInsert){
+                        
                         if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                            
                             if(otherNotification.originalNewIndexPath.row > indexPath.row){
                                 [otherNotification adjustNewIndexPathSectionBy:0 rowBy:-1];
                             }
@@ -424,7 +426,16 @@
                             }
                         }
                         
-                    }                
+                    }
+                    else if (otherNotification.changeType == RZCollectionListChangeMove){
+                        
+                        if (otherNotification.originalNewIndexPath.section == newIndexPath.section){
+                            if (newIndexPath.row <= otherNotification.swizzledNewIndexPath.row){
+                                [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
+                            }
+                        }
+                        
+                    }
                 }
             }];
             
@@ -452,14 +463,14 @@
                 RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                 
                 if (otherNotification.changeType == RZCollectionListChangeDelete){
-                    if (otherNotification.originalIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
                         }
                     }
                 }
                 else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
@@ -532,21 +543,21 @@
                 RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                 
                 if (otherNotification.changeType == RZCollectionListChangeDelete){
-                    if (otherNotification.originalIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
                         }
                     }
                 }
                 else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
                     }
                 }
                 else if (otherNotification.changeType == RZCollectionListChangeMove){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if ((otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row) &&
                             (otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row))
                         {
