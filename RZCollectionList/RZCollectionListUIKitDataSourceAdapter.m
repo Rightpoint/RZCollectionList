@@ -10,7 +10,7 @@
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
-//#define RZCL_SWZ_DEBUG
+#define RZCL_SWZ_DEBUG
 
 // ================================================================================================
 
@@ -110,7 +110,7 @@
 
 @interface RZCollectionListSwizzledSectionNotification : NSObject
 
-@property (nonatomic, strong)     id<RZCollectionListSectionInfo> sectionInfo;
+@property (nonatomic, strong)   id<RZCollectionListSectionInfo> sectionInfo;
 @property (nonatomic, assign)   RZCollectionListChangeType changeType;
 @property (nonatomic, assign)   NSInteger originalIndex;
 @property (nonatomic, assign)   NSInteger swizzledIndex;
@@ -186,12 +186,14 @@
 @property (nonatomic, strong) NSMutableArray *swizzledSectionRemoveNotifications;
 @property (nonatomic, strong) NSMutableArray *swizzledSectionInsertNotifications;
 
+@property (nonatomic, strong) NSMutableArray *deferredSwizzledUpdateNotifications;
 
 @property (nonatomic, weak)   id<RZCollectionList> sourceList;
 
 @property (nonatomic, assign) BOOL isUpdating;
 
 - (void)commonInit;
+- (void)calculateDeferredUpdateNotifications;
 - (void)forwardObjectUpdateNotifications;
 - (void)adjustForSectionUpdates:(RZCollectionListSwizzledObjectNotification*)swizzledNotification;
 
@@ -228,6 +230,8 @@
     
     self.swizzledSectionRemoveNotifications = [NSMutableArray arrayWithCapacity:8];
     self.swizzledSectionInsertNotifications = [NSMutableArray arrayWithCapacity:8];
+    
+    self.deferredSwizzledUpdateNotifications = [NSMutableArray arrayWithCapacity:8];
 
 }
 
@@ -239,6 +243,33 @@
 - (void)removeObserver:(id<RZCollectionListObserver>)observer
 {
     [self.observerCollection removeObject:observer];
+}
+
+- (void)calculateDeferredUpdateNotifications
+{
+    // move and update will conflict. need to do some post-swizzle swizzling
+    NSArray *swizzledUpdatesCopy = [self.swizzledObjectUpdateNotifications copy];
+    [swizzledUpdatesCopy enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        
+        RZCollectionListSwizzledObjectNotification *updateNotification = obj;
+        
+        [self.swizzledObjectMoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+           
+            RZCollectionListSwizzledObjectNotification *moveNotification = obj;
+            
+            if (updateNotification.swizzledIndexPath.section == moveNotification.swizzledIndexPath.section &&
+                updateNotification.swizzledIndexPath.row == moveNotification.swizzledIndexPath.row)
+            {
+                [self.swizzledObjectUpdateNotifications removeObject:updateNotification];
+                updateNotification.swizzledIndexPath = moveNotification.swizzledNewIndexPath;
+                [self.deferredSwizzledUpdateNotifications addObject:updateNotification];
+                *stop = YES;
+            }
+            
+        }];
+        
+    }];
+    
 }
 
 - (void)forwardObjectUpdateNotifications
@@ -602,7 +633,7 @@
         // Final section needs to line up with data after updates
         [self adjustForSectionUpdates:swizzledNotification];
     
-        // Original row needs to reflect original state of data - treat like removal1
+        // Original row needs to reflect original state of data - treat like removal
         
         // Adjust row index for exiting deletions
         __block NSInteger rowAdjustment = 0;
@@ -624,7 +655,7 @@
             
             if(otherNotification.swizzledNewIndexPath.section == swizzledNotification.originalIndexPath.section){
                 
-                if(otherNotification.originalNewIndexPath.row <= indexPath.row){
+                if (otherNotification.originalNewIndexPath.row <= indexPath.row){
                     rowAdjustment--;
                 }
             }
@@ -632,6 +663,25 @@
         }];
         
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
+        
+        // Adjust row for existing moves, cumulatively, walking backwards
+        [self.swizzledObjectMoveNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+            
+            if (otherNotification.swizzledNewIndexPath.section == swizzledNotification.swizzledNewIndexPath.section){
+                
+                if (otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row >= swizzledNotification.swizzledIndexPath.row){
+                    [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                }
+                else if (otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
+                    [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                }
+                
+            }
+            
+        }];
+        
         
         if (![swizzledNotification existsInArray:self.swizzledObjectMoveNotifications]){
             [self.swizzledObjectMoveNotifications addObject:swizzledNotification];
@@ -763,13 +813,59 @@
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
     if (self.isUpdating){
+        [self calculateDeferredUpdateNotifications];
         [self forwardObjectUpdateNotifications];
         self.isUpdating = NO;
-        self.sourceList = nil;
     }
+    
     [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [obj collectionListDidChangeContent:collectionList];
     }];
+    
+    if (self.deferredSwizzledUpdateNotifications.count > 0){
+        
+#ifdef RZCL_SWZ_DEBUG
+        NSLog(@" ========== Beginning deferred update messages ======== ");
+#endif
+        
+        
+        [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [obj collectionListWillChangeContent:collectionList];
+        }];
+        
+        // send deferred updates
+        [self.deferredSwizzledUpdateNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            RZCollectionListSwizzledObjectNotification *swizzledNotification = obj;
+            
+#ifdef RZCL_SWZ_DEBUG
+            [swizzledNotification logNotificationForward];
+#endif
+            
+            
+            [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                [obj collectionList:self.sourceList
+                    didChangeObject:swizzledNotification.changedObject
+                        atIndexPath:swizzledNotification.swizzledIndexPath
+                      forChangeType:swizzledNotification.changeType
+                       newIndexPath:swizzledNotification.swizzledNewIndexPath];
+            }];
+            
+            
+        }];
+        
+        [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [obj collectionListDidChangeContent:collectionList];
+        }];
+        
+#ifdef RZCL_SWZ_DEBUG
+        NSLog(@" ========== Finished deferred update messages ======== ");
+#endif
+        
+        [self.deferredSwizzledUpdateNotifications removeAllObjects];
+    }
+    
+    self.sourceList = nil;
 }
 
 @end
