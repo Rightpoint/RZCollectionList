@@ -8,6 +8,7 @@
 
 #import "RZCollectionListTableViewDataSource.h"
 #import "RZCollectionListUIKitDataSourceAdapter.h"
+#import "RZArrayCollectionList.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -30,8 +31,13 @@
         self.delegate = delegate;
         self.tableView = tableView;
         
-        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        if ([collectionList isKindOfClass:[RZArrayCollectionList class]]){
+            self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
+            [self.collectionList addCollectionListObserver:self.observerAdapter];
+        }
+        else{
+            [self.collectionList addCollectionListObserver:self];
+        }
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];

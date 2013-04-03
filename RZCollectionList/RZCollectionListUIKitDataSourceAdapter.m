@@ -10,7 +10,7 @@
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
-#define RZCL_SWZ_DEBUG
+// #define RZCL_SWZ_DEBUG
 
 // ================================================================================================
 
@@ -71,15 +71,18 @@
         if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
             
             RZCollectionListSwizzledObjectNotification *other = obj;
+            
             if (other.changeType == self.changeType){
-                if (self.swizzledIndexPath != nil && [other.swizzledIndexPath isEqual:self.swizzledIndexPath]){
-                    exists = YES;
-                    *stop = YES;
+                
+                // if the initial index paths are equal, assume it exists (even for moves)
+                if (self.swizzledIndexPath != nil){
+                    exists = [other.swizzledIndexPath isEqual:self.swizzledIndexPath];
                 }
-                else if (self.swizzledNewIndexPath != nil && [other.swizzledNewIndexPath isEqual:self.swizzledNewIndexPath]){
-                    exists = YES;
-                    *stop = YES;
+                else if (self.swizzledNewIndexPath != nil){
+                    exists = [other.swizzledNewIndexPath isEqual:self.swizzledNewIndexPath];
                 }
+                
+                *stop = exists;
             }
         }
         
@@ -459,7 +462,31 @@
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
                     }
-                }                
+                }
+                else if (otherNotification.changeType == RZCollectionListChangeMove){
+                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
+                        if ((otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row) &&
+                            (otherNotification.originalNewIndexPath.row < swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row > swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row == swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row > swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row < swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row == swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                        }
+                    }
+                }
             }
             else{
                 
@@ -479,7 +506,7 @@
             }
         }];
                 
-        if (![swizzledNotification existsInArray:self.swizzledNotifications]){
+        if (![swizzledNotification existsInArray:self.swizzledNotifications] && ![swizzledNotification.swizzledIndexPath isEqual:swizzledNotification]){
             [self.swizzledNotifications addObject:swizzledNotification];
         }
     }
