@@ -71,13 +71,15 @@
         if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
             
             RZCollectionListSwizzledObjectNotification *other = obj;
-            if (self.swizzledIndexPath != nil && [other.swizzledIndexPath isEqual:self.swizzledIndexPath]){
-                exists = YES;
-                *stop = YES;
-            }
-            else if (self.swizzledNewIndexPath != nil && [other.swizzledNewIndexPath isEqual:self.swizzledNewIndexPath]){
-                exists = YES;
-                *stop = YES;
+            if (other.changeType == self.changeType){
+                if (self.swizzledIndexPath != nil && [other.swizzledIndexPath isEqual:self.swizzledIndexPath]){
+                    exists = YES;
+                    *stop = YES;
+                }
+                else if (self.swizzledNewIndexPath != nil && [other.swizzledNewIndexPath isEqual:self.swizzledNewIndexPath]){
+                    exists = YES;
+                    *stop = YES;
+                }
             }
         }
         
@@ -143,9 +145,11 @@
     [array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj isKindOfClass:[RZCollectionListSwizzledSectionNotification class]]){
             
-            if ([obj swizzledIndex] == self.swizzledIndex){
-                exists = YES;
-                *stop = YES;
+            if ([obj changeType] == self.changeType){
+                if ([obj swizzledIndex] == self.swizzledIndex){
+                    exists = YES;
+                    *stop = YES;
+                }
             }
             
         }
@@ -395,10 +399,11 @@
             if ([obj isKindOfClass:[RZCollectionListSwizzledSectionNotification class]]){
 
                 RZCollectionListSwizzledSectionNotification *sectionNotificaiton = obj;
-            
-                if (newIndexPath.section == sectionNotificaiton.swizzledIndex){
-                    isValidInsertion = NO;
-                    *stop = YES;
+                if (sectionNotificaiton.changeType == RZCollectionListChangeInsert){
+                    if (newIndexPath.section == sectionNotificaiton.swizzledIndex){
+                        isValidInsertion = NO;
+                        *stop = YES;
+                    }
                 }
             }
             
@@ -616,24 +621,36 @@
                     
             // update insertions and deletions to reflect change to section
             // does not remove any insertions to the section that just got removed - let it blow up in that case
+            NSMutableArray *deletionsToCancel = [NSMutableArray arrayWithCapacity:8];
             [self.swizzledNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 
                 if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
                     
                     RZCollectionListSwizzledObjectNotification *otherNotification = obj;
                     
+                    if (otherNotification.changeType == RZCollectionListChangeDelete){
+                        
+                        if (otherNotification.swizzledIndexPath.section == swizzledNotification.swizzledIndex){
+                            [deletionsToCancel addObject:otherNotification];
+                        }
+                    }
                     if (otherNotification.changeType == RZCollectionListChangeInsert){
                         if (otherNotification.swizzledNewIndexPath.section > swizzledNotification.originalIndex){
                             [otherNotification adjustNewIndexPathSectionBy:-1 rowBy:0];
                         }
                     }
                     else if (otherNotification.changeType == RZCollectionListChangeMove){
+                        
                         if (otherNotification.swizzledNewIndexPath.section > swizzledNotification.originalIndex){
                             [otherNotification adjustNewIndexPathSectionBy:-1 rowBy:0];
                         }
                     }
                 }
 
+            }];
+            
+            [deletionsToCancel enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                [self.swizzledNotifications removeObject:obj];
             }];
             
             [self.swizzledNotifications addObject:swizzledNotification];
