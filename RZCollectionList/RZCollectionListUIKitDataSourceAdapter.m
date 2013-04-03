@@ -555,22 +555,7 @@
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
                         }
                     }
-                }
-                else if (otherNotification.changeType == RZCollectionListChangeMove){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
-                        if ((otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row) &&
-                            (otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row))
-                        {
-                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
-                        }
-                        else if ((otherNotification.originalIndexPath.row <=swizzledNotification.swizzledIndexPath.row) &&
-                                 (otherNotification.originalNewIndexPath.row >= swizzledNotification.swizzledIndexPath.row))
-                        {
-                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
-                        }
-                    }
-                }
-                
+                }                
             }
             else{
                 
