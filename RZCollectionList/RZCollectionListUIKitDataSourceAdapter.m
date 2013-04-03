@@ -635,55 +635,102 @@
     
         // Original row needs to reflect original state of data - treat like removal
         
-        // Adjust row index for exiting deletions
-        __block NSInteger rowAdjustment = 0;
-        [self.swizzledObjectRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            
-            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            if (otherNotification.swizzledIndexPath.section == swizzledNotification.swizzledIndexPath.section){
-                
-                if (otherNotification.originalIndexPath.row <= indexPath.row){
-                    rowAdjustment++;
-                }
-            }
-        }];
-        
         // Adjust row for existing insertions
+        __block NSInteger rowAdjustment = 0;
+
         [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
             
             if(otherNotification.swizzledNewIndexPath.section == swizzledNotification.originalIndexPath.section){
                 
-                if (otherNotification.originalNewIndexPath.row <= indexPath.row){
+                if (otherNotification.swizzledNewIndexPath.row <= indexPath.row){
                     rowAdjustment--;
                 }
             }
             
         }];
         
+//        // Adjust row for existing moves
+//        [self.swizzledObjectMoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//            
+//            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+//            
+//            if (otherNotification.swizzledNewIndexPath.section == swizzledNotification.swizzledNewIndexPath.section){
+//                
+//                if (otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row <= swizzledNotification.originalIndexPath.row){
+//                    rowAdjustment--;
+//                }
+//                
+//            }
+//            
+//        }];
+        
         [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
         
-        // Adjust row for existing moves, cumulatively, walking backwards
-        [self.swizzledObjectMoveNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        rowAdjustment = 0;
+        
+        // Adjust row index for exiting deletions
+        [self.swizzledObjectRemoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-            
-            if (otherNotification.swizzledNewIndexPath.section == swizzledNotification.swizzledNewIndexPath.section){
+            if (otherNotification.swizzledIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                 
-                if (otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row >= swizzledNotification.swizzledIndexPath.row){
-                    [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                if (otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
+                    rowAdjustment++;
                 }
-                else if (otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
-                    [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
-                }
-                
             }
-            
         }];
         
         
+                
+//        // Adjust row for existing moves
+//        [self.swizzledObjectMoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//            
+//            RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+//            
+//            if (otherNotification.swizzledNewIndexPath.section == swizzledNotification.swizzledNewIndexPath.section){
+//                
+//                if (otherNotification.originalIndexPath.row <= indexPath.row && otherNotification.originalNewIndexPath.row >= swizzledNotification.originalIndexPath.row){
+//                    rowAdjustment++;
+//                }
+//                else if (otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row && otherNotification.originalNewIndexPath.row <= swizzledNotification.originalIndexPath.row){
+//                    rowAdjustment--;
+//                }
+//                
+//            }
+//            
+//        }];
+        
+        [swizzledNotification adjustIndexPathSectionBy:0 rowBy:rowAdjustment];
+        
         if (![swizzledNotification existsInArray:self.swizzledObjectMoveNotifications]){
+            
+            // Move existing insertions as necessary
+            [self.swizzledObjectInsertNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                
+                RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+                
+                if(otherNotification.swizzledNewIndexPath.section == swizzledNotification.originalIndexPath.section){
+                    
+                    if (indexPath.row >= otherNotification.swizzledNewIndexPath.row && newIndexPath.row <= otherNotification.swizzledNewIndexPath.row){
+                        [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
+                    }
+                    else if (indexPath.row <= otherNotification.swizzledNewIndexPath.row && newIndexPath.row > otherNotification.swizzledNewIndexPath.row){
+                        [otherNotification adjustNewIndexPathSectionBy:0 rowBy:-1];
+                    }
+                    
+                }
+            }];
+            
+            
+            // Move existing moves as necessary
+            [self.swizzledObjectMoveNotifications enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                
+                RZCollectionListSwizzledObjectNotification *otherNotification = obj;
+                
+            }];
+            
             [self.swizzledObjectMoveNotifications addObject:swizzledNotification];
         }
     }

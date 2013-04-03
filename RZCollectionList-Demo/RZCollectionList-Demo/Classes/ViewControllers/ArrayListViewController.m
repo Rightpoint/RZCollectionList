@@ -55,6 +55,8 @@
         [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
         [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
     }
+    
+    [self.arrayList addObject:[ListItemObject listItemObjectWithName:@"0" subtitle:nil] toSection:0];
 }
 
 - (void)didReceiveMemoryWarning
@@ -67,7 +69,7 @@
 {
     static NSUInteger totalCount = 0;
     ++totalCount;
-    [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %u", totalCount] subtitle:nil] toSection:0];
+    [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %u", totalCount++] subtitle:nil] toSection:0];
 }
 
 #pragma mark - UITableViewDelegate
