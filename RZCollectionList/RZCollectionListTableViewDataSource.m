@@ -9,6 +9,8 @@
 #import "RZCollectionListTableViewDataSource.h"
 #import "RZCollectionListUIKitDataSourceAdapter.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 @interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
@@ -229,7 +231,14 @@
 {
     if (self.animateTableChanges)
     {
+        [CATransaction begin];
         [self.tableView beginUpdates];
+        
+        [CATransaction setCompletionBlock:^{
+            if (self.observerAdapter.needsReload){
+                [self.tableView reloadData];
+            }
+        }];
     }
 }
 
@@ -238,6 +247,8 @@
     if (self.animateTableChanges)
     {
         [self.tableView endUpdates];
+        
+        [CATransaction commit];
     }
     else
     {

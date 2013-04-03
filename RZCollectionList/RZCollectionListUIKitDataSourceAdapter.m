@@ -100,9 +100,6 @@
     else if (self.changeType == RZCollectionListChangeMove){
         NSLog(@"Sending move notification from [%d, %d] to [%d, %d]", self.swizzledIndexPath.section, self.swizzledIndexPath.row, self.swizzledNewIndexPath.section, self.swizzledNewIndexPath.row);
     }
-    else if (self.changeType == RZCollectionListChangeUpdate){
-        NSLog(@"Sending update notification at [%d, %d]", self.swizzledIndexPath.section, self.swizzledIndexPath.row);
-    }
 }
 #endif
 
@@ -169,9 +166,6 @@
     else if (self.changeType == RZCollectionListChangeMove){
         NSLog(@"Sending section move notification at %d", self.swizzledIndex); // can this happen?
     }
-    else if (self.changeType == RZCollectionListChangeUpdate){
-        NSLog(@"Sending section update notification at %d", self.swizzledIndex);
-    }
 }
 #endif
 
@@ -187,6 +181,7 @@
 
 @property (nonatomic, weak)   id<RZCollectionList> sourceList;
 
+@property (nonatomic, readwrite, assign) BOOL needsReload;
 @property (nonatomic, assign) BOOL isUpdating;
 
 - (void)commonInit;
@@ -354,30 +349,6 @@
                 }
             }];
             
-            // Cancel updates at this index path
-            NSMutableSet *notificationsToCancel = [NSMutableSet setWithCapacity:8];
-            [self.swizzledNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                
-                if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
-                    
-                    RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-                    
-                    if (otherNotification.changeType == RZCollectionListChangeUpdate){
-                        if ([otherNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
-                            [notificationsToCancel addObject:obj];
-#ifdef RZCL_SWZ_DEBUG
-                            NSLog(@"Update cancelled for [%d, %d]", otherNotification.swizzledIndexPath.section, otherNotification.swizzledIndexPath.row);
-#endif
-                        }
-                    }
-                }
-                
-            }];
-            
-            [notificationsToCancel enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-                [self.swizzledNotifications removeObject:obj];
-            }];
-            
             [self.swizzledNotifications addObject:swizzledNotification];
         }
         
@@ -456,75 +427,8 @@
         NSLog(@"Object reload at [%d, %d]", indexPath.section, indexPath.row);
 #endif
         
-        [self.swizzledNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            
-            if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
-                
-                RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-                
-                if (otherNotification.changeType == RZCollectionListChangeDelete){
-                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
-                        if(otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
-                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
-                        }
-                    }
-                }
-                else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
-                        if(otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
-                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
-                        }
-                    }
-                }
-                
-            }
-            else{
-                
-                RZCollectionListSwizzledSectionNotification *sectionNotification = obj;
-                
-                if (sectionNotification.changeType == RZCollectionListChangeInsert){
-                    if (sectionNotification.originalIndex <= swizzledNotification.swizzledIndexPath.section){
-                        [swizzledNotification adjustIndexPathSectionBy:-1 rowBy:0];
-                    }
-                }
-                else if (sectionNotification.changeType == RZCollectionListChangeDelete){
-                    if (sectionNotification.originalIndex <= swizzledNotification.swizzledIndexPath.section){
-                        [swizzledNotification adjustIndexPathSectionBy:1 rowBy:0];
-                    }
-                }
-                
-            }
-        }];
-        
-        // Don't allow newly-inserted or previously removed cells to be updated
-        __block BOOL validUpdate = YES;
-        [self.swizzledNotifications enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            
-            if ([obj isKindOfClass:[RZCollectionListSwizzledObjectNotification class]]){
-                
-                RZCollectionListSwizzledObjectNotification *otherNotification = obj;
-                
-                if (otherNotification.changeType == RZCollectionListChangeDelete){
-                    if ([otherNotification.swizzledNewIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
-                        validUpdate = NO;
-                        *stop = YES;
-                    }
-                }
-                else if (otherNotification.changeType == RZCollectionListChangeInsert){
-                    if ([otherNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledIndexPath]){
-                        validUpdate = NO;
-                        *stop = YES;
-                    }
-                }
-
-            }
-            
-        }];
-        
-        if (validUpdate && ![swizzledNotification existsInArray:self.swizzledNotifications]){
-            [self.swizzledNotifications addObject:swizzledNotification];
-        }
-    
+        // just mark as needs reload
+        self.needsReload = YES;
     }
     
     // ====== Move ========
@@ -708,6 +612,7 @@
 {
     self.sourceList = collectionList;
     self.isUpdating = YES;
+    self.needsReload = NO;
     [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [obj collectionListWillChangeContent:collectionList];
     }];
