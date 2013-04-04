@@ -395,6 +395,12 @@
             [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
             [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
             
+            // Need to re-add observer since it will be removed in previous call
+            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+            [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                [notificationCenter addObserver:self selector:@selector(objectUpdateNotificationReceived:) name:name object:object];
+            }];
+            
             if (shouldSendNotifications)
             {
                 [self sendDidChangeObjectNotification:object atIndexPath:sourceIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:destinationIndexPath];

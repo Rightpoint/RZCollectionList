@@ -238,6 +238,10 @@
             
             RZCollectionListSwizzledObjectNotification *swizzledNotification = obj;
             
+            // Need to ignore moves to same index path, which can happen in complex batch updates
+            if (swizzledNotification.changeType == RZCollectionListChangeMove && [swizzledNotification.swizzledIndexPath isEqual:swizzledNotification.swizzledNewIndexPath])
+                return;
+            
 #ifdef RZCL_SWZ_DEBUG
             [swizzledNotification logNotificationForward];
 #endif
@@ -307,6 +311,30 @@
                     if(otherNotification.originalNewIndexPath.section == swizzledNotification.swizzledIndexPath.section){
                         if(otherNotification.originalNewIndexPath.row <= swizzledNotification.swizzledIndexPath.row){
                             [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                    }
+                }
+                else if (otherNotification.changeType == RZCollectionListChangeMove){
+                    if (otherNotification.originalIndexPath.section == swizzledNotification.swizzledIndexPath.section){
+                        if ((otherNotification.originalIndexPath.row >= swizzledNotification.swizzledIndexPath.row) &&
+                            (otherNotification.originalNewIndexPath.row < swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row > swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row == swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:-1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row <= swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row > swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
+                        }
+                        else if ((otherNotification.originalIndexPath.row < swizzledNotification.swizzledIndexPath.row) &&
+                                 (otherNotification.originalNewIndexPath.row == swizzledNotification.swizzledIndexPath.row))
+                        {
+                            [swizzledNotification adjustIndexPathSectionBy:0 rowBy:1];
                         }
                     }
                 }
@@ -432,6 +460,7 @@
         
         // just mark as needs reload - dont' forward updates
         self.needsReload = YES;
+
     }
     
     // ====== Move ========
