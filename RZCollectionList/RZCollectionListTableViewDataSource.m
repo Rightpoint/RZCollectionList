@@ -241,7 +241,7 @@
         [self.tableView beginUpdates];
         
         [CATransaction setCompletionBlock:^{
-            if (self.observerAdapter.needsReload){
+            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
                 [self.tableView reloadData];
             }
         }];
