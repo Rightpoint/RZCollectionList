@@ -394,7 +394,7 @@
                     
                     if (otherNotification.changeType == RZCollectionListChangeInsert){
                         
-                        if (otherNotification.originalNewIndexPath.section == newIndexPath.section){
+                        if (otherNotification.swizzledNewIndexPath.section == newIndexPath.section){
                             if (newIndexPath.row <= otherNotification.swizzledNewIndexPath.row){
                                 [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
                             }
@@ -403,7 +403,7 @@
                     }
                     else if (otherNotification.changeType == RZCollectionListChangeMove){
                         
-                        if (otherNotification.originalNewIndexPath.section == newIndexPath.section){
+                        if (otherNotification.swizzledNewIndexPath.section == newIndexPath.section){
                             if (newIndexPath.row <= otherNotification.swizzledNewIndexPath.row){
                                 [otherNotification adjustNewIndexPathSectionBy:0 rowBy:1];
                             }
