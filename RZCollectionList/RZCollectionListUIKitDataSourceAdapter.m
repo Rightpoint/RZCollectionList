@@ -633,11 +633,6 @@
                         sectionNotification.swizzledIndex++;
                     }
                 }
-                else if (sectionNotification.changeType == RZCollectionListChangeDelete){
-                    if (sectionNotification.originalIndex <= sectionIndex){
-                        swizzledNotification.swizzledIndex++;
-                    }
-                }
                 
             }
             else{
