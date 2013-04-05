@@ -74,7 +74,12 @@
         } else {
             self.objects = [[NSArray array] mutableCopy];
         }
-        self.sectionsInfo = [sections mutableCopy];
+        
+        if (sections){
+            self.sectionsInfo = [sections mutableCopy];
+        } else {
+            self.sectionsInfo = [[NSArray array] mutableCopy];
+        }
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
