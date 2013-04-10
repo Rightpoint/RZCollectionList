@@ -237,14 +237,10 @@
 {
     if (self.animateTableChanges)
     {
-        [CATransaction begin];
+
         [self.tableView beginUpdates];
         
-        [CATransaction setCompletionBlock:^{
-            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
-                [self.tableView reloadData];
-            }
-        }];
+
     }
 }
 
@@ -252,6 +248,14 @@
 {
     if (self.animateTableChanges)
     {
+        [CATransaction begin];
+        
+        [CATransaction setCompletionBlock:^{
+            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
+                [self.tableView reloadData];
+            }
+        }];
+        
         [self.tableView endUpdates];
         
         [CATransaction commit];
