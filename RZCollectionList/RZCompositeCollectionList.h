@@ -14,5 +14,6 @@
 @property (nonatomic, copy) NSArray *sourceLists;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists;
+- (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections;
 
 @end
