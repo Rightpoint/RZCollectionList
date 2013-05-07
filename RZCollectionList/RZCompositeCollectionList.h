@@ -14,5 +14,6 @@
 @property (nonatomic, copy) NSArray *sourceLists;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists;
+- (id<RZCollectionList>)sourceListForSectionIndex:(NSUInteger)sectionIndex;
 
 @end

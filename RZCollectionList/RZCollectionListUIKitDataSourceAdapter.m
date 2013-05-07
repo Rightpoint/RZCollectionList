@@ -7,6 +7,8 @@
 //
 
 #import "RZCollectionListUIKitDataSourceAdapter.h"
+#import "RZCompositeCollectionList.h"
+#import "RZArrayCollectionList.h"
 #import "RZObserverCollection.h"
 
 // Uncomment to enable debug log messages
@@ -185,9 +187,14 @@
 @property (nonatomic, weak)   id<RZCollectionList> sourceList;
 
 @property (nonatomic, readwrite, assign) BOOL needsReload;
+
 @property (nonatomic, assign) BOOL isUpdating;
 
 - (void)commonInit;
+
+// Determine if we actually need to swizzle. If not, just forward the notification.
+- (BOOL)shouldSwizzleIndexesForList:(id<RZCollectionList>)list sectionIndex:(NSUInteger)index;
+
 - (void)forwardObjectUpdateNotifications;
 
 @end
@@ -227,6 +234,24 @@
 - (void)removeObserver:(id<RZCollectionListObserver>)observer
 {
     [self.observerCollection removeObject:observer];
+}
+
+- (BOOL)shouldSwizzleIndexesForList:(id<RZCollectionList>)list sectionIndex:(NSUInteger)index
+{
+    BOOL shouldSwizzle = NO;
+    
+    if ([list isKindOfClass:[RZArrayCollectionList class]])
+    {
+        shouldSwizzle = YES;
+    }
+    else if ([list isKindOfClass:[RZCompositeCollectionList class]])
+    {
+        if ([[(RZCompositeCollectionList*)list sourceListForSectionIndex:index] isKindOfClass:[RZArrayCollectionList class]]){
+            shouldSwizzle = YES;
+        }
+    }
+    
+    return shouldSwizzle;
 }
 
 - (void)forwardObjectUpdateNotifications
@@ -284,6 +309,14 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath *)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
 {
+    // If we don't need to swizzle, then don't
+    if (![self shouldSwizzleIndexesForList:collectionList sectionIndex:(newIndexPath ? newIndexPath.section : indexPath.section)]){
+        
+        [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [obj collectionList:collectionList didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
+        }];
+        return;
+    }
  
     RZCollectionListSwizzledObjectNotification *swizzledNotification = [[RZCollectionListSwizzledObjectNotification alloc] initWithChangeType:type object:object indexPath:indexPath newIndexPath:newIndexPath];
     
@@ -543,6 +576,15 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
+    // If we don't need to swizzle, then don't
+    if (![self shouldSwizzleIndexesForList:collectionList sectionIndex:sectionIndex]){
+        
+        [self.observerCollection.allObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [obj collectionList:collectionList didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
+        }];
+        return;
+    }
+    
     RZCollectionListSwizzledSectionNotification *swizzledNotification = [[RZCollectionListSwizzledSectionNotification alloc] initWithChangeType:type
                                                                                                                                    sectionInfo:sectionInfo
                                                                                                                                   sectionIndex:sectionIndex];

@@ -42,6 +42,15 @@
     return self;
 }
 
+- (id<RZCollectionList>)sourceListForSectionIndex:(NSUInteger)sectionIndex
+{
+    id <RZCollectionList> sourceList = nil;
+    if (sectionIndex < self.sourceListForSection.count){
+        sourceList = [self.sourceLists objectAtIndex:[[self.sourceListForSection objectAtIndex:sectionIndex] unsignedIntegerValue]];
+    }
+    return sourceList;
+}
+
 - (void)configureSectionsWithSourceLists:(NSArray*)sourceLists
 {
     NSMutableArray *sectionRanges = [[NSMutableArray alloc] initWithCapacity:sourceLists.count];

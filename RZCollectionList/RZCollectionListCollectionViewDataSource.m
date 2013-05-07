@@ -8,7 +8,6 @@
 
 #import "RZCollectionListCollectionViewDataSource.h"
 #import "RZCollectionListUIKitDataSourceAdapter.h"
-#import "RZArrayCollectionList.h"
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
@@ -54,7 +53,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (void)setUseBatchUpdating:(BOOL)useBatchUpdating
 {
-    if (_useBatchUpdating != useBatchUpdating && [self.collectionList isKindOfClass:[RZArrayCollectionList class]]){
+    if (_useBatchUpdating != useBatchUpdating){
         
         // Can't use adapter for non-batch updates
         if (!useBatchUpdating){
