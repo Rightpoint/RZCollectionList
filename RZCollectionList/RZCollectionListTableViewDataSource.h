@@ -24,6 +24,8 @@
 - (void)tableView:(UITableView*)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath;
 - (void)tableView:(UITableView*)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath;
 
+- (void)handleBatchException:(NSException*)exception forTableView:(UITableView*)tableView;
+
 @end
 
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>

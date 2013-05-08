@@ -231,10 +231,7 @@
 {
     if (self.animateTableChanges)
     {
-
         [self.tableView beginUpdates];
-        
-
     }
 }
 
@@ -250,7 +247,18 @@
             }
         }];
         
-        [self.tableView endUpdates];
+        @try {
+            [self.tableView endUpdates];
+        }
+        @catch (NSException *exception) {
+            if ([self.delegate respondsToSelector:@selector(handleBatchException:forTableView:)])
+            {
+                [self.delegate handleBatchException:exception forTableView:self.tableView];
+            }
+            else{
+                @throw exception;
+            }
+        }
         
         [CATransaction commit];
     }
