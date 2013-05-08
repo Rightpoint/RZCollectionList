@@ -24,6 +24,8 @@
 - (void)tableView:(UITableView*)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath;
 - (void)tableView:(UITableView*)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath;
 
+- (void)handleBatchException:(NSException*)exception forTableView:(UITableView*)tableView;
+
 @end
 
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
@@ -33,9 +35,10 @@
 
 @property (nonatomic, weak) id<RZCollectionListTableViewDataSourceDelegate> delegate;
 
-@property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;           // Defaults to NO
-@property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
-@property (nonatomic, assign, getter = shouldAnimateTableChanges) BOOL animateTableChanges; // Defaults to YES
+@property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;                           // Defaults to NO
+@property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;                   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
+@property (nonatomic, assign, getter = shouldAnimateTableChanges) BOOL animateTableChanges;                 // Defaults to YES
+@property (nonatomic, assign, getter = shouldAlwaysReloadAfterAnimating) BOOL alwaysReloadAfterAnimating;   // Defaults to NO
 
 @property (nonatomic, assign) UITableViewRowAnimation addSectionAnimation;      // Defaults to UITableViewRowAnimationFade
 @property (nonatomic, assign) UITableViewRowAnimation removeSectionAnimation;   // Defaults to UITableViewRowAnimationFade

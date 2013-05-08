@@ -217,8 +217,8 @@
     
     // add object at first index
     [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    
-    // move to second index - move does not play nice with section updates
+
+    // move to second index
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // add objects at the end
@@ -397,6 +397,27 @@
     [self.arrayList addObject:@"Pre-Numbers" toSection:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+}
+
+- (void)test8SeveralMoves
+{
+    NSArray *startArray = @[@"1",@"2",@"3",@"4",@"5"];
+    
+    self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
+    
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
+    [self.arrayList beginUpdates];
+    
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:4 inSection:0]];
+
+    [self.arrayList endUpdates];
 }
 
 #pragma mark - Table View Data Source

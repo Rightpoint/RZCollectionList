@@ -74,7 +74,12 @@
         } else {
             self.objects = [[NSArray array] mutableCopy];
         }
-        self.sectionsInfo = [sections mutableCopy];
+        
+        if (sections){
+            self.sectionsInfo = [sections mutableCopy];
+        } else {
+            self.sectionsInfo = [[NSArray array] mutableCopy];
+        }
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
@@ -394,6 +399,12 @@
         {
             [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
             [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
+            
+            // Need to re-add observer since it will be removed in previous call
+            NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+            [self.objectUpdateNotifications enumerateObjectsUsingBlock:^(id name, NSUInteger idx, BOOL *stop) {
+                [notificationCenter addObserver:self selector:@selector(objectUpdateNotificationReceived:) name:name object:object];
+            }];
             
             if (shouldSendNotifications)
             {
