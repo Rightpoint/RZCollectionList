@@ -15,6 +15,8 @@
 
 @interface RZCollectionListUIKitDataSourceAdapter : NSObject <RZCollectionListObserver>
 
+@property (nonatomic, readonly, assign) BOOL needsReload;
+
 - (id)initWithObserver:(id<RZCollectionListObserver>)observer;
 - (void)addObserver:(id<RZCollectionListObserver>)observer;
 - (void)removeObserver:(id<RZCollectionListObserver>)observer;
