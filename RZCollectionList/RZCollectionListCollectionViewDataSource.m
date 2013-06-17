@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListCollectionViewDataSource.h"
-#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
@@ -16,8 +15,6 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
-
-@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
 
 @end
 
@@ -46,30 +43,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self.observerAdapter];
-}
-
-#pragma mark - Properties
-
-- (void)setUseBatchUpdating:(BOOL)useBatchUpdating
-{
-    if (_useBatchUpdating != useBatchUpdating){
-        
-        // Can't use adapter for non-batch updates
-        if (!useBatchUpdating){
-            if (self.observerAdapter != nil){
-                [self.collectionList removeCollectionListObserver:self.observerAdapter];
-                self.observerAdapter = nil;
-            }
-            [self.collectionList addCollectionListObserver:self];
-        }
-        else{
-            self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-            [self.collectionList removeCollectionListObserver:self];
-            [self.collectionList addCollectionListObserver:self.observerAdapter];
-        }
-    }
-    _useBatchUpdating = useBatchUpdating;
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -205,9 +179,9 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                         
                     } completion:^(BOOL finished) {
                         
-                        if (self.observerAdapter.needsReload){
-                            [self.collectionView reloadData];
-                        }   
+//                        if (self.observerAdapter.needsReload){
+//                            [self.collectionView reloadData];
+//                        }   
                         [self.batchUpdates removeAllObjects];
                         self.batchUpdates = nil;
                         

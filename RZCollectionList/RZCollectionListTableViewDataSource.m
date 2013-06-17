@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListTableViewDataSource.h"
-#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -15,8 +14,6 @@
 
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
-
-@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
 
 @end
 
@@ -30,8 +27,7 @@
         self.delegate = delegate;
         self.tableView = tableView;
 
-        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
@@ -48,7 +44,7 @@
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self.observerAdapter];
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
@@ -241,11 +237,11 @@
     {
         [CATransaction begin];
         
-        [CATransaction setCompletionBlock:^{
-            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
-                [self.tableView reloadData];
-            }
-        }];
+//        [CATransaction setCompletionBlock:^{
+//            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
+//                [self.tableView reloadData];
+//            }
+//        }];
         
         @try {
             [self.tableView endUpdates];
