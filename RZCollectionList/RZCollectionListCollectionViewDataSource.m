@@ -169,37 +169,23 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
             if (nil != self.batchUpdates)
             {
                 
-                @try {
-                
-                    [self.collectionView performBatchUpdates:^{
-                        
-                        [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
-                            changeBlock();
-                        }];
-                        
-                    } completion:^(BOOL finished) {
-                        
+                [self.collectionView performBatchUpdates:^{
+                    
+                    [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
+                        changeBlock();
+                    }];
+                    
+                } completion:^(BOOL finished) {
+                    
 //                        if (self.observerAdapter.needsReload){
 //                            [self.collectionView reloadData];
 //                        }   
-                        [self.batchUpdates removeAllObjects];
-                        self.batchUpdates = nil;
-                        
-                    }];
-                }
-                @catch (NSException *exception) {
-                    
                     [self.batchUpdates removeAllObjects];
                     self.batchUpdates = nil;
                     
-                    if ([self.delegate respondsToSelector:@selector(handleBatchException:forCollectionView:)])
-                    {
-                        [self.delegate handleBatchException:exception forCollectionView:self.collectionView];
-                    }
-                    else{
-                        @throw exception;
-                    }
-                }
+                }];
+            
+
             }
         }
     }

@@ -18,8 +18,6 @@
 // The view that is returned must be retrieved from a call to -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
 
-- (void)handleBatchException:(NSException*)exception forCollectionView:(UICollectionView*)collectionView;
-
 @end
 
 @interface RZCollectionListCollectionViewDataSource : NSObject <UICollectionViewDataSource>
