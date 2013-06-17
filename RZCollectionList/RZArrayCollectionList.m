@@ -296,13 +296,7 @@
        
         // shallow copy sections
         self.sectionsInfoBeforeBatchUpdateShallow = [self.sectionsInfo copy];
-        
-        // deep copy sections
-        NSMutableArray *sectionCopies = [NSMutableArray arrayWithCapacity:self.sectionsInfo.count];
-        [self.sectionsInfo enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo *sectionInfo, NSUInteger idx, BOOL *stop) {
-            [sectionCopies addObject:[sectionInfo copy]];
-        }];
-        self.sectionsInfoBeforeBatchUpdateDeep = sectionCopies;
+        self.sectionsInfoBeforeBatchUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
         [self sendWillChangeContentNotifications];
     }

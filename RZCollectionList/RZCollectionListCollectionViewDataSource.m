@@ -88,12 +88,27 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
     {
         if (type == RZCollectionListChangeUpdate){
 
-            if (self.useBatchUpdating){
-                [self.updatedObjects addObject:object];
+            UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+            if (cell != nil){
+                
+                NSIndexPath *currentIndexPathOfObject = [self.collectionList indexPathForObject:object];
+
+                if (self.useBatchUpdating){
+                
+                    // If the delegate implements the update method, update right now. Otherwise delay.
+                    if ([self.delegate respondsToSelector:@selector(collectionView:updateCell:forObject:atIndexPath:)])
+                    {
+                        [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:currentIndexPathOfObject];
+                    }
+                    else{
+                        [self.updatedObjects addObject:object];
+                    }
+                }
+                else{
+                    [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+                }
             }
-            else{
-                [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
-            }
+
         }
         else{
             RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{

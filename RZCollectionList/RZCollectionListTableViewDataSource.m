@@ -196,7 +196,22 @@
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
                 break;
             case RZCollectionListChangeUpdate:
-                [self.updatedObjects addObject:object];
+            {
+                // is this row visible? If so we need to update this cell.
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+                if (cell != nil){
+                    
+                    NSIndexPath *currentIndexPathOfObject = [self.collectionList indexPathForObject:object];
+                    
+                    // If the delegate implements the update method, update right now. Otherwise delay.
+                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)]){
+                        [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:currentIndexPathOfObject];
+                    }
+                    else{
+                        [self.updatedObjects addObject:object];
+                    }
+                }
+            }
                 break;
             default:
                 //uncaught type
