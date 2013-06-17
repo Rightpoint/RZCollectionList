@@ -202,7 +202,7 @@
     
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    
+
     // insert object at second index
     [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     
@@ -307,7 +307,6 @@
     }];
     
     
-    
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
@@ -337,6 +336,7 @@
     [self.arrayList removeSectionAtIndex:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:2], @"BLAH", @"Something went wrong here");
     
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
     
@@ -349,9 +349,11 @@
     newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
     [self.arrayList insertSection:newSection atIndex:0];
 
+    firstSectionStrings = @[@"Zero",@"Should",@"Precede",@"Me"];
     [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
     }];
+    
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
@@ -365,6 +367,7 @@
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:0], @"0", @"Zero string was not moved correctly");
 
 }
 
@@ -417,7 +420,11 @@
 
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:4 inSection:0]];
 
-    [self.arrayList endUpdates];
+    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    
+    // Final order should be 3, 4, 1, 5, 2
+    NSArray *finalArray = @[@"3",@"4",@"1",@"5",@"2"];
+    STAssertEqualObjects(self.arrayList.listObjects, finalArray, @"Final array order is incorrect");
 }
 
 #pragma mark - Table View Data Source
