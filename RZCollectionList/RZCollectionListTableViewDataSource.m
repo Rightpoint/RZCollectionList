@@ -15,6 +15,8 @@
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
+@property (nonatomic, strong) NSMutableSet *updatedObjects;
+
 @end
 
 @implementation RZCollectionListTableViewDataSource
@@ -37,6 +39,8 @@
         
         // reload data here to prep for collection list observations
         [tableView reloadData];
+        
+        self.updatedObjects = [NSMutableSet setWithCapacity:16];
     }
     
     return self;
@@ -192,7 +196,7 @@
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
                 break;
             case RZCollectionListChangeUpdate:
-                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
+                [self.updatedObjects addObject:object];
                 break;
             default:
                 //uncaught type
@@ -235,15 +239,27 @@
 {
     if (self.animateTableChanges)
     {
-        //[CATransaction begin];
-        
-//        [CATransaction setCompletionBlock:^{
-//            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
-//                [self.tableView reloadData];
-//            }
-//        }];
-        
         [self.tableView endUpdates];
+        
+        // delay update notifications
+        if (self.updatedObjects.count > 0){
+            
+            NSMutableArray *updatedIndexPaths = [NSMutableArray arrayWithCapacity:self.updatedObjects.count];
+            [self.tableView beginUpdates];
+            [self.updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+               
+                NSIndexPath *ip = [self.collectionList indexPathForObject:obj];
+                if (ip != nil){ 
+                    [updatedIndexPaths addObject:ip];
+                }
+                
+            }];
+            
+            [self.tableView reloadRowsAtIndexPaths:updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
+            [self.tableView endUpdates];
+            
+            [self.updatedObjects removeAllObjects];
+        }
 
     }
     else

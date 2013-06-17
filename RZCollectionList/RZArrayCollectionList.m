@@ -104,7 +104,7 @@
         self.objectsInsertedDuringBatchUpdate   = [NSMutableSet setWithCapacity:16];
         self.objectsRemovedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
         self.objectsMovedDuringBatchUpdate      = [NSMutableSet setWithCapacity:16];
-        self.objectsRemovedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
+        self.objectsUpdatedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
@@ -708,9 +708,9 @@
     // object updates
     
     [self.objectsUpdatedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj])
+        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj] && ![self.objectsInsertedDuringBatchUpdate containsObject:obj])
         {
-            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:[self indexPathForObject:obj]];
+            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
         }
     }];
 }

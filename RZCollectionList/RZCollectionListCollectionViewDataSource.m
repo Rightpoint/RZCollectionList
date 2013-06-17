@@ -15,6 +15,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
+@property (nonatomic, strong) NSMutableSet *updatedObjects;
 
 @end
 
@@ -36,6 +37,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         
         collectionView.dataSource = self;
         [collectionView reloadData];
+        
+        self.updatedObjects = [NSMutableSet setWithCapacity:16];
     }
     
     return self;
@@ -83,36 +86,42 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
-        RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
-            switch(type) {
-                case RZCollectionListChangeInsert:
-                    [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
-                    break;
-                case RZCollectionListChangeDelete:
-                    [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
-                    break;
-                case RZCollectionListChangeMove:
-                    [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
-                    break;
-                case RZCollectionListChangeUpdate:
-                {
-                    [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
-                }
-                    break;
-                default:
-                    //uncaught type
-                    NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                    break;
+        if (type == RZCollectionListChangeUpdate){
+
+            if (self.useBatchUpdating){
+                [self.updatedObjects addObject:object];
             }
-        };
-        
-        if (self.useBatchUpdating && nil != self.batchUpdates)
-        {
-            [self.batchUpdates addObject:[objectChangeBlock copy]];
+            else{
+                [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+            }
         }
-        else
-        {
-            objectChangeBlock();
+        else{
+            RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
+                switch(type) {
+                    case RZCollectionListChangeInsert:
+                        [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
+                        break;
+                    case RZCollectionListChangeDelete:
+                        [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+                        break;
+                    case RZCollectionListChangeMove:
+                        [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
+                        break;
+                    default:
+                        //uncaught type
+                        NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                        break;
+                }
+            };
+            
+            if (self.useBatchUpdating && nil != self.batchUpdates)
+            {
+                [self.batchUpdates addObject:[objectChangeBlock copy]];
+            }
+            else
+            {
+                objectChangeBlock();
+            }
         }
     }
 }
@@ -177,14 +186,28 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                     
                 } completion:^(BOOL finished) {
                     
-//                        if (self.observerAdapter.needsReload){
-//                            [self.collectionView reloadData];
-//                        }   
                     [self.batchUpdates removeAllObjects];
                     self.batchUpdates = nil;
                     
                 }];
             
+                // delayed item updates
+                if (self.updatedObjects.count > 0){
+                    
+                    NSMutableArray *updateIndexPaths = [NSMutableArray arrayWithCapacity:self.updatedObjects.count];
+                    [self.updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+                        NSIndexPath *ip = [self.collectionList indexPathForObject:obj];
+                        if (ip != nil){
+                            [updateIndexPaths addObject:ip];
+                        }
+                    }];
+                    
+                    [self.collectionView performBatchUpdates:^{
+                        [self.collectionView reloadItemsAtIndexPaths:updateIndexPaths];
+                    } completion:^(BOOL finished) {
+                        [self.updatedObjects removeAllObjects];
+                    }];
+                }
 
             }
         }

@@ -54,9 +54,9 @@
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"ListItem" sortDescriptorKey:@"itemName" ascending:YES];
     self.fetchedList = [[RZFetchedCollectionList alloc] initWithFetchRequest:request
-                                                                            managedObjectContext:self.moc
-                                                                              sectionNameKeyPath:@"subtitle"
-                                                                                       cacheName:nil];
+                                                        managedObjectContext:self.moc
+                                                          sectionNameKeyPath:@"subtitle"
+                                                                   cacheName:nil];
     
     if (self.tableView)
     {
