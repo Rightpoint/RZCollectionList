@@ -104,7 +104,7 @@
         self.objectsInsertedDuringBatchUpdate   = [NSMutableSet setWithCapacity:16];
         self.objectsRemovedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
         self.objectsMovedDuringBatchUpdate      = [NSMutableSet setWithCapacity:16];
-        self.objectsRemovedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
+        self.objectsUpdatedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
@@ -296,13 +296,7 @@
        
         // shallow copy sections
         self.sectionsInfoBeforeBatchUpdateShallow = [self.sectionsInfo copy];
-        
-        // deep copy sections
-        NSMutableArray *sectionCopies = [NSMutableArray arrayWithCapacity:self.sectionsInfo.count];
-        [self.sectionsInfo enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo *sectionInfo, NSUInteger idx, BOOL *stop) {
-            [sectionCopies addObject:[sectionInfo copy]];
-        }];
-        self.sectionsInfoBeforeBatchUpdateDeep = sectionCopies;
+        self.sectionsInfoBeforeBatchUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
         [self sendWillChangeContentNotifications];
     }
@@ -707,9 +701,9 @@
     // object updates
     
     [self.objectsUpdatedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj])
+        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj] && ![self.objectsInsertedDuringBatchUpdate containsObject:obj])
         {
-            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:[self indexPathForObject:obj]];
+            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
         }
     }];
 }

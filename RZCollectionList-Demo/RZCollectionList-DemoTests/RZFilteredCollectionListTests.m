@@ -24,7 +24,6 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
 @property (nonatomic, copy) RZCollectionListTestObserverDidChangeBlock didChangeBlock;
 
 
-
 - (NSArray*)listItemObjects;
 
 - (void)logCollectionList:(id<RZCollectionList>)collectionList;

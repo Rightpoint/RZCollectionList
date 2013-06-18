@@ -69,6 +69,8 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     for (int i=0; i<10; i++){
         STAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
     }
@@ -83,6 +85,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     
     [self.arrayList beginUpdates];
     
@@ -112,6 +116,8 @@
                                                                             delegate:self];
     
     self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
+    
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     
     [self.arrayList beginUpdates];
 
@@ -193,6 +199,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     
     // batch modify sections and objects
         
@@ -262,6 +270,8 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     [self.arrayList beginUpdates];
     
     // remove "0"
@@ -311,6 +321,8 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     [self.arrayList beginUpdates];
     
     // Delete first section
@@ -358,6 +370,8 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     [self.arrayList beginUpdates];
     
     // insert at first row
@@ -382,6 +396,8 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    
     [self.arrayList beginUpdates];
     
     NSMutableString *zeroString = [startArray objectAtIndex:0];
@@ -400,6 +416,8 @@
     [self.arrayList addObject:@"Pre-Numbers" toSection:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]].textLabel.text, @"zero", @"Cell at index 1 should have title \"zero\"");
+    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]].textLabel.text, @"one", @"Cell at index 2 should have title \"one\"");
 }
 
 - (void)test8SeveralMoves

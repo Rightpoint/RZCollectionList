@@ -15,6 +15,13 @@
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 @optional
+
+//! Implement this to immediately update a cell's contents as part of a batch update, as opposed to a parallel animation (which can look strange)
+/*!
+    The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated.
+*/
+- (void)tableView:(UITableView*)tableView updateCell:(UITableViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+
 - (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section;
 - (NSString*)tableView:(UITableView*)tableView titleForFooterInSection:(NSInteger)section;
 
@@ -36,7 +43,6 @@
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;                           // Defaults to NO
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;                   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
 @property (nonatomic, assign, getter = shouldAnimateTableChanges) BOOL animateTableChanges;                 // Defaults to YES
-@property (nonatomic, assign, getter = shouldAlwaysReloadAfterAnimating) BOOL alwaysReloadAfterAnimating;   // Defaults to NO
 
 @property (nonatomic, assign) UITableViewRowAnimation addSectionAnimation;      // Defaults to UITableViewRowAnimationFade
 @property (nonatomic, assign) UITableViewRowAnimation removeSectionAnimation;   // Defaults to UITableViewRowAnimationFade
