@@ -26,8 +26,8 @@
 
 /**** CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE *****/
 /*
-    Currently not officially supporting adding the same object to the array more than once.
-*/
+ *   Currently not officially supporting adding the same object to the array more than once.
+ */
 
 - (void)addObject:(id)object toSection:(NSUInteger)section;
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath;

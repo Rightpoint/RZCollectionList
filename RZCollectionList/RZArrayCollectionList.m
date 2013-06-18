@@ -379,8 +379,7 @@
     
     if (object)
     {
-        // hanlde the "move" method calling remove - don't add to set in that case
-        if (self.isBatchUpdating && ![self.objectsMovedDuringBatchUpdate containsObject:object])
+        if (self.isBatchUpdating)
         {
             [self.objectsRemovedDuringBatchUpdate addObject:object];
         }
@@ -467,14 +466,14 @@
         {
             
             if (self.isBatchUpdating){
-                // Don't send an extra notification for a newly inserted object
+                // Don't send an extra notification for a newly inserted object in a batch operation
                 if (![self.objectsInsertedDuringBatchUpdate containsObject:object])
                 {
                     [self.objectsMovedDuringBatchUpdate addObject:object];
                 }
             }
             
-            // ND: I manually unwound the insert/remove calls so the batch logic doesn't get messed up. Will be easier to handle NSOrderedSet later if we want.
+            // ND: I manually unwound the insert/remove calls so the batch logic doesn't get messed up.
             
             // INSERT AT NEW INDEX
             
