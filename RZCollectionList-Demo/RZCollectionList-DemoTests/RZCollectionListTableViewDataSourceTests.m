@@ -191,7 +191,7 @@
     newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
     [self.arrayList insertSection:newSection atIndex:2];
     
-    NSArray *lastSectionStrings = @[@"This",@"is",@"the",@"last",@"section"];
+    NSArray *lastSectionStrings = @[@"This",@"is",@"the",@"final",@"section"];
     [lastSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:2]];
     }];
