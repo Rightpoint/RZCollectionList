@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListTableViewDataSource.h"
-#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -16,7 +15,7 @@
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
-@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
+@property (nonatomic, strong) NSMutableSet *updatedObjects;
 
 @end
 
@@ -30,8 +29,7 @@
         self.delegate = delegate;
         self.tableView = tableView;
 
-        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
@@ -41,6 +39,8 @@
         
         // reload data here to prep for collection list observations
         [tableView reloadData];
+        
+        self.updatedObjects = [NSMutableSet setWithCapacity:16];
     }
     
     return self;
@@ -48,7 +48,7 @@
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self.observerAdapter];
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
@@ -188,15 +188,35 @@
         switch(type) {
             case RZCollectionListChangeInsert:
                 [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:self.addObjectAnimation];
+                NSLog(@"Insert %@ at %@", object, newIndexPath);
                 break;
             case RZCollectionListChangeDelete:
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.removeObjectAnimation];
+                NSLog(@"Delete %@ at %@", object, indexPath);
                 break;
             case RZCollectionListChangeMove:
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
+                NSLog(@"Move %@ from %@ to %@", object, indexPath, newIndexPath);
                 break;
             case RZCollectionListChangeUpdate:
-                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
+            {
+                NSLog(@"Update %@ at %@", object, indexPath);
+                
+                // is this row visible? If so we need to update this cell.
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+                if (cell != nil){
+                    
+                    NSIndexPath *currentIndexPathOfObject = [self.collectionList indexPathForObject:object];
+                    
+                    // If the delegate implements the update method, update right now. Otherwise delay.
+                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)]){
+                        [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:currentIndexPathOfObject];
+                    }
+                    else{
+                        [self.updatedObjects addObject:object];
+                    }
+                }
+            }
                 break;
             default:
                 //uncaught type
@@ -204,6 +224,7 @@
                 break;
         }
     }
+    
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
@@ -239,28 +260,28 @@
 {
     if (self.animateTableChanges)
     {
-        [CATransaction begin];
+        [self.tableView endUpdates];
         
-        [CATransaction setCompletionBlock:^{
-            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
-                [self.tableView reloadData];
-            }
-        }];
-        
-        @try {
+        // delay update notifications
+        if (self.updatedObjects.count > 0){
+            
+            NSMutableArray *updatedIndexPaths = [NSMutableArray arrayWithCapacity:self.updatedObjects.count];
+            [self.tableView beginUpdates];
+            [self.updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+               
+                NSIndexPath *ip = [self.collectionList indexPathForObject:obj];
+                if (ip != nil){ 
+                    [updatedIndexPaths addObject:ip];
+                }
+                
+            }];
+            
+            [self.tableView reloadRowsAtIndexPaths:updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
             [self.tableView endUpdates];
+            
+            [self.updatedObjects removeAllObjects];
         }
-        @catch (NSException *exception) {
-            if ([self.delegate respondsToSelector:@selector(handleBatchException:forTableView:)])
-            {
-                [self.delegate handleBatchException:exception forTableView:self.tableView];
-            }
-            else{
-                @throw exception;
-            }
-        }
-        
-        [CATransaction commit];
+
     }
     else
     {
