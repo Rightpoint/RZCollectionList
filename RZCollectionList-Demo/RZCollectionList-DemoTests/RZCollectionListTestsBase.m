@@ -27,6 +27,7 @@
     
     self.tableView = [[UITableView alloc] initWithFrame:self.viewController.view.bounds];
     [self.viewController.view addSubview:self.tableView];
+    self.tableView.userInteractionEnabled = NO;
     
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
     
@@ -48,9 +49,36 @@
     [self.moc setPersistentStoreCoordinator:self.psc];
 }
 
+- (void)performSynchronousCoreDataBlockInChildContext:(RZCollectionListTestCoreDataBlock)block
+{
+    dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+       
+        NSManagedObjectContext *bgMoc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSConfinementConcurrencyType];
+        [bgMoc setParentContext:self.moc];
+        
+        block(bgMoc);
+        
+        STAssertTrue([bgMoc save:NULL], @"Failed to save child MOC");
+        
+    });
+}
+
 - (void)waitFor:(NSUInteger)seconds
 {
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:seconds]];
+}
+
+- (void)assertTitlesOfVisibleCells:(NSArray *)titles
+{
+    NSArray *visibleTitles = [self.tableView.visibleCells valueForKeyPath:@"textLabel.text"];
+    STAssertTrue(visibleTitles.count <= titles.count, @"Too many visible cells for provided titles");
+    if (visibleTitles.count < titles.count){
+        
+        // trim titles to length of visible cells
+        titles = [titles subarrayWithRange:NSMakeRange(0, visibleTitles.count)];
+    }
+    
+    STAssertEqualObjects(visibleTitles, titles, @"Titles do not match expected titles");
 }
 
 

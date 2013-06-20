@@ -11,8 +11,11 @@
 #import "RZArrayCollectionList.h"
 #import "RZFilteredCollectionList.h"
 #import "RZSortedCollectionList.h"
+#import "RZFetchedCollectionList.h"
+#import "RZCollectionListCollectionViewDataSource.h"
 #import "RZCollectionListTableViewDataSource.h"
 
+typedef void (^RZCollectionListTestCoreDataBlock)(NSManagedObjectContext *moc);
 
 @interface RZCollectionListTestsBase : SenTestCase
 
@@ -26,6 +29,9 @@
 - (void)setupTableView;
 - (void)setupCoreDataStack;
 
+- (void)performSynchronousCoreDataBlockInChildContext:(RZCollectionListTestCoreDataBlock)block;
 - (void)waitFor:(NSUInteger)seconds;
+
+- (void)assertTitlesOfVisibleCells:(NSArray*)titles;
 
 @end
