@@ -668,9 +668,9 @@
     // - Section Insertion
     // - Object Insertion
     // - Object Removal
+    // - Section Removal
     // - Object Move
     // - Object Update
-    // - Section Removal
 
     // section insertions
     [self.sectionsInsertedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
@@ -686,6 +686,11 @@
     [self.objectsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
          [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
      }];
+
+    // section removals
+    [self.sectionsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeBatchUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
+    }];
     
     // object moves
     [self.objectsMovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -707,10 +712,6 @@
         }
     }];
 
-    // section removals
-    [self.sectionsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeBatchUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
-    }];
 }
 
 #pragma mark - ObjectUpdateObservation
