@@ -37,16 +37,16 @@
 
 - (void)insertTestObjects
 {
-    NSArray *testData = @[ @[@"Arthur", @10],
-                           @[@"Barb", @9],
-                           @[@"Carl", @8],
-                           @[@"Denny", @7],
-                           @[@"Edgar", @6],
-                           @[@"Filburt", @5],
-                           @[@"Gretchen", @4],
-                           @[@"Horatio", @3],
-                           @[@"Iggy", @2],
-                           @[@"Jasper", @1] ];
+    NSArray *testData = @[ @[@"Arthur",     @10],
+                           @[@"Barb",       @9],
+                           @[@"Carl",       @8],
+                           @[@"Denny",      @7],
+                           @[@"Edgar",      @6],
+                           @[@"Filburt",    @5],
+                           @[@"Gretchen",   @4],
+                           @[@"Horatio",    @3],
+                           @[@"Iggy",       @2],
+                           @[@"Jasper",     @1] ];
     
     for (NSArray *childInfo in testData)
     {
@@ -136,8 +136,89 @@
     [self waitFor:1];
 }
 
+- (void)test101FetchWithSort
+{
+    [self insertTestObjects];
+    
+    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
+    fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES],
+                              [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+    
+    NSFetchedResultsController *frc = [[NSFetchedResultsController alloc] initWithFetchRequest:fetch
+                                                                          managedObjectContext:self.moc
+                                                                            sectionNameKeyPath:nil
+                                                                                     cacheName:nil];
+    
+    // Fetch with ascending index, sort by descending index.
+    
+    self.fetchedList = [[RZFetchedCollectionList alloc] initWithFetchedResultsController:frc];
+    self.sortedList = [[RZSortedCollectionList alloc] initWithSourceList:self.fetchedList
+                                                         sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:NO],
+                                                                           [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.sortedList
+                                                                            delegate:self];
+    
+    [self assertTitlesOfVisibleCells:
+     @[ @"Arthur",
+        @"Barb",
+        @"Carl",
+        @"Denny",
+        @"Edgar",
+        @"Filburt",
+        @"Gretchen",
+        @"Horatio",
+        @"Iggy",
+        @"Jasper"]
+     ];
+    
+    [self waitFor:1];
+    
+    // insert some new homeys at even indexes, delete a few others
+    RZCollectionListTestCoreDataBlock bgBlock = ^(NSManagedObjectContext *moc) {
+        
+        TestChildEntity *nuChild = nil;
+        
+        nuChild = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:moc];
+        nuChild.name = @"Nuni";
+        nuChild.index = @2;
+        
+        nuChild = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:moc];
+        nuChild.name = @"Kai";
+        nuChild.index = @8;
+        
+        // Kill gretchen
+        NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
+        gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
+        NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
+        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
+        if (gretchenResults.count > 0){
+            TestChildEntity *gretchen = gretchenResults[0];
+            [moc deleteObject:gretchen];
+        }
+        
+    };
+    
+    STAssertNoThrow([self performSynchronousCoreDataBlockInChildContext:bgBlock], @"Something went wrong");
+    
+    [self assertTitlesOfVisibleCells:
+     @[ @"Arthur",
+        @"Barb",
+        @"Carl",
+        @"Kai",
+        @"Denny",
+        @"Edgar",
+        @"Filburt",
+        @"Horatio",
+        @"Iggy",
+        @"Nuni",
+        @"Jasper"]
+     ];
+    
+}
 
-- (void)test200ChangeFetchRequest
+
+- (void)test200ChangeFetchRequestInPlace
 {
     
 }
