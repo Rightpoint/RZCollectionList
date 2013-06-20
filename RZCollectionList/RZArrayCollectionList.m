@@ -662,46 +662,33 @@
 
 - (void)sendBatchChangeNotifications
 {
-    // These notifications need to be sent out in a specific order.
-    // Removal - Descending
-    // Update - Doesn't matter
-    // Move - Ascending
-    // Insertion - Ascending
+    //!!!: May want to change this order. Need to decide on conclusive order for batch notifications, all observers should respect it.
+    
+    // Order used by RZFetchedCollectionList
+    // - Section Insertion
+    // - Object Insertion
+    // - Object Removal
+    // - Object Move
+    // - Object Update
+    // - Section Removal
 
-    // object removals
-    NSIndexSet *sortedRemovedObjectIndexes = [self.objectsBeforeBatchUpdate indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [self.objectsRemovedDuringBatchUpdate containsObject:obj];
+    // section insertions
+    [self.sectionsInsertedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sections indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeInsert];
     }];
-    [[self.objectsBeforeBatchUpdate objectsAtIndexes:sortedRemovedObjectIndexes]
-     enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+
+    // object insertions
+    [self.objectsInsertedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        [self sendDidChangeObjectNotification:obj atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:[self indexPathForObject:obj]];
+    }];
+    
+    // object removals
+    [self.objectsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
          [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
      }];
     
-    // section removals
-    NSIndexSet *sortedRemovedSectionIndexes = [self.sectionsInfoBeforeBatchUpdateShallow indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [self.sectionsRemovedDuringBatchUpdate containsObject:obj];
-    }];
-    
-    [[self.sectionsInfoBeforeBatchUpdateShallow objectsAtIndexes:sortedRemovedSectionIndexes]
-     enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, NSUInteger idx, BOOL *stop) {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeBatchUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
-    }];
-    
-    // object updates
-    [self.objectsUpdatedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj] && ![self.objectsInsertedDuringBatchUpdate containsObject:obj])
-        {
-            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
-        }
-    }];
-    
     // object moves
-    
-    NSIndexSet *sortedMovedObjectIndexes = [self.objects indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [self.objectsMovedDuringBatchUpdate containsObject:obj];
-    }];
-    
-    [[self.objects objectsAtIndexes:sortedMovedObjectIndexes] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [self.objectsMovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         
         NSIndexPath *prevIndexPath = [self preUpdateIndexPathForObject:obj];
         NSIndexPath *currIndexPath = [self indexPathForObject:obj];
@@ -711,24 +698,19 @@
         }
         
     }];
-    
-    // section insertions
-    NSIndexSet *sortedInsertedSectionIndexes = [self.sections indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [self.sectionsInsertedDuringBatchUpdate containsObject:obj];
-    }];
-    [[self.sections objectsAtIndexes:sortedInsertedSectionIndexes] enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, NSUInteger idx, BOOL *stop) {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sections indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeInsert];
-    }];
-    
-    // object insertions
-    NSIndexSet *sortedInsertedObjectIndexes = [self.objects indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [self.objectsInsertedDuringBatchUpdate containsObject:obj];
-    }];
-    
-    [[self.objects objectsAtIndexes:sortedInsertedObjectIndexes] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [self sendDidChangeObjectNotification:obj atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:[self indexPathForObject:obj]];
+
+    // object updates
+    [self.objectsUpdatedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj] && ![self.objectsInsertedDuringBatchUpdate containsObject:obj])
+        {
+            [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        }
     }];
 
+    // section removals
+    [self.sectionsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeBatchUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
+    }];
 }
 
 #pragma mark - ObjectUpdateObservation

@@ -188,20 +188,15 @@
         switch(type) {
             case RZCollectionListChangeInsert:
                 [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:self.addObjectAnimation];
-                NSLog(@"Insert %@ at %@", object, newIndexPath);
                 break;
             case RZCollectionListChangeDelete:
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.removeObjectAnimation];
-                NSLog(@"Delete %@ at %@", object, indexPath);
                 break;
             case RZCollectionListChangeMove:
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
-                NSLog(@"Move %@ from %@ to %@", object, indexPath, newIndexPath);
                 break;
             case RZCollectionListChangeUpdate:
-            {
-                NSLog(@"Update %@ at %@", object, indexPath);
-                
+            {                
                 // is this row visible? If so we need to update this cell.
                 UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
                 if (cell != nil){

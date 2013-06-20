@@ -130,24 +130,6 @@
         
         // Insert a new pair
         [self insertPairWithName1:@"Cheech" name2:@"Chong" index:@420 moc:bgMoc];
-
-//        // update name of fourth child, shouldn't change the order
-//        [currentChildren[3] setName:@"Ziggy"];
-//        
-//        // set index of third child to 10, should move to end
-//        [currentChildren[2] setIndex:@10];
-//        
-//        // insert with index 40
-//        TestChildEntity *newChild = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:bgMoc];
-//        newChild.name = @"Eugene";
-//        newChild.index = @40;
-//        
-//        // insert with index 4
-//        newChild = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:bgMoc];
-//        newChild.name = @"Wilbur";
-//        newChild.index = @4;
-        
-
         
         STAssertTrue([bgMoc save:NULL], @"Failed to save background MOC");
         
@@ -172,7 +154,7 @@
 {
     switch (type) {
         case NSFetchedResultsChangeDelete:
-            NSLog(@"DELETED OBJECT at %@ : %@", indexPath, anObject);
+            NSLog(@"DELETED OBJECT AT %@ : %@", indexPath, anObject);
             break;
             
         case NSFetchedResultsChangeInsert:
