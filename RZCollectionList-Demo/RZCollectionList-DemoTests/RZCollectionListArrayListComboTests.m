@@ -7,10 +7,7 @@
 //
 
 #import "RZCollectionListArrayListComboTests.h"
-#import "RZArrayCollectionList.h"
-#import "RZFilteredCollectionList.h"
-#import "RZSortedCollectionList.h"
-#import "RZCollectionListTableViewDataSource.h"
+
 
 #import "RZCollectionListTestModelObject.h"
 
@@ -18,18 +15,12 @@
 
 @interface RZCollectionListArrayListComboTests () <RZCollectionListTableViewDataSourceDelegate>
 
-@property (nonatomic, strong) UIViewController *viewController;
-@property (nonatomic, strong) UITableView *tableView;
-
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
 @property (nonatomic, strong) RZFilteredCollectionList *filteredList;
 @property (nonatomic, strong) RZSortedCollectionList *sortedList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;
 
-@property (nonatomic, assign) BOOL shouldContinue;
-
 - (NSArray*)uniqueStartingObjects;
-- (void)waitFor:(NSUInteger)seconds;
 
 @end
 
@@ -38,20 +29,7 @@
 
 - (void)setUp{
     [super setUp];
-    
-    self.viewController = [[UIViewController alloc] init];
-    [self.viewController view];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:self.viewController.view.bounds];
-    [self.viewController.view addSubview:self.tableView];
-    
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-    
-    self.viewController.title = @"Table View Tests";
-    self.viewController.navigationItem.rightBarButtonItem.enabled = NO;
-    
-    [[[[UIApplication sharedApplication] delegate] window] setRootViewController:nav];
-
+    [self setupTableView];
 }
 
 - (void)tearDown{
@@ -68,10 +46,7 @@
              [RZCollectionListTestModelObject objectWithName:@"Egghead" number:@5] ];
 }
 
-- (void)waitFor:(NSUInteger)seconds
-{
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:seconds]];
-}
+
 
 #pragma mark - Data Source
 

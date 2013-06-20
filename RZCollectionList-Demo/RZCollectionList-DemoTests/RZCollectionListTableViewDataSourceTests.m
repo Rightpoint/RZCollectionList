@@ -12,19 +12,7 @@
 #import "RZSortedCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
 
-// Comment this out to not pause as long between tests
-#define RZ_TESTS_USER_MODE
-
-#ifdef RZ_TESTS_USER_MODE
-#define kWaitTime   3.0
-#else
-#define kWaitTime   0.125
-#endif
-
 @interface RZCollectionListTableViewDataSourceTests () <RZCollectionListTableViewDataSourceDelegate>
-
-@property (nonatomic, strong) UIViewController *viewController;
-@property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;
@@ -37,24 +25,12 @@
 
 - (void)setUp{
     [super setUp];
-    
-    self.viewController = [[UIViewController alloc] init];
-    [self.viewController view];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:self.viewController.view.bounds];
-    [self.viewController.view addSubview:self.tableView];
-    
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-    
-    self.viewController.title = @"Table View Tests";
-    self.viewController.navigationItem.rightBarButtonItem.enabled = NO;
-    
-    [[[[UIApplication sharedApplication] delegate] window] setRootViewController:nav];
+    [self setupTableView];
 }
 
 - (void)tearDown{
+    [self waitFor:1.5];
     [super tearDown];
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
 }
 
 #pragma mark - Tests
@@ -69,7 +45,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     for (int i=0; i<10; i++){
         STAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
@@ -86,7 +62,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -117,7 +93,7 @@
     
     self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
 
@@ -200,7 +176,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
 
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     // batch modify sections and objects
         
@@ -270,7 +246,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -321,7 +297,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -350,7 +326,7 @@
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:2], @"BLAH", @"Something went wrong here");
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
+    [self waitFor:1.5];
     
     // start over - test moving row to another section
 
@@ -370,7 +346,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -396,7 +372,7 @@
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     

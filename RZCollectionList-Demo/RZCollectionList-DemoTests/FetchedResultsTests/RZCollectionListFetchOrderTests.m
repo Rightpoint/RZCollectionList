@@ -20,30 +20,21 @@
 @end
 
 @implementation RZCollectionListFetchOrderTests
-{
-    BOOL _finishedFetch;
-}
 
 - (void)setUp
 {
     [super setUp];
 
     // build CoreData stack
-    
-    NSURL *modelURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"RZCollectionListFetchTestModel" withExtension:@"momd"];
-    self.mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-    
-    self.psc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.mom];
-    [self.psc addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:nil];
-    
-    self.moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [self.moc setPersistentStoreCoordinator:self.psc];
+    [super setupCoreDataStack];
 }
 
 - (void)tearDown
 {
     [super tearDown];
-    
+    self.moc = nil;
+    self.mom = nil;
+    self.psc = nil;
 }
 
 - (void)insertPairWithName1:(NSString *)name1 name2:(NSString *)name2 index:(NSNumber *)index moc:(NSManagedObjectContext*)moc

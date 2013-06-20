@@ -9,7 +9,8 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "RZCollectionListTestsBase.h"
 
-@interface RZCollectionListTableViewDataSourceTests : SenTestCase
+@interface RZCollectionListTableViewDataSourceTests : RZCollectionListTestsBase
 
 @end
