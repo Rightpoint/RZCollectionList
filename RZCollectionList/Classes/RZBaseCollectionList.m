@@ -36,16 +36,16 @@
     // Default does nothing
 }
 
-- (void)clearCachedCollectionInfo
+- (void)resetPendingNotifications
 {
     self.sourceObjectsBeforeUpdate                = nil;
     self.sourceSectionsInfoBeforeUpdateShallow    = nil;
     self.sourceSectionsInfoBeforeUpdateDeep       = nil;
     
     // clear objects going back into the cache
-    [self.pendingSectionInsertNotifications  makeObjectsPerformSelector:@selector(clear)];
+    [self.pendingSectionInsertNotifications   makeObjectsPerformSelector:@selector(clear)];
     [self.pendingSectionRemoveNotifications   makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingObjectInsertNotifications   makeObjectsPerformSelector:@selector(clear)];
+    [self.pendingObjectInsertNotifications    makeObjectsPerformSelector:@selector(clear)];
     [self.pendingObjectRemoveNotifications    makeObjectsPerformSelector:@selector(clear)];
     [self.pendingObjectMoveNotifications      makeObjectsPerformSelector:@selector(clear)];
     [self.pendingObjectUpdateNotifications    makeObjectsPerformSelector:@selector(clear)];
@@ -68,9 +68,9 @@
     }
     
     // remove notifications from containers
-    [self.pendingSectionInsertNotifications  removeAllObjects];
+    [self.pendingSectionInsertNotifications   removeAllObjects];
     [self.pendingSectionRemoveNotifications   removeAllObjects];
-    [self.pendingObjectInsertNotifications   removeAllObjects];
+    [self.pendingObjectInsertNotifications    removeAllObjects];
     [self.pendingObjectRemoveNotifications    removeAllObjects];
     [self.pendingObjectMoveNotifications      removeAllObjects];
     [self.pendingObjectUpdateNotifications    removeAllObjects];

@@ -293,7 +293,7 @@
         [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
         
-        [self clearCachedCollectionInfo];
+        [self resetPendingNotifications];
     }
 }
 

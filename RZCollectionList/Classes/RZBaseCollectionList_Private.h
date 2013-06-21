@@ -41,6 +41,6 @@
 - (RZCollectionListSectionNotification*)dequeueReusableSectionNotification;
 
 // Subclasses MUST call this method after notifications are sent and no longer needed!
-- (void)clearCachedCollectionInfo;
+- (void)resetPendingNotifications;
 
 @end
