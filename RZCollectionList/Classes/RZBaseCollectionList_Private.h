@@ -7,6 +7,7 @@
 //
 
 #import "RZBaseCollectionList.h"
+#import "RZCollectionListNotificationWrappers.h"
 
 // Max number of notifications to keep around for reuse.
 // Exceeding this number in a single batch update will cause new allocations.
@@ -24,15 +25,22 @@
 @property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
 
 // these should be used to cache section/object changes during an update
-@property (nonatomic, strong) NSMutableSet *sectionsInsertedDuringUpdate;
-@property (nonatomic, strong) NSMutableSet *sectionsRemovedDuringUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsInsertedDuringUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsRemovedDuringUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsMovedDuringUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsUpdatedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *pendingSectionInsertNotifications;
+@property (nonatomic, strong) NSMutableSet *pendingSectionRemoveNotifications;
+@property (nonatomic, strong) NSMutableSet *pendingObjectInsertNotifications;
+@property (nonatomic, strong) NSMutableSet *pendingObjectRemoveNotifications;
+@property (nonatomic, strong) NSMutableSet *pendingObjectMoveNotifications;
+@property (nonatomic, strong) NSMutableSet *pendingObjectUpdateNotifications;
 
+@property (nonatomic, strong) NSMutableSet *sectionNotificationReuseCache;
+@property (nonatomic, strong) NSMutableSet *objectNotificationReuseCache;
 
 - (void)sendObjectAndSectionNotificationsToObservers; // default does nothing
+
+- (RZCollectionListObjectNotification*)dequeueReusableObjectNotification;
+- (RZCollectionListSectionNotification*)dequeueReusableSectionNotification;
+
+// Subclasses MUST call this method after notifications are sent and no longer needed!
 - (void)clearCachedCollectionInfo;
 
 @end

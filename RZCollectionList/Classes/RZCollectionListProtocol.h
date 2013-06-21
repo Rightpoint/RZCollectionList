@@ -47,6 +47,7 @@
 @protocol RZCollectionListObserver <NSObject>
 
 typedef enum {
+    RZCollectionListChangeInvalid = -1,
     RZCollectionListChangeInsert = 1,
     RZCollectionListChangeDelete = 2,
     RZCollectionListChangeMove = 3,

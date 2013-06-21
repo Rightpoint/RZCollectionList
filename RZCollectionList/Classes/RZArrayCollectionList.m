@@ -306,10 +306,13 @@
     
     if (nil != object && nil != indexPath && index <= self.objects.count)
     {
-        // handle the "move" method calling insert - don't add to set in that case
         if (self.isBatchUpdating)
         {
-            [self.objectsInsertedDuringUpdate addObject:object];
+            RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+            notification.object = object;
+            notification.nuIndexPath = indexPath;
+            notification.type = RZCollectionListChangeInsert;
+            [self.pendingObjectInsertNotifications addObject:notification];
         }
         
         [self.objects insertObject:object atIndex:index];
@@ -348,7 +351,11 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.objectsRemovedDuringUpdate addObject:object];
+            RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+            notification.object = object;
+            notification.indexPath = indexPath;
+            notification.type = RZCollectionListChangeDelete;
+            [self.pendingObjectRemoveNotifications addObject:notification];
         }
         
         if (nil != self.objectUpdateNotifications)
@@ -383,7 +390,11 @@
         {
             if (self.isBatchUpdating)
             {
-                [self.objectsUpdatedDuringUpdate addObject:object];
+                RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+                notification.object = object;
+                notification.indexPath = indexPath;
+                notification.type = RZCollectionListChangeUpdate;
+                [self.pendingObjectUpdateNotifications addObject:notification];
             }
             
             id oldObject = [self.objects objectAtIndex:index];
@@ -432,12 +443,14 @@
         if (nil != object)
         {
             
-            if (self.isBatchUpdating){
-                // Don't send an extra notification for a newly inserted object in a batch operation
-                if (![self.objectsInsertedDuringUpdate containsObject:object])
-                {
-                    [self.objectsMovedDuringUpdate addObject:object];
-                }
+            if (self.isBatchUpdating)
+            {
+                RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+                notification.object = object;
+                notification.indexPath = sourceIndexPath;
+                notification.nuIndexPath = destinationIndexPath;
+                notification.type = RZCollectionListChangeMove;
+                [self.pendingObjectMoveNotifications addObject:notification];
             }
             
             // ND: I manually unwound the insert/remove calls so the batch logic doesn't get messed up.
@@ -477,7 +490,11 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.sectionsInsertedDuringUpdate addObject:section];
+            RZCollectionListSectionNotification *notification = [self dequeueReusableSectionNotification];
+            notification.sectionInfo = section;
+            notification.sectionIndex = index;
+            notification.type = RZCollectionListChangeInsert;
+            [self.pendingSectionInsertNotifications addObject:notification];
         }
         
         if (index > 0){
@@ -511,7 +528,11 @@
             
             if (self.isBatchUpdating)
             {
-                [self.objectsRemovedDuringUpdate addObject:obj];
+                RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+                notification.object = obj;
+                notification.indexPath = [NSIndexPath indexPathForRow:idx inSection:index];
+                notification.type = RZCollectionListChangeDelete;
+                [self.pendingObjectRemoveNotifications addObject:notification];
             }
             
             if (nil != self.objectUpdateNotifications)
@@ -534,7 +555,11 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.sectionsRemovedDuringUpdate addObject:sectionInfo];
+            RZCollectionListSectionNotification *notification = [self dequeueReusableSectionNotification];
+            notification.sectionInfo = sectionInfo;
+            notification.sectionIndex = index;
+            notification.type = RZCollectionListChangeInsert;
+            [self.pendingSectionRemoveNotifications addObject:notification];
         }
         
         [self.sectionsInfo removeObjectAtIndex:index];
@@ -645,31 +670,41 @@
     // - Object Update
 
     // section insertions
-    [self.sectionsInsertedDuringUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+    NSSet *insertedSectionsInfo = [self.pendingSectionInsertNotifications valueForKey:@"sectionInfo"];
+    [insertedSectionsInfo enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
         [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sections indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeInsert];
     }];
 
     // object insertions
-    [self.objectsInsertedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    NSSet *insertedObjects = [self.pendingObjectInsertNotifications valueForKey:@"object"];
+    [insertedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         [self sendDidChangeObjectNotification:obj atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:[self indexPathForObject:obj]];
     }];
     
     // object removals
-    [self.objectsRemovedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    NSSet *removedObjects = [self.pendingObjectRemoveNotifications valueForKey:@"object"];
+    [removedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
          [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
      }];
 
     // section removals
-    [self.sectionsRemovedDuringUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+    NSSet *removedSectionsInfo = [self.pendingSectionRemoveNotifications valueForKey:@"sectionInfo"];
+    [removedSectionsInfo enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
         [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sourceSectionsInfoBeforeUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
     }];
     
     // object moves
-    [self.objectsMovedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    NSSet *movedObjects = [self.pendingObjectMoveNotifications valueForKey:@"object"];
+    [movedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         
         NSIndexPath *prevIndexPath = [self preUpdateIndexPathForObject:obj];
         NSIndexPath *currIndexPath = [self indexPathForObject:obj];
-        if (prevIndexPath && currIndexPath && ![prevIndexPath isEqual:currIndexPath])
+        
+        // Don't allow:
+        // - Move that results in no actual change in index path
+        // - Move of removed object (e.g. move, then remove)
+        // - Move of newly inserted object (insertion index path will be up-to-date)
+        if (prevIndexPath && currIndexPath && ![prevIndexPath isEqual:currIndexPath] && ![removedObjects containsObject:obj] && ![insertedObjects containsObject:obj])
         {
             [self sendDidChangeObjectNotification:obj atIndexPath:prevIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:currIndexPath];
         }
@@ -677,8 +712,9 @@
     }];
 
     // object updates
-    [self.objectsUpdatedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![self.objectsRemovedDuringUpdate containsObject:obj] && ![self.objectsInsertedDuringUpdate containsObject:obj])
+    NSSet *updatedObjects = [self.pendingObjectUpdateNotifications valueForKey:@"object"];
+    [updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if (![insertedObjects containsObject:obj] && ![removedObjects containsObject:obj])
         {
             [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
         }
@@ -706,7 +742,11 @@
         }
         else
         {
-            [self.objectsUpdatedDuringUpdate addObject:object];
+            RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+            notification.object = object;
+            notification.indexPath = indexPath;
+            notification.type = RZCollectionListChangeUpdate;
+            [self.pendingObjectUpdateNotifications addObject:notification];
         }
     }
 }
