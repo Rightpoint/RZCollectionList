@@ -1,12 +1,13 @@
 //
-//  RZCollectionList.h
-//  RZCollectionList
+//  RZBaseCollectionList.m
+//  RZCollectionList-Demo
 //
-//  Created by Nick Donaldson on 06/21/13.
-//  Copyright (c) 2012 Raizlabs. All rights reserved.
+//  Created by Nick Donaldson on 6/21/13.
+//  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZCollectionList.h"
+#import "RZBaseCollectionList.h"
+#import "RZBaseCollectionList_Private.h"
 
 @implementation RZBaseCollectionList
 

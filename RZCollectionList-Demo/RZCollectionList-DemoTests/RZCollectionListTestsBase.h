@@ -8,12 +8,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import <CoreData/CoreData.h>
-#import "RZArrayCollectionList.h"
-#import "RZFilteredCollectionList.h"
-#import "RZSortedCollectionList.h"
-#import "RZFetchedCollectionList.h"
-#import "RZCollectionListCollectionViewDataSource.h"
-#import "RZCollectionListTableViewDataSource.h"
+#import "RZCollectionList.h"
 
 typedef void (^RZCollectionListTestCoreDataBlock)(NSManagedObjectContext *moc);
 

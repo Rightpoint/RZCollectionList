@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "RZCollectionList.h"
+#import "RZCollectionListProtocol.h"
+#import "RZBaseCollectionList.h"
 
 @interface RZFetchedCollectionList : RZBaseCollectionList <RZCollectionList>
 

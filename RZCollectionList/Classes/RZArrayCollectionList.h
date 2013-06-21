@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionList.h"
+#import "RZCollectionListProtocol.h"
+#import "RZBaseCollectionList.h"
 
 @interface RZArrayCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo, NSCopying>
 

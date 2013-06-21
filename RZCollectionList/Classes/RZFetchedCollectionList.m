@@ -8,6 +8,7 @@
 
 #import "RZFetchedCollectionList.h"
 #import "RZObserverCollection.h"
+#import "RZBaseCollectionList_Private.h"
 
 // Box containers for storing fetched results controller notifications until didChange is called.
 // This is to obey the internal ordering protocol for batch update notifications in RZCollectionList
