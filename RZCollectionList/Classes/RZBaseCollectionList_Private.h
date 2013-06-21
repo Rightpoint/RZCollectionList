@@ -41,7 +41,9 @@
 // Subclasses can call this to send out all pending notifications in the expected order
 - (void)sendObjectAndSectionNotificationsToObservers:(NSArray*)observers;
 
-// Subclasses MUST call this method after notifications are sent and no longer needed!
+// If a subclass does not use sendObjectAndSectionNotificationsToObservers:,
+// it MUST call this method after notifications are sent and no longer needed
+// in order to reset the pending notification sets.
 - (void)resetPendingNotifications;
 
 // Notification Helpers

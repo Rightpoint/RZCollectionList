@@ -216,7 +216,6 @@
     {
         // Send out all object/section notifications
         [self sendObjectAndSectionNotificationsToObservers:[self.collectionListObservers allObjects]];
-        [self resetPendingNotifications];
 
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");

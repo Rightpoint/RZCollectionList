@@ -73,6 +73,9 @@
     {
         [self sendObjectNotifications:[self.pendingObjectUpdateNotifications allObjects] toObservers:observers];
     }
+    
+    // Reset the notifications, return them to reuse cache
+    [self resetPendingNotifications];
 }
 
 - (void)sendSectionNotifications:(NSArray *)sectionNotifications toObservers:(NSArray*)observers
