@@ -21,7 +21,7 @@
 // these should be used to cache contents of the current collection or
 // an observed collection prior to mutating the internal state
 @property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
-@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - use only for index lookup after update
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - same as the sectionInfo objects that are being updated
 @property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
 
 // these should be used to cache section/object changes during an update
@@ -42,5 +42,6 @@
 
 // Subclasses MUST call this method after notifications are sent and no longer needed!
 - (void)resetPendingNotifications;
+
 
 @end

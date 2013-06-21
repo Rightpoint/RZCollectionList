@@ -294,6 +294,7 @@
         self.batchUpdating = NO;
         
         [self resetPendingNotifications];
+
     }
 }
 

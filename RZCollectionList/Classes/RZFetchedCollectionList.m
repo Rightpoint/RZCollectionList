@@ -14,8 +14,8 @@
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
-- (void)sendSectionNotifications:(NSSet*)sectionNotifications;
-- (void)sendObjectNotifications:(NSSet*)objectNotifications;
+- (void)sendSectionNotifications:(NSArray*)sectionNotifications;
+- (void)sendObjectNotifications:(NSArray*)objectNotifications;
 
 @end
 
@@ -68,36 +68,66 @@
 
 - (void)sendObjectAndSectionNotificationsToObservers
 {
-    // Insert Sections
-    [self sendSectionNotifications:self.pendingSectionInsertNotifications];
+    // Remove Objects, sorted descending by index path
+    if (self.pendingObjectRemoveNotifications.count)
+    {
+        NSArray *sortedRemoves = [self.pendingObjectRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath.section" ascending:NO], [NSSortDescriptor sortDescriptorWithKey:@"indexPath.row" ascending:NO]]];
+        [self sendObjectNotifications:sortedRemoves];
+    }
     
-    // Insert Objects
-    [self sendObjectNotifications:self.pendingObjectInsertNotifications];
+    // Remove Sections, sorted descending by index
+    if (self.pendingSectionRemoveNotifications.count)
+    {
+        NSArray *sortedRemoves = [self.pendingSectionRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
+        [self sendSectionNotifications:sortedRemoves];
+    }
     
-    // Remove Objects
-    [self sendObjectNotifications:self.pendingObjectRemoveNotifications];
+    // Insert Sections, ascending by index
+    if (self.pendingSectionInsertNotifications.count)
+    {
+        NSArray *sortedInserts = [self.pendingSectionInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
+        [self sendSectionNotifications:sortedInserts];
+    }
     
-    // Remove Sections
-    [self sendSectionNotifications:self.pendingSectionRemoveNotifications];
+    // Insert Objects, ascending by index path
+    if (self.pendingObjectInsertNotifications.count)
+    {
+        NSArray *sortedInserts = [self.pendingObjectInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self sendObjectNotifications:sortedInserts];
+    }
     
-    // Move Objects
-    [self sendObjectNotifications:self.pendingObjectMoveNotifications];
+    // Move Objects, ascending by destination index path
+    if (self.pendingObjectMoveNotifications.count)
+    {
+        NSArray *sortedMoves = [self.pendingObjectMoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self sendObjectNotifications:sortedMoves];
+    }
     
     // Update Objects
-    [self sendObjectNotifications:self.pendingObjectUpdateNotifications];
+    [self sendObjectNotifications:[self.pendingObjectUpdateNotifications allObjects]];
 }
 
-- (void)sendSectionNotifications:(NSSet *)sectionNotifications
+- (void)sendSectionNotifications:(NSArray *)sectionNotifications
 {
-    [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, BOOL *stop) {
-        [notification sendToObservers:[self.collectionListObservers allObjects] fromCollectionList:self];
+    [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
+            }
+        }];
     }];
 }
 
-- (void)sendObjectNotifications:(NSSet *)objectNotifications
+- (void)sendObjectNotifications:(NSArray *)objectNotifications
 {
-    [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, BOOL *stop) {
-        [notification sendToObservers:[self.collectionListObservers allObjects] fromCollectionList:self];
+    [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
+            }
+        }];
     }];
 }
 
@@ -255,7 +285,7 @@
         // Send out all object/section notifications
         [self sendObjectAndSectionNotificationsToObservers];
         [self resetPendingNotifications];
-        
+
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");
 #endif
