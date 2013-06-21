@@ -9,9 +9,10 @@
 #import "RZFetchedCollectionList.h"
 #import "RZObserverCollection.h"
 
-// HACK - Storing Remove Section Notifications until Content Did Change is called
-//        so Remove Object Notifications go out first. Need to do a proper batch
-//        changes implementation.
+// Box containers for storing fetched results controller notifications until didChange is called.
+// This is to obey the internal ordering protocol for batch update notifications in RZCollectionList
+// See wiki for details: https://github.com/Raizlabs/RZCollectionList/wiki/Batch-Notification-Order
+
 @interface RZFetchedCollectionListSectionNotification : NSObject
 
 @property (nonatomic, strong) id<RZCollectionListSectionInfo> sectionInfo;
@@ -22,12 +23,31 @@
 
 @end
 
+// --------------------------------------
+
+@interface RZFetchedCollectionListObjectNotification : NSObject
+
+@property (nonatomic, strong) id object;
+@property (nonatomic, strong) NSIndexPath *indexPath;
+@property (nonatomic, strong) NSIndexPath *nuIndexPath; // dumb spelling, but avoids cocoa naming convention build error (can't start with "new")
+@property (nonatomic, assign) RZCollectionListChangeType type;
+
+- (id)initWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type;
+
+@end
+
+// --------------------------------------
+
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
-@property (nonatomic, strong) NSMutableSet *removeSectionNotifications;
+
+- (void)sendObjectAndSectionNotificationsToObservers;
+- (void)sendSectionNotifications:(NSSet*)sectionNotifications;
+- (void)sendObjectNotifications:(NSSet*)objectNotifications;
 
 @end
+
 
 @implementation RZFetchedCollectionList
 @synthesize delegate = _delegate;
@@ -73,6 +93,51 @@
     }
     
     return _collectionListObservers;
+}
+
+- (void)sendObjectAndSectionNotificationsToObservers
+{
+    // Insert Sections
+    [self sendSectionNotifications:self.sectionsInsertedDuringUpdate];
+    
+    // Insert Objects
+    [self sendObjectNotifications:self.objectsInsertedDuringUpdate];
+    
+    // Remove Objects
+    [self sendObjectNotifications:self.objectsRemovedDuringUpdate];
+    
+    // Remove Sections
+    [self sendSectionNotifications:self.sectionsRemovedDuringUpdate];
+    
+    // Move Objects
+    [self sendObjectNotifications:self.objectsMovedDuringUpdate];
+    
+    // Update Objects
+    [self sendObjectNotifications:self.objectsUpdatedDuringUpdate];
+}
+
+- (void)sendSectionNotifications:(NSSet *)sectionNotifications
+{
+    [sectionNotifications enumerateObjectsUsingBlock:^(RZFetchedCollectionListSectionNotification *notification, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
+            }
+        }];
+    }];
+}
+
+- (void)sendObjectNotifications:(NSSet *)objectNotifications
+{
+    [objectNotifications enumerateObjectsUsingBlock:^(RZFetchedCollectionListObjectNotification *notification, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                [obj collectionList:self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
+            }
+        }];
+    }];
 }
 
 #pragma mark - RZCollectionList
@@ -136,12 +201,31 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
 #endif
-        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionList:self didChangeObject:anObject atIndexPath:indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:newIndexPath];
-            }
-        }];
+      
+        // TODO: Maybe keep a cache of these notification objects for reuse? Probably more efficient than allocating.
+        
+        // cache the changes so we can send them in the desired order
+        if (NSFetchedResultsChangeInsert == type)
+        {
+            RZFetchedCollectionListObjectNotification *insertNotification = [[RZFetchedCollectionListObjectNotification alloc] initWithObject:anObject indexPath:nil newIndexPath:newIndexPath type:RZCollectionListChangeInsert];
+            [self.objectsInsertedDuringUpdate  addObject:insertNotification];
+        }
+        else if (NSFetchedResultsChangeDelete == type)
+        {
+            RZFetchedCollectionListObjectNotification *removeNotification = [[RZFetchedCollectionListObjectNotification alloc] initWithObject:anObject indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeDelete];
+            [self.objectsRemovedDuringUpdate  addObject:removeNotification];
+        }
+        else if (NSFetchedResultsChangeMove == type)
+        {
+            RZFetchedCollectionListObjectNotification *moveNotification = [[RZFetchedCollectionListObjectNotification alloc] initWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:RZCollectionListChangeMove];
+            [self.objectsMovedDuringUpdate  addObject:moveNotification];
+        }
+        else if (NSFetchedResultsChangeUpdate == type)
+        {
+            RZFetchedCollectionListObjectNotification *updateNotification = [[RZFetchedCollectionListObjectNotification alloc] initWithObject:anObject indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
+            [self.objectsUpdatedDuringUpdate  addObject:updateNotification];
+        }
+
     }
 }
 
@@ -149,23 +233,20 @@
 {
     if (self.controller == controller)
     {
+        
+#if kRZCollectionListNotificationsLogging
+        NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
+#endif
+        
         if (NSFetchedResultsChangeInsert == type)
         {
-#if kRZCollectionListNotificationsLogging
-            NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
-#endif
-            [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-                {
-                    [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:sectionIndex forChangeType:(RZCollectionListChangeType)type];
-                }
-            }];
+            RZFetchedCollectionListSectionNotification *insertNotification = [[RZFetchedCollectionListSectionNotification alloc] initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:sectionIndex type:RZCollectionListChangeInsert];
+            [self.sectionsInsertedDuringUpdate addObject:insertNotification];
         }
         else if (NSFetchedResultsChangeDelete)
         {
-            RZFetchedCollectionListSectionNotification *removeNotification = [[RZFetchedCollectionListSectionNotification alloc] initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:sectionIndex type:(RZCollectionListChangeType)type];
-            
-            [self.removeSectionNotifications addObject:removeNotification];
+            RZFetchedCollectionListSectionNotification *removeNotification = [[RZFetchedCollectionListSectionNotification alloc] initWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo index:sectionIndex type:RZCollectionListChangeDelete];
+            [self.sectionsRemovedDuringUpdate addObject:removeNotification];
         }
     }
 }
@@ -177,7 +258,6 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
-        self.removeSectionNotifications = [NSMutableSet set];
         
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
@@ -192,21 +272,9 @@
 {
     if (self.controller == controller)
     {
-        // Send out all Removed Section Notifications
-        [self.removeSectionNotifications enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-            RZFetchedCollectionListSectionNotification *notification = (RZFetchedCollectionListSectionNotification*)obj;
-#if kRZCollectionListNotificationsLogging
-            NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", notification.sectionInfo, notification.sectionIndex, notification.type);
-#endif
-            [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-                {
-                    [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
-                }
-            }];
-        }];
-        
-        self.removeSectionNotifications = nil;
+        // Send out all object/section notifications
+        [self sendObjectAndSectionNotificationsToObservers];
+        [self clearCachedCollectionInfo];
         
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");
@@ -244,6 +312,22 @@
         self.type = type;
     }
     
+    return self;
+}
+
+@end
+
+@implementation RZFetchedCollectionListObjectNotification
+
+- (id)initWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
+{
+    if ((self = [super init]))
+    {
+        self.object = object;
+        self.indexPath = indexPath;
+        self.nuIndexPath = newIndexPath;
+        self.type = type;
+    }
     return self;
 }
 

@@ -83,17 +83,22 @@ typedef enum {
 
 @interface RZBaseCollectionList : NSObject
 
-// batch update collection helpers
+// batch update object cache containers
 
+// these should be used to cache contents of the current collection or
+// an observed collection prior to mutating the internal state
 @property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
 @property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateShallow;    // shallow-copies - use only for index lookup after update
 @property (nonatomic, strong) NSArray *objectsBeforeUpdate;
 
+// these should be used to cache section/object changes during an update
 @property (nonatomic, strong) NSMutableSet *sectionsInsertedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *sectionsRemovedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *objectsInsertedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *objectsRemovedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *objectsMovedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *objectsUpdatedDuringUpdate;
+
+- (void)clearCachedCollectionInfo;
 
 @end

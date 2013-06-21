@@ -292,17 +292,7 @@
         [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
         
-        self.objectsBeforeUpdate = nil;
-        self.sectionsInfoBeforeUpdateDeep = nil;
-        self.sectionsInfoBeforeUpdateShallow = nil;
-        
-        // cleanup on aisle 7
-        [self.sectionsInsertedDuringUpdate removeAllObjects];
-        [self.sectionsRemovedDuringUpdate removeAllObjects];
-        [self.objectsInsertedDuringUpdate removeAllObjects];
-        [self.objectsRemovedDuringUpdate removeAllObjects];
-        [self.objectsMovedDuringUpdate removeAllObjects];
-        [self.objectsUpdatedDuringUpdate removeAllObjects];
+        [self clearCachedCollectionInfo];
     }
 }
 

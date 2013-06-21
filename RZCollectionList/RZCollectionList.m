@@ -27,4 +27,18 @@
     return self;
 }
 
+- (void)clearCachedCollectionInfo
+{
+    self.objectsBeforeUpdate                = nil;
+    self.sectionsInfoBeforeUpdateShallow    = nil;
+    self.sectionsInfoBeforeUpdateDeep       = nil;
+    
+    [self.sectionsInsertedDuringUpdate  removeAllObjects];
+    [self.sectionsRemovedDuringUpdate   removeAllObjects];
+    [self.objectsInsertedDuringUpdate   removeAllObjects];
+    [self.objectsRemovedDuringUpdate    removeAllObjects];
+    [self.objectsMovedDuringUpdate      removeAllObjects];
+    [self.objectsUpdatedDuringUpdate    removeAllObjects];
+}
+
 @end

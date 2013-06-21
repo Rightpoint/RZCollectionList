@@ -10,7 +10,7 @@
 #import <CoreData/CoreData.h>
 #import "RZCollectionList.h"
 
-@interface RZFetchedCollectionList : NSObject <RZCollectionList>
+@interface RZFetchedCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, strong) NSFetchedResultsController *controller;
 
