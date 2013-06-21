@@ -17,7 +17,7 @@
 
 @end
 
-@interface RZArrayCollectionList : NSObject <RZCollectionList>
+@interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 
@@ -25,9 +25,6 @@
 - (id)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
 
 /**** CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE *****/
-/*
- *   Currently not officially supporting adding the same object to the array more than once.
- */
 
 - (void)addObject:(id)object toSection:(NSUInteger)section;
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath;

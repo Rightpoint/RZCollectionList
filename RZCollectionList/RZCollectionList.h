@@ -1,6 +1,6 @@
 //
 //  RZCollectionList.h
-//  RZCollectionList-Demo
+//  RZCollectionList
 //
 //  Created by Joe Goullaud on 9/14/12.
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
@@ -68,5 +68,32 @@ typedef enum {
 
 @optional
 - (NSString *)collectionList:(id<RZCollectionList>)collectionList sectionIndexTitleForSectionName:(NSString *)sectionName;
+
+@end
+
+
+/**************************************************
+ *
+ * Base class for providing common variables and
+ * utils for RZCollectionList adopters.
+ *
+ * This class does not implement the protocol itself.
+ *
+ **************************************************/
+
+@interface RZBaseCollectionList : NSObject
+
+// batch update collection helpers
+
+@property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
+@property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateShallow;    // shallow-copies - use only for index lookup after update
+@property (nonatomic, strong) NSArray *objectsBeforeUpdate;
+
+@property (nonatomic, strong) NSMutableSet *sectionsInsertedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *sectionsRemovedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *objectsInsertedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *objectsRemovedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *objectsMovedDuringUpdate;
+@property (nonatomic, strong) NSMutableSet *objectsUpdatedDuringUpdate;
 
 @end

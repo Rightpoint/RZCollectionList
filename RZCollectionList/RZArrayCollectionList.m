@@ -32,18 +32,6 @@
 @property (nonatomic, strong) NSMutableArray *sectionsInfo;
 @property (nonatomic, strong) NSMutableArray *objects;
 
-// batch update
-@property (nonatomic, strong) NSArray *sectionsInfoBeforeBatchUpdateDeep;       // deep-copies - range/offset will not change during update
-@property (nonatomic, strong) NSArray *sectionsInfoBeforeBatchUpdateShallow;    // shallow-copies - use only for index lookup after update
-@property (nonatomic, strong) NSArray *objectsBeforeBatchUpdate;
-
-@property (nonatomic, strong) NSMutableSet *sectionsInsertedDuringBatchUpdate;
-@property (nonatomic, strong) NSMutableSet *sectionsRemovedDuringBatchUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsInsertedDuringBatchUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsRemovedDuringBatchUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsMovedDuringBatchUpdate;
-@property (nonatomic, strong) NSMutableSet *objectsUpdatedDuringBatchUpdate;
-
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
@@ -99,13 +87,6 @@
         } else {
             self.sectionsInfo = [[NSArray array] mutableCopy];
         }
-        
-        self.sectionsInsertedDuringBatchUpdate  = [NSMutableSet setWithCapacity:8];
-        self.sectionsRemovedDuringBatchUpdate   = [NSMutableSet setWithCapacity:8];
-        self.objectsInsertedDuringBatchUpdate   = [NSMutableSet setWithCapacity:16];
-        self.objectsRemovedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
-        self.objectsMovedDuringBatchUpdate      = [NSMutableSet setWithCapacity:16];
-        self.objectsUpdatedDuringBatchUpdate    = [NSMutableSet setWithCapacity:16];
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
@@ -293,11 +274,11 @@
     if(!self.batchUpdating)
     {
         self.batchUpdating = YES;
-        self.objectsBeforeBatchUpdate = [self.objects copy];
+        self.objectsBeforeUpdate = [self.objects copy];
        
         // shallow copy sections
-        self.sectionsInfoBeforeBatchUpdateShallow = [self.sectionsInfo copy];
-        self.sectionsInfoBeforeBatchUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
+        self.sectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
+        self.sectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
         [self sendWillChangeContentNotifications];
     }
@@ -311,17 +292,17 @@
         [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
         
-        self.objectsBeforeBatchUpdate = nil;
-        self.sectionsInfoBeforeBatchUpdateDeep = nil;
-        self.sectionsInfoBeforeBatchUpdateShallow = nil;
+        self.objectsBeforeUpdate = nil;
+        self.sectionsInfoBeforeUpdateDeep = nil;
+        self.sectionsInfoBeforeUpdateShallow = nil;
         
         // cleanup on aisle 7
-        [self.sectionsInsertedDuringBatchUpdate removeAllObjects];
-        [self.sectionsRemovedDuringBatchUpdate removeAllObjects];
-        [self.objectsInsertedDuringBatchUpdate removeAllObjects];
-        [self.objectsRemovedDuringBatchUpdate removeAllObjects];
-        [self.objectsMovedDuringBatchUpdate removeAllObjects];
-        [self.objectsUpdatedDuringBatchUpdate removeAllObjects];
+        [self.sectionsInsertedDuringUpdate removeAllObjects];
+        [self.sectionsRemovedDuringUpdate removeAllObjects];
+        [self.objectsInsertedDuringUpdate removeAllObjects];
+        [self.objectsRemovedDuringUpdate removeAllObjects];
+        [self.objectsMovedDuringUpdate removeAllObjects];
+        [self.objectsUpdatedDuringUpdate removeAllObjects];
     }
 }
 
@@ -337,7 +318,7 @@
         // handle the "move" method calling insert - don't add to set in that case
         if (self.isBatchUpdating)
         {
-            [self.objectsInsertedDuringBatchUpdate addObject:object];
+            [self.objectsInsertedDuringUpdate addObject:object];
         }
         
         [self.objects insertObject:object atIndex:index];
@@ -376,7 +357,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.objectsRemovedDuringBatchUpdate addObject:object];
+            [self.objectsRemovedDuringUpdate addObject:object];
         }
         
         if (nil != self.objectUpdateNotifications)
@@ -411,7 +392,7 @@
         {
             if (self.isBatchUpdating)
             {
-                [self.objectsUpdatedDuringBatchUpdate addObject:object];
+                [self.objectsUpdatedDuringUpdate addObject:object];
             }
             
             id oldObject = [self.objects objectAtIndex:index];
@@ -462,9 +443,9 @@
             
             if (self.isBatchUpdating){
                 // Don't send an extra notification for a newly inserted object in a batch operation
-                if (![self.objectsInsertedDuringBatchUpdate containsObject:object])
+                if (![self.objectsInsertedDuringUpdate containsObject:object])
                 {
-                    [self.objectsMovedDuringBatchUpdate addObject:object];
+                    [self.objectsMovedDuringUpdate addObject:object];
                 }
             }
             
@@ -505,7 +486,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.sectionsInsertedDuringBatchUpdate addObject:section];
+            [self.sectionsInsertedDuringUpdate addObject:section];
         }
         
         if (index > 0){
@@ -539,7 +520,7 @@
             
             if (self.isBatchUpdating)
             {
-                [self.objectsRemovedDuringBatchUpdate addObject:obj];
+                [self.objectsRemovedDuringUpdate addObject:obj];
             }
             
             if (nil != self.objectUpdateNotifications)
@@ -562,7 +543,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self.sectionsRemovedDuringBatchUpdate addObject:sectionInfo];
+            [self.sectionsRemovedDuringUpdate addObject:sectionInfo];
         }
         
         [self.sectionsInfo removeObjectAtIndex:index];
@@ -579,10 +560,10 @@
 
 - (NSIndexPath*)preUpdateIndexPathForObject:(id)object
 {
-    NSUInteger index = [self.objectsBeforeBatchUpdate indexOfObject:object];
+    NSUInteger index = [self.objectsBeforeUpdate indexOfObject:object];
     
     __block NSUInteger rowIndex = 0;
-    NSUInteger sectionIndex = [self.sectionsInfoBeforeBatchUpdateDeep indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    NSUInteger sectionIndex = [self.sectionsInfoBeforeUpdateDeep indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         RZArrayCollectionListSectionInfo *section = (RZArrayCollectionListSectionInfo*)obj;
         BOOL inRange = NSLocationInRange(index, section.range);
         
@@ -673,27 +654,27 @@
     // - Object Update
 
     // section insertions
-    [self.sectionsInsertedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+    [self.sectionsInsertedDuringUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
         [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sections indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeInsert];
     }];
 
     // object insertions
-    [self.objectsInsertedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [self.objectsInsertedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         [self sendDidChangeObjectNotification:obj atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:[self indexPathForObject:obj]];
     }];
     
     // object removals
-    [self.objectsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [self.objectsRemovedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
          [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
      }];
 
     // section removals
-    [self.sectionsRemovedDuringBatchUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeBatchUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
+    [self.sectionsRemovedDuringUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
     }];
     
     // object moves
-    [self.objectsMovedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+    [self.objectsMovedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         
         NSIndexPath *prevIndexPath = [self preUpdateIndexPathForObject:obj];
         NSIndexPath *currIndexPath = [self indexPathForObject:obj];
@@ -705,8 +686,8 @@
     }];
 
     // object updates
-    [self.objectsUpdatedDuringBatchUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        if (![self.objectsRemovedDuringBatchUpdate containsObject:obj] && ![self.objectsInsertedDuringBatchUpdate containsObject:obj])
+    [self.objectsUpdatedDuringUpdate enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        if (![self.objectsRemovedDuringUpdate containsObject:obj] && ![self.objectsInsertedDuringUpdate containsObject:obj])
         {
             [self sendDidChangeObjectNotification:obj atIndexPath:[self preUpdateIndexPathForObject:obj] forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
         }
@@ -734,7 +715,7 @@
         }
         else
         {
-            [self.objectsUpdatedDuringBatchUpdate addObject:object];
+            [self.objectsUpdatedDuringUpdate addObject:object];
         }
     }
 }
