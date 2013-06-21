@@ -31,9 +31,74 @@
     return self;
 }
 
-- (void)sendObjectAndSectionNotificationsToObservers
+- (void)sendObjectAndSectionNotificationsToObservers:(NSArray*)observers
 {
-    // Default does nothing
+    // Remove Objects, sorted descending by index path
+    if (self.pendingObjectRemoveNotifications.count)
+    {
+        NSArray *sortedRemoves = [self.pendingObjectRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath.section" ascending:NO], [NSSortDescriptor sortDescriptorWithKey:@"indexPath.row" ascending:NO]]];
+        [self sendObjectNotifications:sortedRemoves toObservers:observers];
+    }
+    
+    // Remove Sections, sorted descending by index
+    if (self.pendingSectionRemoveNotifications.count)
+    {
+        NSArray *sortedRemoves = [self.pendingSectionRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
+        [self sendSectionNotifications:sortedRemoves toObservers:observers];
+    }
+    
+    // Insert Sections, ascending by index
+    if (self.pendingSectionInsertNotifications.count)
+    {
+        NSArray *sortedInserts = [self.pendingSectionInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
+        [self sendSectionNotifications:sortedInserts toObservers:observers];
+    }
+    
+    // Insert Objects, ascending by index path
+    if (self.pendingObjectInsertNotifications.count)
+    {
+        NSArray *sortedInserts = [self.pendingObjectInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self sendObjectNotifications:sortedInserts toObservers:observers];
+    }
+    
+    // Move Objects, ascending by destination index path
+    if (self.pendingObjectMoveNotifications.count)
+    {
+        NSArray *sortedMoves = [self.pendingObjectMoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self sendObjectNotifications:sortedMoves toObservers:observers];
+    }
+    
+    // Update Objects
+    if (self.pendingObjectUpdateNotifications.count)
+    {
+        [self sendObjectNotifications:[self.pendingObjectUpdateNotifications allObjects] toObservers:observers];
+    }
+}
+
+- (void)sendSectionNotifications:(NSArray *)sectionNotifications toObservers:(NSArray*)observers
+{
+    [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                // Making assumption that subclass implements protocol by casting
+                [obj collectionList:(id<RZCollectionList>)self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
+            }
+        }];
+    }];
+}
+
+- (void)sendObjectNotifications:(NSArray *)objectNotifications toObservers:(NSArray*)observers
+{
+    [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            {
+                // Making assumption that subclass implements protocol by casting
+                [obj collectionList:(id<RZCollectionList>)self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
+            }
+        }];
+    }];
 }
 
 - (void)resetPendingNotifications

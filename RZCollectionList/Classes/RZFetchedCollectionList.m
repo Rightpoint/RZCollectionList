@@ -14,9 +14,6 @@
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
-- (void)sendSectionNotifications:(NSArray*)sectionNotifications;
-- (void)sendObjectNotifications:(NSArray*)objectNotifications;
-
 @end
 
 
@@ -64,71 +61,6 @@
     }
     
     return _collectionListObservers;
-}
-
-- (void)sendObjectAndSectionNotificationsToObservers
-{
-    // Remove Objects, sorted descending by index path
-    if (self.pendingObjectRemoveNotifications.count)
-    {
-        NSArray *sortedRemoves = [self.pendingObjectRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath.section" ascending:NO], [NSSortDescriptor sortDescriptorWithKey:@"indexPath.row" ascending:NO]]];
-        [self sendObjectNotifications:sortedRemoves];
-    }
-    
-    // Remove Sections, sorted descending by index
-    if (self.pendingSectionRemoveNotifications.count)
-    {
-        NSArray *sortedRemoves = [self.pendingSectionRemoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
-        [self sendSectionNotifications:sortedRemoves];
-    }
-    
-    // Insert Sections, ascending by index
-    if (self.pendingSectionInsertNotifications.count)
-    {
-        NSArray *sortedInserts = [self.pendingSectionInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
-        [self sendSectionNotifications:sortedInserts];
-    }
-    
-    // Insert Objects, ascending by index path
-    if (self.pendingObjectInsertNotifications.count)
-    {
-        NSArray *sortedInserts = [self.pendingObjectInsertNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
-        [self sendObjectNotifications:sortedInserts];
-    }
-    
-    // Move Objects, ascending by destination index path
-    if (self.pendingObjectMoveNotifications.count)
-    {
-        NSArray *sortedMoves = [self.pendingObjectMoveNotifications sortedArrayUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
-        [self sendObjectNotifications:sortedMoves];
-    }
-    
-    // Update Objects
-    [self sendObjectNotifications:[self.pendingObjectUpdateNotifications allObjects]];
-}
-
-- (void)sendSectionNotifications:(NSArray *)sectionNotifications
-{
-    [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
-        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
-            }
-        }];
-    }];
-}
-
-- (void)sendObjectNotifications:(NSArray *)objectNotifications
-{
-    [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionList:self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
-            }
-        }];
-    }];
 }
 
 #pragma mark - RZCollectionList
@@ -283,7 +215,7 @@
     if (self.controller == controller)
     {
         // Send out all object/section notifications
-        [self sendObjectAndSectionNotificationsToObservers];
+        [self sendObjectAndSectionNotificationsToObservers:[self.collectionListObservers allObjects]];
         [self resetPendingNotifications];
 
 #if kRZCollectionListNotificationsLogging

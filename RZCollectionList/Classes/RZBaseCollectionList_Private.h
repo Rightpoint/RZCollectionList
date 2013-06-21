@@ -35,13 +35,19 @@
 @property (nonatomic, strong) NSMutableSet *sectionNotificationReuseCache;
 @property (nonatomic, strong) NSMutableSet *objectNotificationReuseCache;
 
-- (void)sendObjectAndSectionNotificationsToObservers; // default does nothing
-
 - (RZCollectionListObjectNotification*)dequeueReusableObjectNotification;
 - (RZCollectionListSectionNotification*)dequeueReusableSectionNotification;
 
+// Subclasses can call this to send out all pending notifications in the expected order
+- (void)sendObjectAndSectionNotificationsToObservers:(NSArray*)observers;
+
 // Subclasses MUST call this method after notifications are sent and no longer needed!
 - (void)resetPendingNotifications;
+
+// Notification Helpers
+- (void)sendSectionNotifications:(NSArray *)sectionNotifications toObservers:(NSArray*)observers;
+- (void)sendObjectNotifications:(NSArray *)objectNotifications toObservers:(NSArray*)observers;
+
 
 
 @end
