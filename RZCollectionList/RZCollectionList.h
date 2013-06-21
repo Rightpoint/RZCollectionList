@@ -8,11 +8,10 @@
 
 /************************************************************
  *
- * Include this file to get all the collection lists you need!
+ * Include this file to get all the collection lists at once
  *
  ************************************************************/
 
-#import "RZCollectionListProtocol.h"
 #import "RZArrayCollectionList.h"
 #import "RZFetchedCollectionList.h"
 #import "RZFilteredCollectionList.h"
