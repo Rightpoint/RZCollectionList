@@ -87,9 +87,9 @@ typedef enum {
 
 // these should be used to cache contents of the current collection or
 // an observed collection prior to mutating the internal state
-@property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
-@property (nonatomic, strong) NSArray *sectionsInfoBeforeUpdateShallow;    // shallow-copies - use only for index lookup after update
-@property (nonatomic, strong) NSArray *objectsBeforeUpdate;
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - use only for index lookup after update
+@property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
 
 // these should be used to cache section/object changes during an update
 @property (nonatomic, strong) NSMutableSet *sectionsInsertedDuringUpdate;
@@ -99,6 +99,8 @@ typedef enum {
 @property (nonatomic, strong) NSMutableSet *objectsMovedDuringUpdate;
 @property (nonatomic, strong) NSMutableSet *objectsUpdatedDuringUpdate;
 
+
+- (void)sendObjectAndSectionNotificationsToObservers; // default does nothing
 - (void)clearCachedCollectionInfo;
 
 @end

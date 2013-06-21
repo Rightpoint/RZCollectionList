@@ -29,9 +29,9 @@
 
 - (void)clearCachedCollectionInfo
 {
-    self.objectsBeforeUpdate                = nil;
-    self.sectionsInfoBeforeUpdateShallow    = nil;
-    self.sectionsInfoBeforeUpdateDeep       = nil;
+    self.sourceObjectsBeforeUpdate                = nil;
+    self.sourceSectionsInfoBeforeUpdateShallow    = nil;
+    self.sourceSectionsInfoBeforeUpdateDeep       = nil;
     
     [self.sectionsInsertedDuringUpdate  removeAllObjects];
     [self.sectionsRemovedDuringUpdate   removeAllObjects];
@@ -39,6 +39,11 @@
     [self.objectsRemovedDuringUpdate    removeAllObjects];
     [self.objectsMovedDuringUpdate      removeAllObjects];
     [self.objectsUpdatedDuringUpdate    removeAllObjects];
+}
+
+- (void)sendObjectAndSectionNotificationsToObservers
+{
+    // Default does nothing
 }
 
 @end

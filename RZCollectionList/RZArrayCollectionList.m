@@ -274,11 +274,11 @@
     if(!self.batchUpdating)
     {
         self.batchUpdating = YES;
-        self.objectsBeforeUpdate = [self.objects copy];
+        self.sourceObjectsBeforeUpdate = [self.objects copy];
        
         // shallow copy sections
-        self.sectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
-        self.sectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
+        self.sourceSectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
+        self.sourceSectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
         [self sendWillChangeContentNotifications];
     }
@@ -550,10 +550,10 @@
 
 - (NSIndexPath*)preUpdateIndexPathForObject:(id)object
 {
-    NSUInteger index = [self.objectsBeforeUpdate indexOfObject:object];
+    NSUInteger index = [self.sourceObjectsBeforeUpdate indexOfObject:object];
     
     __block NSUInteger rowIndex = 0;
-    NSUInteger sectionIndex = [self.sectionsInfoBeforeUpdateDeep indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    NSUInteger sectionIndex = [self.sourceSectionsInfoBeforeUpdateDeep indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         RZArrayCollectionListSectionInfo *section = (RZArrayCollectionListSectionInfo*)obj;
         BOOL inRange = NSLocationInRange(index, section.range);
         
@@ -660,7 +660,7 @@
 
     // section removals
     [self.sectionsRemovedDuringUpdate enumerateObjectsUsingBlock:^(RZArrayCollectionListSectionInfo * sectionInfo, BOOL *stop) {
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sectionsInfoBeforeUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
+        [self sendDidChangeSectionNotification:sectionInfo atIndex:[self.sourceSectionsInfoBeforeUpdateShallow indexOfObject:sectionInfo] forChangeType:RZCollectionListChangeDelete];
     }];
     
     // object moves

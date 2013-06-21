@@ -530,4 +530,12 @@ typedef enum {
     return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    RZSortedCollectionListSectionInfo *copy = [[RZSortedCollectionListSectionInfo alloc] initWithName:self.name sectionIndexTitle:self.indexTitle numberOfObjects:self.numberOfObjects];
+    copy.indexOffset = self.indexOffset;
+    copy.sortedList = self.sortedList;
+    return copy;
+}
+
 @end

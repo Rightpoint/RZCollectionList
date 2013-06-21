@@ -42,7 +42,6 @@
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
-- (void)sendObjectAndSectionNotificationsToObservers;
 - (void)sendSectionNotifications:(NSSet*)sectionNotifications;
 - (void)sendObjectNotifications:(NSSet*)objectNotifications;
 
