@@ -161,15 +161,15 @@
         nuChild.name = @"Kai";
         nuChild.index = @8;
         
-        // Kill gretchen
-        NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
-        gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
-        NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
-        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
-        if (gretchenResults.count > 0){
-            TestChildEntity *gretchen = gretchenResults[0];
-            [moc deleteObject:gretchen];
-        }
+//        // Kill gretchen
+//        NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
+//        gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
+//        NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
+//        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
+//        if (gretchenResults.count > 0){
+//            TestChildEntity *gretchen = gretchenResults[0];
+//            [moc deleteObject:gretchen];
+//        }
         
     };
     
@@ -189,12 +189,8 @@
         @"Jasper"]
      ];
     
-}
-
-
-- (void)test200ChangeFetchRequestInPlace
-{
     
 }
+
 
 @end

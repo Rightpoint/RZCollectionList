@@ -1,15 +1,15 @@
 //
-//  RZBaseCollectionList.m
+//  RZBaseSourceCollectionList.m
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZBaseCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseSourceCollectionList.h"
+#import "RZBaseSourceCollectionList_Private.h"
 
-@implementation RZBaseCollectionList
+@implementation RZBaseSourceCollectionList
 
 - (id)init
 {

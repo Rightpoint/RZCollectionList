@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "RZCollectionListProtocol.h"
-#import "RZBaseCollectionList.h"
+#import "RZBaseSourceCollectionList.h"
 
-@interface RZFetchedCollectionList : RZBaseCollectionList <RZCollectionList>
+@interface RZFetchedCollectionList : RZBaseSourceCollectionList <RZCollectionList>
 
 @property (nonatomic, strong) NSFetchedResultsController *controller;
 

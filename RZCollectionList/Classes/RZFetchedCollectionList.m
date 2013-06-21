@@ -8,7 +8,7 @@
 
 #import "RZFetchedCollectionList.h"
 #import "RZObserverCollection.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseSourceCollectionList_Private.h"
 
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 

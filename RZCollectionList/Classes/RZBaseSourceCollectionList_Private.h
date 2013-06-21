@@ -1,12 +1,12 @@
 //
-//  RZBaseCollectionList_Private.h
+//  RZBaseSourceCollectionList_Private.h
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZBaseCollectionList.h"
+#import "RZBaseSourceCollectionList.h"
 #import "RZCollectionListNotificationWrappers.h"
 
 // Max number of notifications to keep around for reuse.
@@ -14,7 +14,7 @@
 // Left fairly generous since notification objects are pretty small.
 #define kRZCollectionListNotificationReuseCacheMaxSize 128
 
-@interface RZBaseCollectionList ()
+@interface RZBaseSourceCollectionList ()
 
 // batch update object cache containers
 

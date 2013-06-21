@@ -24,8 +24,8 @@
 		9AFC2D011774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */; };
 		9AFC2D021774D44000FF5E53 /* RZArrayCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CED1774D44000FF5E53 /* RZArrayCollectionList.m */; };
 		9AFC2D031774D44000FF5E53 /* RZArrayCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CED1774D44000FF5E53 /* RZArrayCollectionList.m */; };
-		9AFC2D041774D44000FF5E53 /* RZBaseCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */; };
-		9AFC2D051774D44000FF5E53 /* RZBaseCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */; };
+		9AFC2D041774D44000FF5E53 /* RZBaseSourceCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEF1774D44000FF5E53 /* RZBaseSourceCollectionList.m */; };
+		9AFC2D051774D44000FF5E53 /* RZBaseSourceCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEF1774D44000FF5E53 /* RZBaseSourceCollectionList.m */; };
 		9AFC2D061774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CF21774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m */; };
 		9AFC2D071774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CF21774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m */; };
 		9AFC2D081774D44000FF5E53 /* RZCollectionListTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CF51774D44000FF5E53 /* RZCollectionListTableViewDataSource.m */; };
@@ -121,9 +121,9 @@
 		9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFetchRequest+RZCreationHelpers.m"; sourceTree = "<group>"; };
 		9AFC2CEC1774D44000FF5E53 /* RZArrayCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZArrayCollectionList.h; sourceTree = "<group>"; };
 		9AFC2CED1774D44000FF5E53 /* RZArrayCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZArrayCollectionList.m; sourceTree = "<group>"; };
-		9AFC2CEE1774D44000FF5E53 /* RZBaseCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseCollectionList.h; sourceTree = "<group>"; };
-		9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZBaseCollectionList.m; sourceTree = "<group>"; };
-		9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseCollectionList_Private.h; sourceTree = "<group>"; };
+		9AFC2CEE1774D44000FF5E53 /* RZBaseSourceCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseSourceCollectionList.h; sourceTree = "<group>"; };
+		9AFC2CEF1774D44000FF5E53 /* RZBaseSourceCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZBaseSourceCollectionList.m; sourceTree = "<group>"; };
+		9AFC2CF01774D44000FF5E53 /* RZBaseSourceCollectionList_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseSourceCollectionList_Private.h; sourceTree = "<group>"; };
 		9AFC2CF11774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListCollectionViewDataSource.h; sourceTree = "<group>"; };
 		9AFC2CF21774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListCollectionViewDataSource.m; sourceTree = "<group>"; };
 		9AFC2CF31774D44000FF5E53 /* RZCollectionListProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListProtocol.h; sourceTree = "<group>"; };
@@ -260,9 +260,9 @@
 			isa = PBXGroup;
 			children = (
 				9AFC2CF31774D44000FF5E53 /* RZCollectionListProtocol.h */,
-				9AFC2CEE1774D44000FF5E53 /* RZBaseCollectionList.h */,
-				9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */,
-				9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Private.h */,
+				9AFC2CEE1774D44000FF5E53 /* RZBaseSourceCollectionList.h */,
+				9AFC2CEF1774D44000FF5E53 /* RZBaseSourceCollectionList.m */,
+				9AFC2CF01774D44000FF5E53 /* RZBaseSourceCollectionList_Private.h */,
 				9AFC2D1C1774D82A00FF5E53 /* RZCollectionListNotificationWrappers.h */,
 				9AFC2D1D1774D82A00FF5E53 /* RZCollectionListNotificationWrappers.m */,
 				9AFC2CEC1774D44000FF5E53 /* RZArrayCollectionList.h */,
@@ -569,7 +569,7 @@
 				FE25125C166EDF440098AC59 /* SortedListViewController.m in Sources */,
 				9AFC2D001774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */,
 				9AFC2D021774D44000FF5E53 /* RZArrayCollectionList.m in Sources */,
-				9AFC2D041774D44000FF5E53 /* RZBaseCollectionList.m in Sources */,
+				9AFC2D041774D44000FF5E53 /* RZBaseSourceCollectionList.m in Sources */,
 				9AFC2D061774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				9AFC2D081774D44000FF5E53 /* RZCollectionListTableViewDataSource.m in Sources */,
 				9AFC2D0A1774D44000FF5E53 /* RZCompositeCollectionList.m in Sources */,
@@ -601,7 +601,7 @@
 				9A8FE7A71773629F0003AD14 /* RZCollectionListTestsBase.m in Sources */,
 				9AFC2D011774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */,
 				9AFC2D031774D44000FF5E53 /* RZArrayCollectionList.m in Sources */,
-				9AFC2D051774D44000FF5E53 /* RZBaseCollectionList.m in Sources */,
+				9AFC2D051774D44000FF5E53 /* RZBaseSourceCollectionList.m in Sources */,
 				9AFC2D071774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m in Sources */,
 				9AFC2D091774D44000FF5E53 /* RZCollectionListTableViewDataSource.m in Sources */,
 				9AFC2D0B1774D44000FF5E53 /* RZCompositeCollectionList.m in Sources */,
