@@ -130,6 +130,35 @@
     }
 }
 
+- (void)sendWillChangeNotificationsToObservers:(NSArray *)observers
+{
+#if kRZCollectionListNotificationsLogging
+    NSLog(@"RZFilteredCollectionList Will Change");
+#endif
+    [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            // Making assumption that subclass implements protocol by casting
+            [obj collectionListWillChangeContent:(id<RZCollectionList>)self];
+        }
+    }];
+}
+
+- (void)sendDidChangeNotificationsToObservers:(NSArray *)observers
+{
+#if kRZCollectionListNotificationsLogging
+    NSLog(@"RZFilteredCollectionList Did Change");
+#endif
+    [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            // Making assumption that subclass implements protocol by casting
+            [obj collectionListDidChangeContent:(id<RZCollectionList>)self];
+        }
+    }];
+}
+
+
 - (void)sendPendingNotificationsToObservers:(NSArray*)observers
 {
     // Remove Objects, sorted descending by index path
@@ -200,15 +229,6 @@
 
 - (void)resetPendingNotifications
 {
-    
-    // clear objects going back into the cache
-    [self.pendingSectionInsertNotifications   makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingSectionRemoveNotifications   makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingObjectInsertNotifications    makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingObjectRemoveNotifications    makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingObjectMoveNotifications      makeObjectsPerformSelector:@selector(clear)];
-    [self.pendingObjectUpdateNotifications    makeObjectsPerformSelector:@selector(clear)];
-    
     // move notifications back to reuse cache
     [self.sectionNotificationReuseCache addObjectsFromArray:self.pendingSectionInsertNotifications];
     [self.sectionNotificationReuseCache addObjectsFromArray:self.pendingSectionRemoveNotifications];
@@ -242,6 +262,7 @@
         
         // remove from beginning, re-add at end when done
         notification = [self.objectNotificationReuseCache anyObject];
+        [notification clear];
         [self.objectNotificationReuseCache removeObject:notification];
     }
     else{
@@ -258,7 +279,9 @@
         
         // remove from beginning, re-add at end when done
         notification = [self.sectionNotificationReuseCache anyObject];
+        [notification clear];
         [self.sectionNotificationReuseCache removeObject:notification];
+        
     }
     else{
         notification = [[RZCollectionListSectionNotification alloc] init];

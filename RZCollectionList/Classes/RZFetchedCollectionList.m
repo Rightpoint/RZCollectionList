@@ -150,13 +150,7 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
-        
-        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionListWillChangeContent:self];
-            }
-        }];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -171,12 +165,7 @@
         NSLog(@"RZFetchedCollectionList Did Change");
 #endif
         // Send out DidChange Notifications
-        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-            {
-                [obj collectionListDidChangeContent:self];
-            }
-        }];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 

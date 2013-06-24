@@ -11,8 +11,8 @@
 
 // Max number of notifications to keep around for reuse.
 // Exceeding this number in a single batch update will cause new allocations.
-// Left fairly generous since notification objects are pretty small.
-#define kRZCollectionListNotificationReuseCacheMaxSize 128
+// This can be fairly generous since notification objects are pretty small.
+#define kRZCollectionListNotificationReuseCacheMaxSize 64
 
 @interface RZBaseCollectionList ()
 
@@ -30,6 +30,12 @@
 
 //! Sorts pending notifications by index/indexPath, depending on type
 - (void)sortPendingNotifications;
+
+//! Send will change notifications
+- (void)sendWillChangeNotificationsToObservers:(NSArray*)observers;
+
+//! Send did change notifications
+- (void)sendDidChangeNotificationsToObservers:(NSArray*)observers;
 
 //! Sends out all pending notifications in the expected order
 - (void)sendPendingNotificationsToObservers:(NSArray*)observers;

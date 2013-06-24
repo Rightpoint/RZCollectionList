@@ -59,8 +59,6 @@
 // Helpers for batch update
 - (NSIndexPath*)previousIndexPathForObject:(id)object;
 
-- (void)sendWillChangeContentNotifications;
-- (void)sendDidChangeContentNotifications;
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
@@ -159,14 +157,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self insertObject:object atIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -184,14 +182,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self removeObjectAtIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -199,14 +197,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -214,14 +212,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -243,14 +241,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self insertSection:section atIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -265,14 +263,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
     
     [self removeSectionAtIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeContentNotifications];
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -287,7 +285,7 @@
         self.sourceSectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
         self.sourceSectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
-        [self sendWillChangeContentNotifications];
+        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
     }
 }
 
@@ -295,9 +293,8 @@
 {
     if (self.batchUpdating)
     {
-        [self sendBatchChangeNotifications];
-        
-        [self sendDidChangeContentNotifications];
+        [self sendBatchChangeNotifications];        
+        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
         self.batchUpdating = NO;
     }
 }
@@ -512,7 +509,8 @@
             
             if (self.isBatchUpdating)
             {
-                [self enqueueObjectNotificationWithObject:obj indexPath:[NSIndexPath indexPathForRow:idx inSection:index]   newIndexPath:nil type:RZCollectionListChangeDelete];
+                // index path doesn't matter, don't waste time allocating one here - it will be calculated at the end of the update
+                [self enqueueObjectNotificationWithObject:obj indexPath:nil newIndexPath:nil type:RZCollectionListChangeDelete];
             }
             
             if (nil != self.objectUpdateNotifications)
@@ -580,32 +578,6 @@
 
 
 #pragma mark - Notification Helpers
-
-- (void)sendWillChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZArrayCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListWillChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZArrayCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListDidChangeContent:self];
-        }
-    }];
-}
 
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
@@ -688,6 +660,7 @@
     // object updates
     NSMutableIndexSet *invalidUpdates = [NSMutableIndexSet indexSet];
     [self.pendingObjectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification * notification, NSUInteger idx, BOOL *stop) {
+        
         // Don't allow:
         // - Update to removed object
         // - Update to inserted object
@@ -700,8 +673,6 @@
     
     [self.pendingObjectUpdateNotifications removeObjectsAtIndexes:invalidUpdates];
 
-    // Then, sort by index/index path and forward along
-    [self sortPendingNotifications];
     [self sendPendingNotificationsToObservers:[self.collectionListObservers allObjects]];
 }
 
@@ -717,11 +688,11 @@
     {
         if (!self.batchUpdating)
         {
-            [self sendWillChangeContentNotifications];
+            [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
             
             [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
             
-            [self sendDidChangeContentNotifications];
+            [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
         }
         else
         {
