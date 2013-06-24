@@ -37,6 +37,11 @@
     }];
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ Section Info: %@ Section Index: %d Type %d", [super description], self.sectionInfo, self.sectionIndex, self.type];
+}
+
 @end
 
 @implementation RZCollectionListObjectNotification
@@ -67,6 +72,11 @@
         }
         
     }];
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ Object: %@ Index Path: %@ New Index Path: %@ Type: %d", [super description], self.object, self.indexPath, self.nuIndexPath, self.type];
 }
 
 @end
