@@ -59,6 +59,7 @@ typedef enum {
 - (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
 
 - (void)beginPotentialUpdates;
+- (void)confirmPotentialUpdates;
 - (void)endPotentialUpdates;
 
 // Notification helpers
@@ -450,12 +451,7 @@ typedef enum {
         
         if ([self.predicate evaluateWithObject:object] || nil == self.predicate)
         {
-            if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-            {
-                [self sendWillChangeContentNotifications];
-            }
-            
-            self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+            [self confirmPotentialUpdates];
             
             if (![self.sectionIndexes containsIndex:indexPath.section])
             {
@@ -485,12 +481,7 @@ typedef enum {
         
         if ([sectionIndexSet containsIndex:indexPath.row])
         {
-            if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-            {
-                [self sendWillChangeContentNotifications];
-            }
-            
-            self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+            [self confirmPotentialUpdates];
             
             NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
             
@@ -533,12 +524,7 @@ typedef enum {
             // Unfilter toSection and send Add Section Notification if toSection is filtered out
             if (![self.sectionIndexes containsIndex:newIndexPath.section])
             {
-                if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-                {
-                    [self sendWillChangeContentNotifications];
-                }
-                
-                self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+                [self confirmPotentialUpdates];
                 
                 [self.sectionIndexes addIndex:newIndexPath.section];
                 
@@ -570,12 +556,7 @@ typedef enum {
             // If filtered from and to index paths are different, send out move notification
             if (![fromFilteredIndexPath isEqual:toFilteredIndexPath])
             {
-                if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-                {
-                    [self sendWillChangeContentNotifications];
-                }
-                
-                self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+                [self confirmPotentialUpdates];
                 
                 [self sendDidChangeObjectNotification:object atIndexPath:fromFilteredIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:toFilteredIndexPath];
                 
@@ -611,12 +592,7 @@ typedef enum {
         }
         else if (passesPredicate && isInFilteredList)
         {
-            if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-            {
-                [self sendWillChangeContentNotifications];
-            }
-            
-            self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+            [self confirmPotentialUpdates];
             
             NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
             
@@ -633,12 +609,7 @@ typedef enum {
         
         if ([sectionIndexSet containsIndex:indexPath.row])
         {
-            if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-            {
-                [self sendWillChangeContentNotifications];
-            }
-            
-            self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+            [self confirmPotentialUpdates];
             
             NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
             
@@ -667,12 +638,7 @@ typedef enum {
 {
     if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
     {
-        if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
-        {
-            [self sendWillChangeContentNotifications];
-        }
-        
-        self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+        [self confirmPotentialUpdates];
         
         if (![self.sectionIndexes containsIndex:indexPath.section])
         {
@@ -700,6 +666,16 @@ typedef enum {
     self.cachedSourceSections = [self.sourceList.sections copy];
 }
 
+- (void)confirmPotentialUpdates
+{
+    if (self.contentChangeState == RZFilteredSourceListContentChangeStatePotentialChanges)
+    {
+        [self sendWillChangeContentNotifications];
+    }
+    
+    self.contentChangeState = RZFilteredSourceListContentChangeStateChanged;
+}
+
 - (void)endPotentialUpdates
 {
     if (self.contentChangeState == RZFilteredSourceListContentChangeStateChanged)
@@ -707,6 +683,7 @@ typedef enum {
         [self sendDidChangeContentNotifications];
     }
     
+    [self resetPendingNotifications];
     self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
     self.cachedSourceSections = nil;
 }
@@ -761,6 +738,8 @@ typedef enum {
             NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
             break;
     }
+    
+    [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type];
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
@@ -779,6 +758,8 @@ typedef enum {
             NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
             break;
     }
+    
+    // DO NOT enqueue section notifications. This will be handled in the batch forward phase for any empty sections.
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
