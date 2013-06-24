@@ -18,7 +18,7 @@
 
 @end
 
-@interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
+@interface RZArrayCollectionList : RZBaseNotificationCachingCollectionList <RZCollectionList>
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 

@@ -19,6 +19,20 @@
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+
+//! Send will change notifications
+- (void)sendWillChangeContentNotifications;
+
+//! Send did change notifications
+- (void)sendDidChangeContentNotifications;
+
+@end
+
+
+@interface RZBaseNotificationCachingCollectionList ()
+
 // these will be used to cache section/object changes during an update. Do not insert in these directly - use helpers below.
 @property (nonatomic, strong) NSMutableArray *pendingSectionInsertNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingSectionRemoveNotifications;
@@ -27,21 +41,12 @@
 @property (nonatomic, strong) NSMutableArray *pendingObjectMoveNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingObjectUpdateNotifications;
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
-
 //! Helpers for enqueuing pending updates
 - (void)enqueueObjectNotificationWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type;
 - (void)enqueueSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type;
 
 //! Sorts pending notifications by index/indexPath, depending on type
 - (void)sortPendingNotifications;
-
-//! Send will change notifications
-- (void)sendWillChangeContentNotifications;
-
-//! Send did change notifications
-- (void)sendDidChangeContentNotifications;
 
 //! Sends out all pending notifications in the expected order
 - (void)sendAllPendingChangeNotifications;

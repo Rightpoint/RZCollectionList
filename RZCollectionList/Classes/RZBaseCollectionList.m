@@ -9,7 +9,63 @@
 #import "RZBaseCollectionList.h"
 #import "RZBaseCollectionList_Private.h"
 
-@interface RZBaseCollectionList ()
+@implementation RZBaseCollectionList
+
+#pragma mark - Protected Properties
+
+- (RZObserverCollection*)collectionListObservers
+{
+    if (nil == _collectionListObservers)
+    {
+        _collectionListObservers = [[RZObserverCollection alloc] init];
+    }
+    
+    return _collectionListObservers;
+}
+
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers addObject:listObserver];
+}
+
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers removeObject:listObserver];
+}
+
+- (void)sendWillChangeContentNotifications
+{
+#if kRZCollectionListNotificationsLogging
+    NSLog(@"RZFilteredCollectionList Will Change");
+#endif
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            // Making assumption that subclass implements protocol by casting
+            [obj collectionListWillChangeContent:(id<RZCollectionList>)self];
+        }
+    }];
+}
+
+- (void)sendDidChangeContentNotifications
+{
+#if kRZCollectionListNotificationsLogging
+    NSLog(@"RZFilteredCollectionList Did Change");
+#endif
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        {
+            // Making assumption that subclass implements protocol by casting
+            [obj collectionListDidChangeContent:(id<RZCollectionList>)self];
+        }
+    }];
+}
+
+@end
+
+// --------------------------
+
+@interface RZBaseNotificationCachingCollectionList ()
 
 @property (nonatomic, strong) NSMutableSet *sectionNotificationReuseCache;
 @property (nonatomic, strong) NSMutableSet *objectNotificationReuseCache;
@@ -20,7 +76,7 @@
 
 @end
 
-@implementation RZBaseCollectionList
+@implementation RZBaseNotificationCachingCollectionList
 
 - (id)init
 {
@@ -42,29 +98,7 @@
     return self;
 }
 
-#pragma mark - Protected Properties
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
-}
-
 #pragma mark - Protected Methods
-
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
 
 - (void)enqueueObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
@@ -152,34 +186,6 @@
     {
         [self.pendingObjectMoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
     }
-}
-
-- (void)sendWillChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            // Making assumption that subclass implements protocol by casting
-            [obj collectionListWillChangeContent:(id<RZCollectionList>)self];
-        }
-    }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            // Making assumption that subclass implements protocol by casting
-            [obj collectionListDidChangeContent:(id<RZCollectionList>)self];
-        }
-    }];
 }
 
 
