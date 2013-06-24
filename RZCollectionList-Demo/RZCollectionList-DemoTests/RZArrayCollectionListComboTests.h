@@ -9,6 +9,6 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "RZCollectionListTestsBase.h"
 
-@interface RZCollectionListArrayListComboTests : RZCollectionListTestsBase
+@interface RZArrayCollectionListComboTests : RZCollectionListTestsBase
 
 @end

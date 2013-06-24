@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZCollectionListFetchedListComboTests.h"
+#import "RZFetchedCollectionListComboTests.h"
 
-@interface RZCollectionListFetchedListComboTests ()
+@interface RZFetchedCollectionListComboTests ()
 
 @property (nonatomic, strong) RZFetchedCollectionList *fetchedList;
 @property (nonatomic, strong) RZFilteredCollectionList *filteredList;
@@ -17,7 +17,7 @@
 
 @end
 
-@implementation RZCollectionListFetchedListComboTests
+@implementation RZFetchedCollectionListComboTests
 
 - (void)setUp
 {
