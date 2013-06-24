@@ -11,7 +11,7 @@
 #import "RZCollectionListProtocol.h"
 #import "RZBaseCollectionList.h"
 
-@interface RZFetchedCollectionList : RZBaseNotificationCachingCollectionList <RZCollectionList>
+@interface RZFetchedCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, strong) NSFetchedResultsController *controller;
 

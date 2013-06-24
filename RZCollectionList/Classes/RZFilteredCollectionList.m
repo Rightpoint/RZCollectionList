@@ -32,9 +32,8 @@ typedef enum {
 @property (nonatomic, strong, readwrite) id<RZCollectionList> sourceList;
 
 @property (nonatomic, strong) NSMutableIndexSet *sectionIndexes;
-@property (nonatomic, strong) NSMutableArray    *objectIndexesForSection;
-
-@property (nonatomic, strong) NSArray           *cachedSourceSections;
+@property (nonatomic, strong) NSMutableArray *objectIndexesForSection;
+@property (nonatomic, strong) NSArray *cachedSourceSections;
 
 @property (nonatomic, assign) RZFilteredSourceListContentChangeState contentChangeState;
 
@@ -683,7 +682,8 @@ typedef enum {
     {
         [self sendDidChangeContentNotifications];
     }
-        
+    
+    [self resetPendingNotifications];
     self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
     self.cachedSourceSections = nil;
 }
@@ -739,6 +739,7 @@ typedef enum {
             break;
     }
     
+    [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type];
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
@@ -758,6 +759,7 @@ typedef enum {
             break;
     }
     
+    // DO NOT enqueue section notifications. This will be handled in the batch forward phase for any empty sections.
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList

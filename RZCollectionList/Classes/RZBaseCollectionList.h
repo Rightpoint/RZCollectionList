@@ -11,19 +11,18 @@
 
 /**************************************************
  *
- * Base classes for providing common variables and
- * utils for RZCollectionList protocol adopters.
+ * Base class for providing common variables and
+ * utils for RZCollectionList "source" lists, i.e.
+ * lists that maintain/represent a concrete collection
+ * of objects, rather than a "modified" collection.
  * 
- * These classes do not implement the protocol itself.
+ * Currently used as subclass for RZFetchedCollectionList
+ * and RZArrayCollectionList.
+ *
+ * This class does not implement the protocol itself.
  *
  **************************************************/
 
-//! This base class provides containers and methods for managing observers and sending will/did change notifications.
 @interface RZBaseCollectionList : NSObject
-
-@end
-
-//! This base class should be used when a collection list needs to cache notifications during an udpate
-@interface RZBaseNotificationCachingCollectionList : RZBaseCollectionList
 
 @end
