@@ -102,7 +102,7 @@
     // Remove Objects, sorted descending by index path
     if (self.pendingObjectRemoveNotifications.count)
     {
-       [self.pendingObjectRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath.section" ascending:NO], [NSSortDescriptor sortDescriptorWithKey:@"indexPath.row" ascending:NO]]];
+       [self.pendingObjectRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO] ]];
     }
     
     // Remove Sections, sorted descending by index
@@ -120,13 +120,13 @@
     // Insert Objects, ascending by index path
     if (self.pendingObjectInsertNotifications.count)
     {
-        [self.pendingObjectInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self.pendingObjectInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
     }
     
     // Move Objects, ascending by destination index path
     if (self.pendingObjectMoveNotifications.count)
     {
-        [self.pendingObjectMoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.section" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath.row" ascending:YES]]];
+        [self.pendingObjectMoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
     }
 }
 
