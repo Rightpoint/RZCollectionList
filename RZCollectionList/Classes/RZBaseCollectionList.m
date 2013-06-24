@@ -68,6 +68,8 @@
             break;
             
         default:
+            //uncaught type
+            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
             break;
     }
 }
@@ -89,6 +91,8 @@
             break;
             
         default:
+            //uncaught type
+            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
             break;
     }
 }
