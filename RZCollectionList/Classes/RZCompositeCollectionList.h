@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionList.h"
+#import "RZCollectionListProtocol.h"
 
 @interface RZCompositeCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
 
