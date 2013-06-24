@@ -58,6 +58,8 @@ typedef enum {
 - (void)filterOutSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
 - (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
 
+- (void)transformListForOldObjects:(NSArray*)oldObjects andNewObjects:(NSArray*)newObjects;
+
 - (void)beginPotentialUpdates;
 - (void)confirmPotentialUpdates;
 - (void)endPotentialUpdates;
