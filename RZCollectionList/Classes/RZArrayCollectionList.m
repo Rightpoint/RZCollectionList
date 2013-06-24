@@ -22,6 +22,8 @@
 
 @end
 
+// --------------------------------------------------
+
 @interface RZArrayCollectionList ()
 {
 @private
@@ -36,6 +38,10 @@
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
+
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - same as the sectionInfo objects that are being updated
+@property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
 

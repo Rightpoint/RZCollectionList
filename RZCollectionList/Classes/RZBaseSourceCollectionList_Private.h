@@ -16,14 +16,6 @@
 
 @interface RZBaseSourceCollectionList ()
 
-// batch update object cache containers
-
-// these should be used to cache contents of the current collection or
-// an observed collection prior to mutating the internal state
-@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
-@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - same as the sectionInfo objects that are being updated
-@property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
-
 // these should be used to cache section/object changes during an update
 @property (nonatomic, strong) NSMutableSet *pendingSectionInsertNotifications;
 @property (nonatomic, strong) NSMutableSet *pendingSectionRemoveNotifications;

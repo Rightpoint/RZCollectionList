@@ -106,9 +106,6 @@
 
 - (void)resetPendingNotifications
 {
-    self.sourceObjectsBeforeUpdate                = nil;
-    self.sourceSectionsInfoBeforeUpdateShallow    = nil;
-    self.sourceSectionsInfoBeforeUpdateDeep       = nil;
     
     // clear objects going back into the cache
     [self.pendingSectionInsertNotifications   makeObjectsPerformSelector:@selector(clear)];
