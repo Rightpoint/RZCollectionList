@@ -42,6 +42,30 @@
     return self;
 }
 
+#pragma mark - Protected Properties
+
+- (RZObserverCollection*)collectionListObservers
+{
+    if (nil == _collectionListObservers)
+    {
+        _collectionListObservers = [[RZObserverCollection alloc] init];
+    }
+    
+    return _collectionListObservers;
+}
+
+#pragma mark - Protected Methods
+
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers addObject:listObserver];
+}
+
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers removeObject:listObserver];
+}
+
 - (void)enqueueObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
     RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
@@ -130,12 +154,12 @@
     }
 }
 
-- (void)sendWillChangeNotificationsToObservers:(NSArray *)observers
+- (void)sendWillChangeContentNotifications
 {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Will Change");
 #endif
-    [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             // Making assumption that subclass implements protocol by casting
@@ -144,12 +168,12 @@
     }];
 }
 
-- (void)sendDidChangeNotificationsToObservers:(NSArray *)observers
+- (void)sendDidChangeContentNotifications
 {
 #if kRZCollectionListNotificationsLogging
     NSLog(@"RZFilteredCollectionList Did Change");
 #endif
-    [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
             // Making assumption that subclass implements protocol by casting
@@ -159,52 +183,52 @@
 }
 
 
-- (void)sendPendingNotificationsToObservers:(NSArray*)observers
+- (void)sendAllPendingChangeNotifications
 {
     // Remove Objects, sorted descending by index path
     if (self.pendingObjectRemoveNotifications.count)
     {
-        [self sendObjectNotifications:self.pendingObjectRemoveNotifications toObservers:observers];
+        [self sendObjectNotifications:self.pendingObjectRemoveNotifications];
     }
     
     // Remove Sections, sorted descending by index
     if (self.pendingSectionRemoveNotifications.count)
     {
-        [self sendSectionNotifications:self.pendingSectionRemoveNotifications toObservers:observers];
+        [self sendSectionNotifications:self.pendingSectionRemoveNotifications];
     }
     
     // Insert Sections, ascending by index
     if (self.pendingSectionInsertNotifications.count)
     {
-        [self sendSectionNotifications:self.pendingSectionInsertNotifications toObservers:observers];
+        [self sendSectionNotifications:self.pendingSectionInsertNotifications];
     }
     
     // Insert Objects, ascending by index path
     if (self.pendingObjectInsertNotifications.count)
     {
-        [self sendObjectNotifications:self.pendingObjectInsertNotifications toObservers:observers];
+        [self sendObjectNotifications:self.pendingObjectInsertNotifications];
     }
     
     // Move Objects, ascending by destination index path
     if (self.pendingObjectMoveNotifications.count)
     {
-        [self sendObjectNotifications:self.pendingObjectMoveNotifications toObservers:observers];
+        [self sendObjectNotifications:self.pendingObjectMoveNotifications];
     }
     
     // Update Objects
     if (self.pendingObjectUpdateNotifications.count)
     {
-        [self sendObjectNotifications:self.pendingObjectUpdateNotifications toObservers:observers];
+        [self sendObjectNotifications:self.pendingObjectUpdateNotifications];
     }
     
     // Reset the notifications, return them to reuse cache
     [self resetPendingNotifications];
 }
 
-- (void)sendSectionNotifications:(NSArray *)sectionNotifications toObservers:(NSArray*)observers
+- (void)sendSectionNotifications:(NSArray *)sectionNotifications
 {
     [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
-        [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
                 // Making assumption that subclass implements protocol by casting
@@ -214,10 +238,10 @@
     }];
 }
 
-- (void)sendObjectNotifications:(NSArray *)objectNotifications toObservers:(NSArray*)observers
+- (void)sendObjectNotifications:(NSArray *)objectNotifications
 {
     [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
                 // Making assumption that subclass implements protocol by casting
@@ -254,6 +278,8 @@
     [self.pendingObjectMoveNotifications      removeAllObjects];
     [self.pendingObjectUpdateNotifications    removeAllObjects];
 }
+
+#pragma mark - Private Methods
 
 - (RZCollectionListObjectNotification*)dequeueReusableObjectNotification
 {

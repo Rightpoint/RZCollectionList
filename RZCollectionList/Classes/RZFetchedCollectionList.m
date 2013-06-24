@@ -12,10 +12,7 @@
 
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
-
 @end
-
 
 @implementation RZFetchedCollectionList
 @synthesize delegate = _delegate;
@@ -51,16 +48,6 @@
     {
         NSLog(@"Error performing fetch for RZFetchedCollectionList controller: %@. Error: %@", controller, [error localizedDescription]);
     }
-}
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
 }
 
 #pragma mark - RZCollectionList
@@ -105,16 +92,6 @@
     return [self.controller sectionForSectionIndexTitle:title atIndex:sectionIndex];
 }
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
-
 #pragma mark - NSFetchedResultsControllerDelegate
 
 - (void)controller:(NSFetchedResultsController*)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath*)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
@@ -150,7 +127,7 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
 }
 
@@ -159,13 +136,13 @@
     if (self.controller == controller)
     {
         // Send out all object/section notifications
-        [self sendPendingNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendAllPendingChangeNotifications];
 
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");
 #endif
         // Send out DidChange Notifications
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 

@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionListProtocol.h"
+#import "RZBaseCollectionList.h"
 
-@interface RZFilteredCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
+@interface RZFilteredCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, strong, readonly) id<RZCollectionList> sourceList;
 @property (nonatomic, strong) NSPredicate *predicate;

@@ -37,8 +37,6 @@
 
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
 
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
-
 @property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
 @property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - same as the sectionInfo objects that are being updated
 @property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
@@ -118,16 +116,6 @@
     _flags._sendSectionIndexTitleForSectionName = [delegate respondsToSelector:@selector(collectionList:sectionIndexTitleForSectionName:)];
 }
 
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
-}
-
 - (void)setObjectUpdateNotifications:(NSArray *)objectUpdateNotifications
 {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
@@ -157,14 +145,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self insertObject:object atIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -182,14 +170,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self removeObjectAtIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -197,14 +185,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -212,14 +200,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -241,14 +229,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self insertSection:section atIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -263,14 +251,14 @@
 {
     if (!self.batchUpdating)
     {
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
     
     [self removeSectionAtIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
     }
 }
 
@@ -285,7 +273,7 @@
         self.sourceSectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
         self.sourceSectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
         
-        [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendWillChangeContentNotifications];
     }
 }
 
@@ -294,7 +282,7 @@
     if (self.batchUpdating)
     {
         [self sendBatchChangeNotifications];        
-        [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
     }
 }
@@ -673,7 +661,7 @@
     
     [self.pendingObjectUpdateNotifications removeObjectsAtIndexes:invalidUpdates];
 
-    [self sendPendingNotificationsToObservers:[self.collectionListObservers allObjects]];
+    [self sendAllPendingChangeNotifications];
 }
 
 #pragma mark - ObjectUpdateObservation
@@ -688,11 +676,11 @@
     {
         if (!self.batchUpdating)
         {
-            [self sendWillChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+            [self sendWillChangeContentNotifications];
             
             [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
             
-            [self sendDidChangeNotificationsToObservers:[self.collectionListObservers allObjects]];
+            [self sendDidChangeContentNotifications];
         }
         else
         {
@@ -918,16 +906,6 @@
     }];
     
     return index;
-}
-
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
 }
 
 @end

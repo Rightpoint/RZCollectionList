@@ -7,6 +7,7 @@
 //
 
 #import "RZBaseCollectionList.h"
+#import "RZObserverCollection.h"
 #import "RZCollectionListNotificationWrappers.h"
 
 // Max number of notifications to keep around for reuse.
@@ -16,6 +17,8 @@
 
 @interface RZBaseCollectionList ()
 
+@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
+
 // these will be used to cache section/object changes during an update. Do not insert in these directly - use helpers below.
 @property (nonatomic, strong) NSMutableArray *pendingSectionInsertNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingSectionRemoveNotifications;
@@ -23,6 +26,9 @@
 @property (nonatomic, strong) NSMutableArray *pendingObjectRemoveNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingObjectMoveNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingObjectUpdateNotifications;
+
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
 
 //! Helpers for enqueuing pending updates
 - (void)enqueueObjectNotificationWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type;
@@ -32,13 +38,13 @@
 - (void)sortPendingNotifications;
 
 //! Send will change notifications
-- (void)sendWillChangeNotificationsToObservers:(NSArray*)observers;
+- (void)sendWillChangeContentNotifications;
 
 //! Send did change notifications
-- (void)sendDidChangeNotificationsToObservers:(NSArray*)observers;
+- (void)sendDidChangeContentNotifications;
 
 //! Sends out all pending notifications in the expected order
-- (void)sendPendingNotificationsToObservers:(NSArray*)observers;
+- (void)sendAllPendingChangeNotifications;
 
 /*! 
     If a subclass does not use sendObjectAndSectionNotificationsToObservers:,
@@ -48,8 +54,8 @@
 - (void)resetPendingNotifications;
 
 // Notification Helpers
-- (void)sendSectionNotifications:(NSArray *)sectionNotifications toObservers:(NSArray*)observers;
-- (void)sendObjectNotifications:(NSArray *)objectNotifications toObservers:(NSArray*)observers;
+- (void)sendSectionNotifications:(NSArray *)sectionNotifications;
+- (void)sendObjectNotifications:(NSArray *)objectNotifications;
 
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "RZFilteredCollectionList.h"
+#import "RZBaseCollectionList_Private.h"
 #import "RZObserverCollection.h"
 
 @interface RZFilteredCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
@@ -33,8 +34,6 @@ typedef enum {
 @property (nonatomic, strong) NSMutableIndexSet *sectionIndexes;
 @property (nonatomic, strong) NSMutableArray *objectIndexesForSection;
 @property (nonatomic, strong) NSArray *cachedSourceSections;
-
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 
 @property (nonatomic, assign) RZFilteredSourceListContentChangeState contentChangeState;
 
@@ -63,8 +62,6 @@ typedef enum {
 - (void)endPotentialUpdates;
 
 // Notification helpers
-- (void)sendWillChangeContentNotifications;
-- (void)sendDidChangeContentNotifications;
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
@@ -107,16 +104,6 @@ typedef enum {
         
         [self transformListForOldObjects:self.objectIndexesForSection andNewObjects:newObjectIndexes];
     }
-}
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
 }
 
 - (void)setupIndexSetsForSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate
@@ -452,16 +439,6 @@ typedef enum {
     return index;
 }
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
-
 #pragma mark - Mutation Helpers
 
 - (void)addSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
@@ -735,32 +712,6 @@ typedef enum {
 }
 
 #pragma mark - Notification Helpers
-
-- (void)sendWillChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListWillChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListDidChangeContent:self];
-        }
-    }];
-}
 
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
