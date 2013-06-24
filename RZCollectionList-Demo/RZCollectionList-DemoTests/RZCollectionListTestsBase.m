@@ -49,6 +49,31 @@
     [self.moc setPersistentStoreCoordinator:self.psc];
 }
 
+
+- (void)insertTestObjectsToMoc
+{
+    NSArray *testData = @[ @[@"Arthur",     @10],
+                           @[@"Barb",       @9],
+                           @[@"Carl",       @8],
+                           @[@"Denny",      @7],
+                           @[@"Edgar",      @6],
+                           @[@"Filburt",    @5],
+                           @[@"Gretchen",   @4],
+                           @[@"Horatio",    @3],
+                           @[@"Iggy",       @2],
+                           @[@"Jasper",     @1] ];
+    
+    for (NSArray *childInfo in testData)
+    {
+        TestChildEntity *child = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:self.moc];
+        child.name = childInfo[0];
+        child.index = childInfo[1];
+    }
+    
+    STAssertTrue([self.moc save:NULL], @"Failed to save MOC");
+}
+
+
 - (void)performSynchronousCoreDataBlockInChildContext:(RZCollectionListTestCoreDataBlock)block
 {
     dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

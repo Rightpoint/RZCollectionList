@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListFetchedListComboTests.h"
-#import "TestChildEntity.h"
 
 @interface RZCollectionListFetchedListComboTests ()
 
@@ -15,8 +14,6 @@
 @property (nonatomic, strong) RZFilteredCollectionList *filteredList;
 @property (nonatomic, strong) RZSortedCollectionList *sortedList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;
-
-- (void)insertTestObjects;
 
 @end
 
@@ -33,29 +30,6 @@
 {
     [self waitFor:1];
     [super tearDown];
-}
-
-- (void)insertTestObjects
-{
-    NSArray *testData = @[ @[@"Arthur",     @10],
-                           @[@"Barb",       @9],
-                           @[@"Carl",       @8],
-                           @[@"Denny",      @7],
-                           @[@"Edgar",      @6],
-                           @[@"Filburt",    @5],
-                           @[@"Gretchen",   @4],
-                           @[@"Horatio",    @3],
-                           @[@"Iggy",       @2],
-                           @[@"Jasper",     @1] ];
-    
-    for (NSArray *childInfo in testData)
-    {
-        TestChildEntity *child = [NSEntityDescription insertNewObjectForEntityForName:@"TestChildEntity" inManagedObjectContext:self.moc];
-        child.name = childInfo[0];
-        child.index = childInfo[1];
-    }
-    
-    STAssertTrue([self.moc save:NULL], @"Failed to save MOC");
 }
 
 #pragma mark - Table Data Source Delegate
@@ -75,7 +49,7 @@
 
 - (void)test100FetchWithFilter
 {
-    [self insertTestObjects];
+    [self insertTestObjectsToMoc];
     
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
     fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES],
@@ -138,7 +112,7 @@
 
 - (void)test101FetchWithSort
 {
-    [self insertTestObjects];
+    [self insertTestObjectsToMoc];
     
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
     fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES],

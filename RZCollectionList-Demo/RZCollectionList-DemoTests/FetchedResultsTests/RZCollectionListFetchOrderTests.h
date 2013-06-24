@@ -14,7 +14,6 @@
  *********************************************************/
 
 #import <SenTestingKit/SenTestingKit.h>
-#import <CoreData/CoreData.h>
 #import "RZCollectionListTestsBase.h"
 
 @interface RZCollectionListFetchOrderTests : RZCollectionListTestsBase  <NSFetchedResultsControllerDelegate>

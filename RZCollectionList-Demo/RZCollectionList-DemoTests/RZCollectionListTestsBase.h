@@ -7,8 +7,13 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "RZCollectionList.h"
+#import "RZCollectionListTestModelObject.h"
+#import "TestParentEntity.h"
+#import "TestChildEntity.h"
 
 typedef void (^RZCollectionListTestCoreDataBlock)(NSManagedObjectContext *moc);
 
@@ -23,6 +28,8 @@ typedef void (^RZCollectionListTestCoreDataBlock)(NSManagedObjectContext *moc);
 
 - (void)setupTableView;
 - (void)setupCoreDataStack;
+
+- (void)insertTestObjectsToMoc;
 
 - (void)performSynchronousCoreDataBlockInChildContext:(RZCollectionListTestCoreDataBlock)block;
 - (void)waitFor:(NSUInteger)seconds;
