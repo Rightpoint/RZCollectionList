@@ -125,42 +125,7 @@
         NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
 #endif
       
-        // TODO: Maybe keep a cache of these notification objects for reuse? Probably more efficient than allocating.
-        
-        // cache the changes so we can send them in the desired order
-        if (NSFetchedResultsChangeInsert == type)
-        {
-            RZCollectionListObjectNotification *insertNotification = [self dequeueReusableObjectNotification];
-            insertNotification.object = anObject;
-            insertNotification.nuIndexPath = newIndexPath;
-            insertNotification.type = RZCollectionListChangeInsert;
-            [self.pendingObjectInsertNotifications  addObject:insertNotification];
-        }
-        else if (NSFetchedResultsChangeDelete == type)
-        {
-            RZCollectionListObjectNotification *removeNotification = [self dequeueReusableObjectNotification];
-            removeNotification.object = anObject;
-            removeNotification.indexPath = indexPath;
-            removeNotification.type = RZCollectionListChangeDelete;
-            [self.pendingObjectRemoveNotifications  addObject:removeNotification];
-        }
-        else if (NSFetchedResultsChangeMove == type)
-        {
-            RZCollectionListObjectNotification *moveNotification = [self dequeueReusableObjectNotification];
-            moveNotification.object = anObject;
-            moveNotification.indexPath = indexPath;
-            moveNotification.nuIndexPath = newIndexPath;
-            moveNotification.type = RZCollectionListChangeMove;
-            [self.pendingObjectMoveNotifications  addObject:moveNotification];
-        }
-        else if (NSFetchedResultsChangeUpdate == type)
-        {
-            RZCollectionListObjectNotification *updateNotification = [self dequeueReusableObjectNotification];
-            updateNotification.object = anObject;
-            updateNotification.indexPath = indexPath;
-            updateNotification.type = RZCollectionListChangeUpdate;
-            [self.pendingObjectUpdateNotifications  addObject:updateNotification];
-        }
+        [self enqueueObjectNotificationWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:(RZCollectionListChangeType)type];
 
     }
 }
@@ -174,22 +139,7 @@
         NSLog(@"RZFetchedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
         
-        if (NSFetchedResultsChangeInsert == type)
-        {
-            RZCollectionListSectionNotification *insertNotification = [self dequeueReusableSectionNotification];
-            insertNotification.sectionInfo = (id<RZCollectionListSectionInfo>)sectionInfo;
-            insertNotification.sectionIndex = sectionIndex;
-            insertNotification.type = RZCollectionListChangeInsert;
-            [self.pendingSectionInsertNotifications addObject:insertNotification];
-        }
-        else if (NSFetchedResultsChangeDelete == type)
-        {
-            RZCollectionListSectionNotification *removeNotification = [self dequeueReusableSectionNotification];
-            removeNotification.sectionInfo = (id<RZCollectionListSectionInfo>)sectionInfo;
-            removeNotification.sectionIndex = sectionIndex;
-            removeNotification.type = RZCollectionListChangeDelete;
-            [self.pendingSectionRemoveNotifications addObject:removeNotification];
-        }
+        [self enqueueSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:sectionIndex type:(RZCollectionListChangeType)type];
     }
 }
 
@@ -215,7 +165,7 @@
     if (self.controller == controller)
     {
         // Send out all object/section notifications
-        [self sendObjectAndSectionNotificationsToObservers:[self.collectionListObservers allObjects]];
+        [self sendPendingNotificationsToObservers:[self.collectionListObservers allObjects]];
 
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Did Change");
