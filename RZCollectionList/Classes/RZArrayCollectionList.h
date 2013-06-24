@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
-#import "RZBaseSourceCollectionList.h"
+#import "RZBaseCollectionList.h"
 
 @interface RZArrayCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo, NSCopying>
 
@@ -18,7 +18,7 @@
 
 @end
 
-@interface RZArrayCollectionList : RZBaseSourceCollectionList <RZCollectionList>
+@interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 

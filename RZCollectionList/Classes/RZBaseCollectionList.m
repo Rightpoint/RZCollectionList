@@ -1,15 +1,15 @@
 //
-//  RZBaseSourceCollectionList.m
+//  RZBaseCollectionList.m
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZBaseSourceCollectionList.h"
-#import "RZBaseSourceCollectionList_Private.h"
+#import "RZBaseCollectionList.h"
+#import "RZBaseCollectionList_Private.h"
 
-@interface RZBaseSourceCollectionList ()
+@interface RZBaseCollectionList ()
 
 @property (nonatomic, strong) NSMutableSet *sectionNotificationReuseCache;
 @property (nonatomic, strong) NSMutableSet *objectNotificationReuseCache;
@@ -20,7 +20,7 @@
 
 @end
 
-@implementation RZBaseSourceCollectionList
+@implementation RZBaseCollectionList
 
 - (id)init
 {

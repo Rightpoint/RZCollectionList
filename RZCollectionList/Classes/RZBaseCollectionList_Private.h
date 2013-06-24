@@ -1,12 +1,12 @@
 //
-//  RZBaseSourceCollectionList_Private.h
+//  RZBaseCollectionList_Private.h
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import "RZBaseSourceCollectionList.h"
+#import "RZBaseCollectionList.h"
 #import "RZCollectionListNotificationWrappers.h"
 
 // Max number of notifications to keep around for reuse.
@@ -14,7 +14,7 @@
 // Left fairly generous since notification objects are pretty small.
 #define kRZCollectionListNotificationReuseCacheMaxSize 128
 
-@interface RZBaseSourceCollectionList ()
+@interface RZBaseCollectionList ()
 
 // these will be used to cache section/object changes during an update. Do not insert in these directly - use helpers below.
 @property (nonatomic, strong) NSMutableArray *pendingSectionInsertNotifications;

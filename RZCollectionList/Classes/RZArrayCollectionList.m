@@ -8,7 +8,7 @@
 
 #import "RZArrayCollectionList.h"
 #import "RZObserverCollection.h"
-#import "RZBaseSourceCollectionList_Private.h"
+#import "RZBaseCollectionList_Private.h"
 
 @interface RZArrayCollectionListSectionInfo ()
 

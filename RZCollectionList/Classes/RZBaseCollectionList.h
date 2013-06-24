@@ -1,5 +1,5 @@
 //
-//  RZBaseSourceCollectionList.h
+//  RZBaseCollectionList.h
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
@@ -23,6 +23,6 @@
  *
  **************************************************/
 
-@interface RZBaseSourceCollectionList : NSObject
+@interface RZBaseCollectionList : NSObject
 
 @end
