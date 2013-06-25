@@ -66,7 +66,7 @@
     [self.collectionListObservers removeObject:listObserver];
 }
 
-- (void)enqueueObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
+- (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
     RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
     notification.object = object;
@@ -98,7 +98,7 @@
     }
 }
 
-- (void)enqueueSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type
+- (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type
 {
     RZCollectionListSectionNotification *notification = [self dequeueReusableSectionNotification];
     notification.sectionInfo = sectionInfo;

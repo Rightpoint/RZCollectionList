@@ -32,8 +32,11 @@ typedef enum {
 @property (nonatomic, strong, readwrite) id<RZCollectionList> sourceList;
 
 @property (nonatomic, strong) NSMutableIndexSet *sectionIndexes;
-@property (nonatomic, strong) NSMutableArray *objectIndexesForSection;
-@property (nonatomic, strong) NSArray *cachedSourceSections;
+@property (nonatomic, strong) NSMutableArray    *objectIndexesForSection;
+
+@property (nonatomic, strong) NSArray           *cachedSourceSections;
+@property (nonatomic, strong) NSIndexSet        *cachedSectionIndexes;
+@property (nonatomic, strong) NSArray           *cachedObjectIndexesForSection;
 
 @property (nonatomic, assign) RZFilteredSourceListContentChangeState contentChangeState;
 
@@ -41,13 +44,17 @@ typedef enum {
 
 - (NSIndexPath*)sourceIndexPathForIndexPath:(NSIndexPath*)indexPath;
 - (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath*)indexPath;
+- (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath*)indexPath cached:(BOOL)cached;
 - (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section;
+- (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section cached:(BOOL)cached;
+
 - (NSArray*)filteredSections;
 - (NSArray*)filteredCachedSections;
 - (NSArray*)filteredObjectsForSection:(RZFilteredCollectionListSectionInfo*)sectionInfo;
 - (NSArray*)filteredObjects;
 
 - (BOOL)sourceIndexPathIsInFilteredList:(NSIndexPath*)sourceIndexPath;
+- (BOOL)sourceIndexPathIsInFilteredList:(NSIndexPath*)sourceIndexPath cached:(BOOL)cached;
 
 // Mutation helpers
 - (void)addSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
@@ -243,11 +250,16 @@ typedef enum {
     return [NSIndexPath indexPathForRow:sourceItem inSection:sourceSection];
 }
 
-- (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath*)indexPath
+- (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath *)indexPath
 {
-    NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
+    return [self filteredIndexPathForSourceIndexPath:indexPath cached:NO];
+}
+
+- (NSIndexPath*)filteredIndexPathForSourceIndexPath:(NSIndexPath*)indexPath cached:(BOOL)cached
+{
+    NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section cached:cached];
     
-    NSIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+    NSIndexSet *sectionIndexSet = cached ? [self.cachedObjectIndexesForSection objectAtIndex:indexPath.section] : [self.objectIndexesForSection objectAtIndex:indexPath.section];
     NSUInteger filteredRow = [sectionIndexSet countOfIndexesInRange:NSMakeRange(0, indexPath.row)];
     
     return [NSIndexPath indexPathForRow:filteredRow inSection:filteredSection];
@@ -255,7 +267,12 @@ typedef enum {
 
 - (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section
 {
-    return [self.sectionIndexes countOfIndexesInRange:NSMakeRange(0, section)];
+    return [self filteredSectionIndexForSourceSectionIndex:section cached:NO];
+}
+
+- (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section cached:(BOOL)cached
+{
+    return cached ? [self.cachedSectionIndexes countOfIndexesInRange:NSMakeRange(0, section)] : [self.sectionIndexes countOfIndexesInRange:NSMakeRange(0, section)];
 }
 
 - (NSArray*)filteredSections
@@ -329,18 +346,28 @@ typedef enum {
     return filteredObjects;
 }
 
-- (BOOL)sourceIndexPathIsInFilteredList:(NSIndexPath*)sourceIndexPath
+- (BOOL)sourceIndexPathIsInFilteredList:(NSIndexPath *)sourceIndexPath
+{
+    return [self sourceIndexPathIsInFilteredList:sourceIndexPath cached:NO];
+}
+
+- (BOOL)sourceIndexPathIsInFilteredList:(NSIndexPath*)sourceIndexPath cached:(BOOL)cached
 {
     BOOL isInFilteredList = NO;
     
     NSInteger section = sourceIndexPath.section;
     NSInteger row = sourceIndexPath.row;
     
-    if ([self.sectionIndexes containsIndex:section])
+    
+    NSIndexSet *sectionIndexes = cached ? self.cachedSectionIndexes : self.sectionIndexes;
+    
+    if ([sectionIndexes containsIndex:section])
     {
-        if (section >= 0 && section < self.objectIndexesForSection.count)
+        NSArray *objectIndexesForSection = cached ? self.cachedObjectIndexesForSection : self.objectIndexesForSection;
+        
+        if (section >= 0 && section < objectIndexesForSection.count)
         {
-            NSIndexSet *objectIndexes = [self.objectIndexesForSection objectAtIndex:section];
+            NSIndexSet *objectIndexes = [objectIndexesForSection objectAtIndex:section];
             isInFilteredList = [objectIndexes containsIndex:row];
         }
     }
@@ -666,6 +693,8 @@ typedef enum {
 {
     self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
     self.cachedSourceSections = [self.sourceList.sections copy];
+    self.cachedSectionIndexes = [self.sectionIndexes copy];
+    self.cachedObjectIndexesForSection = [[NSMutableArray alloc] initWithArray:self.objectIndexesForSection copyItems:YES];
 }
 
 - (void)confirmPotentialUpdates
@@ -679,7 +708,7 @@ typedef enum {
 }
 
 - (void)endPotentialUpdates
-{
+{    
     if (self.contentChangeState == RZFilteredSourceListContentChangeStateChanged)
     {
         [self sendDidChangeContentNotifications];
@@ -688,6 +717,8 @@ typedef enum {
     [self resetPendingNotifications];
     self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
     self.cachedSourceSections = nil;
+    self.cachedSectionIndexes = nil;
+    self.cachedObjectIndexesForSection = nil;
 }
 
 #pragma mark - Notification Helpers
@@ -741,7 +772,6 @@ typedef enum {
             break;
     }
     
-    [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type];
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
@@ -761,7 +791,7 @@ typedef enum {
             break;
     }
     
-    // DO NOT enqueue section notifications. This will be handled in the batch forward phase for any empty sections.
+    // DO NOT cache section notifications. This will be handled in the batch forward phase for any empty sections.
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList

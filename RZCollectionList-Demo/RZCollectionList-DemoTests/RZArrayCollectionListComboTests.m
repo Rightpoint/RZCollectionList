@@ -95,6 +95,7 @@
                     toSection:0];
     [self.arrayList addObject:[RZCollectionListTestModelObject objectWithName:@"Jimbo" number:@44]
                     toSection:0];
+    
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForItem:3 inSection:0]];
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:0]];
     
@@ -140,7 +141,7 @@
     [self.arrayList insertObject:[RZCollectionListTestModelObject objectWithName:@"Maurice" number:@7] atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // move object to section 1
-    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
     

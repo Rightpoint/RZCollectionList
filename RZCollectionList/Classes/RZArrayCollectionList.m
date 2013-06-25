@@ -60,7 +60,7 @@
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
-- (void)sendBatchChangeNotifications;
+- (void)processPendingChangeNotifications;
 
 - (void)objectUpdateNotificationReceived:(NSNotification*)notification;
 
@@ -281,7 +281,8 @@
 {
     if (self.batchUpdating)
     {
-        [self sendBatchChangeNotifications];        
+        [self processPendingChangeNotifications];
+        [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
     }
@@ -298,7 +299,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self enqueueObjectNotificationWithObject:object indexPath:nil newIndexPath:indexPath type:RZCollectionListChangeInsert];
+            [self cacheObjectNotificationWithObject:object indexPath:nil newIndexPath:indexPath type:RZCollectionListChangeInsert];
         }
         
         [self.objects insertObject:object atIndex:index];
@@ -337,7 +338,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeDelete];
+            [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeDelete];
         }
         
         if (nil != self.objectUpdateNotifications)
@@ -372,7 +373,7 @@
         {
             if (self.isBatchUpdating)
             {
-                [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
+                [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
             }
             
             id oldObject = [self.objects objectAtIndex:index];
@@ -423,7 +424,7 @@
             
             if (self.isBatchUpdating)
             {
-                [self enqueueObjectNotificationWithObject:object indexPath:removeIndexPath newIndexPath:destinationIndexPath type:RZCollectionListChangeMove];
+                [self cacheObjectNotificationWithObject:object indexPath:removeIndexPath newIndexPath:destinationIndexPath type:RZCollectionListChangeMove];
             }
             
             // ND: I manually unwound the insert/remove calls so the batch logic doesn't get messed up.
@@ -463,7 +464,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self enqueueSectionNotificationWithSectionInfo:section sectionIndex:index type:RZCollectionListChangeInsert];
+            [self cacheSectionNotificationWithSectionInfo:section sectionIndex:index type:RZCollectionListChangeInsert];
         }
         
         if (index > 0){
@@ -498,7 +499,7 @@
             if (self.isBatchUpdating)
             {
                 // index path doesn't matter, don't waste time allocating one here - it will be calculated at the end of the update
-                [self enqueueObjectNotificationWithObject:obj indexPath:nil newIndexPath:nil type:RZCollectionListChangeDelete];
+                [self cacheObjectNotificationWithObject:obj indexPath:nil newIndexPath:nil type:RZCollectionListChangeDelete];
             }
             
             if (nil != self.objectUpdateNotifications)
@@ -521,7 +522,7 @@
     {
         if (self.isBatchUpdating)
         {
-            [self enqueueSectionNotificationWithSectionInfo:sectionInfo sectionIndex:index type:RZCollectionListChangeDelete];
+            [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:index type:RZCollectionListChangeDelete];
         }
         
         [self.sectionsInfo removeObjectAtIndex:index];
@@ -593,7 +594,7 @@
     }];
 }
 
-- (void)sendBatchChangeNotifications
+- (void)processPendingChangeNotifications
 {
     // First, set the index paths for all notifications based on the initial or final state of the data.
 
@@ -660,8 +661,7 @@
     }];
     
     [self.pendingObjectUpdateNotifications removeObjectsAtIndexes:invalidUpdates];
-
-    [self sendAllPendingChangeNotifications];
+    
 }
 
 #pragma mark - ObjectUpdateObservation
@@ -684,7 +684,7 @@
         }
         else
         {
-            [self enqueueObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
+            [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
         }
     }
 }
