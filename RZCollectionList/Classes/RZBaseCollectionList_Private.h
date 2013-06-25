@@ -22,6 +22,10 @@
 @property (nonatomic, strong) NSMutableArray *pendingObjectMoveNotifications;
 @property (nonatomic, strong) NSMutableArray *pendingObjectUpdateNotifications;
 
+// Returns concatenation of all pending notifications
+@property (nonatomic, readonly) NSArray *allPendingObjectNotifications;
+@property (nonatomic, readonly) NSArray *allPendingSectionNotifications;
+
 - (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
 - (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
 
@@ -30,7 +34,7 @@
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type;
 
 //! Sorts pending notifications by index/indexPath, depending on type
-- (void)sortPendingNotifications;
+//- (void)sortPendingNotifications;
 
 //! Send will change notifications
 - (void)sendWillChangeContentNotifications;

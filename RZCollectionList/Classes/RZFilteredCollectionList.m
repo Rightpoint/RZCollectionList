@@ -490,39 +490,38 @@ typedef enum {
                 
                 RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredSections] objectAtIndex:filteredSection];
                 
-                [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeInsert];
+                [self cacheSectionNotificationWithSectionInfo:filteredSectionInfo sectionIndex:filteredSection type:RZCollectionListChangeInsert];
+                
             }
             
             [sectionIndexSet addIndex:indexPath.row];
             
             NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
             
-            [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:filteredIndexPath];
+            [self cacheObjectNotificationWithObject:object indexPath:nil newIndexPath:filteredIndexPath type:RZCollectionListChangeInsert];
         }
     }
 }
 
 - (void)removeSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath.section >= 0 && indexPath.section < self.cachedObjectIndexesForSection.count && indexPath.section < self.objectIndexesForSection.count)
     {
-        NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+        NSMutableIndexSet *cachedSectionIndexSet = [self.cachedObjectIndexesForSection objectAtIndex:indexPath.section];
         
-        if ([sectionIndexSet containsIndex:indexPath.row])
+        if ([cachedSectionIndexSet containsIndex:indexPath.row])
         {
             [self confirmPotentialUpdates];
             
-            NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
+            NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath cached:YES];
+                        
+            [self cacheObjectNotificationWithObject:object indexPath:filteredIndexPath newIndexPath:nil type:RZCollectionListChangeDelete];
             
-            [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
-            
-            [self sendDidChangeObjectNotification:object atIndexPath:filteredIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
         }
-        else
-        {
-            [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
-        }
-        
+
+        NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
+        [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row+1 by:-1];
+
         if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
         {
             NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
@@ -530,7 +529,8 @@ typedef enum {
             
             [self.sectionIndexes removeIndex:indexPath.section];
             
-            [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
+            [self cacheSectionNotificationWithSectionInfo:filteredSectionInfo sectionIndex:filteredSection type:RZCollectionListChangeDelete];
+
         }
     }
 }
@@ -677,7 +677,8 @@ typedef enum {
             
             RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredSections] objectAtIndex:filteredSection];
             
-            [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeInsert];
+            [self cacheSectionNotificationWithSectionInfo:filteredSectionInfo sectionIndex:filteredSection type:RZCollectionListChangeInsert];
+            
         }
         
         NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
@@ -685,7 +686,7 @@ typedef enum {
         
         NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath];
         
-        [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:filteredIndexPath];
+        [self cacheObjectNotificationWithObject:object indexPath:nil newIndexPath:filteredIndexPath type:RZCollectionListChangeInsert];
     }
 }
 
@@ -708,9 +709,13 @@ typedef enum {
 }
 
 - (void)endPotentialUpdates
-{    
+{
+    [self processReceivedChangeNotifications];
+    
     if (self.contentChangeState == RZFilteredSourceListContentChangeStateChanged)
     {
+        // deliver outgoing notifications
+        [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
     }
     
@@ -719,6 +724,66 @@ typedef enum {
     self.cachedSourceSections = nil;
     self.cachedSectionIndexes = nil;
     self.cachedObjectIndexesForSection = nil;
+}
+
+- (void)processReceivedChangeNotifications
+{
+    // Make local copies of notifications received so far
+    
+    // -- Section
+    NSArray *sectionRemoveNotifications = [self.pendingSectionRemoveNotifications copy];
+    NSArray *sectionInsertNotifications = [self.pendingSectionInsertNotifications copy];
+    
+    // -- Object
+    NSArray *objectRemoveNotifications   = [self.pendingObjectRemoveNotifications copy];
+    NSArray *objectInsertNotifications   = [self.pendingObjectInsertNotifications copy];
+    
+    NSArray *objectMoveNotifications     = [self.pendingObjectMoveNotifications copy];
+    NSArray *objectUpdateNotifications   = [self.pendingObjectUpdateNotifications copy];
+    
+
+    // clear cache in prep for outgoing notifications
+    [self resetPendingNotifications];
+    
+    // process incoming notifications
+    
+    [objectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self removeSourceObject:notification.object atSourceIndexPath:notification.indexPath];
+    }];
+    
+    [sectionRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self.sectionIndexes shiftIndexesStartingAtIndex:notification.sectionIndex+1 by:-1];
+        [self.objectIndexesForSection removeObjectAtIndex:notification.sectionIndex];
+    }];
+    
+    [sectionInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self.sectionIndexes shiftIndexesStartingAtIndex:notification.sectionIndex by:1];
+        [self.objectIndexesForSection insertObject:[NSMutableIndexSet indexSet] atIndex:notification.sectionIndex];
+    }];
+    
+    [objectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self addSourceObject:notification.object atSourceIndexPath:notification.nuIndexPath];
+    }];
+    
+    [objectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        // need to pass CURRENT indexPath of object, not previous
+        [self updateSourceObject:notification.object atSourceIndexPath:[self.sourceList indexPathForObject:notification.object]];
+    }];
+
+    
+    // process outgoing notifications (update index paths for other changes)
+//    [self.allPendingSectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+//        notification.sectionIndex = [self.filteredSections indexOfObject:notification.sectionInfo];
+//    }];
+    
+    // TODO: Could maybe just nudge the index paths on the objects each time they need to change?
+    
+    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        if (notification.nuIndexPath)
+        {
+            notification.nuIndexPath = [self indexPathForObject:notification.object];
+        }
+    }];
 }
 
 #pragma mark - Notification Helpers
@@ -753,43 +818,27 @@ typedef enum {
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    switch(type) {
-        case RZCollectionListChangeInsert:
-            [self addSourceObject:object atSourceIndexPath:newIndexPath];
-            break;
-        case RZCollectionListChangeDelete:
-            [self removeSourceObject:object atSourceIndexPath:indexPath];
-            break;
-        case RZCollectionListChangeMove:
-            [self moveSourceObject:object fromSourceIndexPath:indexPath toSourceIndexPath:newIndexPath];
-            break;
-        case RZCollectionListChangeUpdate:
-            [self updateSourceObject:object atSourceIndexPath:indexPath];
-            break;
-        default:
-            //uncaught type
-            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-            break;
-    }
-    
+    [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type];
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
-    switch(type) {
-        case RZCollectionListChangeInsert:
-            [self.sectionIndexes shiftIndexesStartingAtIndex:sectionIndex by:1];
-            [self.objectIndexesForSection insertObject:[NSMutableIndexSet indexSet] atIndex:sectionIndex];
-            break;
-        case RZCollectionListChangeDelete:
-            [self.sectionIndexes shiftIndexesStartingAtIndex:sectionIndex+1 by:-1];
-            [self.objectIndexesForSection removeObjectAtIndex:sectionIndex];
-            break;
-        default:
-            //uncaught type
-            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-            break;
-    }
+    [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:sectionIndex type:type];
+    
+//    switch(type) {
+//        case RZCollectionListChangeInsert:
+//            [self.sectionIndexes shiftIndexesStartingAtIndex:sectionIndex by:1];
+//            [self.objectIndexesForSection insertObject:[NSMutableIndexSet indexSet] atIndex:sectionIndex];
+//            break;
+//        case RZCollectionListChangeDelete:
+//            [self.sectionIndexes shiftIndexesStartingAtIndex:sectionIndex+1 by:-1];
+//            [self.objectIndexesForSection removeObjectAtIndex:sectionIndex];
+//            break;
+//        default:
+//            //uncaught type
+//            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+//            break;
+//    }
     
     // DO NOT cache section notifications. This will be handled in the batch forward phase for any empty sections.
 }
