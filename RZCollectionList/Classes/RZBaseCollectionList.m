@@ -9,17 +9,6 @@
 #import "RZBaseCollectionList.h"
 #import "RZBaseCollectionList_Private.h"
 
-@interface RZBaseCollectionList ()
-
-@property (nonatomic, strong) NSMutableSet *sectionNotificationReuseCache;
-@property (nonatomic, strong) NSMutableSet *objectNotificationReuseCache;
-
-// TODO: These may not be necessary
-- (RZCollectionListObjectNotification*)dequeueReusableObjectNotification;
-- (RZCollectionListSectionNotification*)dequeueReusableSectionNotification;
-
-@end
-
 @implementation RZBaseCollectionList
 
 - (id)init
@@ -34,9 +23,6 @@
         _pendingObjectRemoveNotifications   = [NSMutableArray arrayWithCapacity:16];
         _pendingObjectMoveNotifications     = [NSMutableArray arrayWithCapacity:16];
         _pendingObjectUpdateNotifications   = [NSMutableArray arrayWithCapacity:16];
-        
-        _objectNotificationReuseCache  = [NSMutableSet setWithCapacity:kRZCollectionListNotificationReuseCacheMaxSize];
-        _sectionNotificationReuseCache = [NSMutableSet setWithCapacity:kRZCollectionListNotificationReuseCacheMaxSize];
         
     }
     return self;
@@ -68,7 +54,7 @@
 
 - (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
-    RZCollectionListObjectNotification *notification = [self dequeueReusableObjectNotification];
+    RZCollectionListObjectNotification *notification = [[RZCollectionListObjectNotification alloc] init];
     notification.object = object;
     notification.indexPath = indexPath;
     notification.nuIndexPath = newIndexPath;
@@ -100,7 +86,7 @@
 
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type
 {
-    RZCollectionListSectionNotification *notification = [self dequeueReusableSectionNotification];
+    RZCollectionListSectionNotification *notification = [[RZCollectionListSectionNotification alloc] init];
     notification.sectionInfo = sectionInfo;
     notification.sectionIndex = sectionIndex;
     notification.type = type;
@@ -253,23 +239,6 @@
 
 - (void)resetPendingNotifications
 {
-    // move notifications back to reuse cache
-    [self.sectionNotificationReuseCache addObjectsFromArray:self.pendingSectionInsertNotifications];
-    [self.sectionNotificationReuseCache addObjectsFromArray:self.pendingSectionRemoveNotifications];
-    [self.objectNotificationReuseCache  addObjectsFromArray:self.pendingObjectInsertNotifications];
-    [self.objectNotificationReuseCache  addObjectsFromArray:self.pendingObjectRemoveNotifications];
-    [self.objectNotificationReuseCache  addObjectsFromArray:self.pendingObjectUpdateNotifications];
-    [self.objectNotificationReuseCache  addObjectsFromArray:self.pendingObjectMoveNotifications];
-    
-    // trim caches to max size if they got too big
-    while (self.objectNotificationReuseCache.count > kRZCollectionListNotificationReuseCacheMaxSize){
-        [self.objectNotificationReuseCache removeObject:[self.objectNotificationReuseCache anyObject]];
-    }
-    
-    while (self.sectionNotificationReuseCache.count > kRZCollectionListNotificationReuseCacheMaxSize){
-        [self.sectionNotificationReuseCache removeObject:[self.sectionNotificationReuseCache anyObject]];
-    }
-    
     // remove notifications from containers
     [self.pendingSectionInsertNotifications   removeAllObjects];
     [self.pendingSectionRemoveNotifications   removeAllObjects];
@@ -279,41 +248,5 @@
     [self.pendingObjectUpdateNotifications    removeAllObjects];
 }
 
-#pragma mark - Private Methods
-
-- (RZCollectionListObjectNotification*)dequeueReusableObjectNotification
-{
-    RZCollectionListObjectNotification *notification = nil;
-    if (self.objectNotificationReuseCache.count > 0){
-        
-        // remove from beginning, re-add at end when done
-        notification = [self.objectNotificationReuseCache anyObject];
-        [notification clear];
-        [self.objectNotificationReuseCache removeObject:notification];
-    }
-    else{
-        notification = [[RZCollectionListObjectNotification alloc] init];
-    }
-    
-    return notification;
-}
-
-- (RZCollectionListSectionNotification*)dequeueReusableSectionNotification
-{
-    RZCollectionListSectionNotification *notification = nil;
-    if (self.sectionNotificationReuseCache.count > 0){
-        
-        // remove from beginning, re-add at end when done
-        notification = [self.sectionNotificationReuseCache anyObject];
-        [notification clear];
-        [self.sectionNotificationReuseCache removeObject:notification];
-        
-    }
-    else{
-        notification = [[RZCollectionListSectionNotification alloc] init];
-    }
-    
-    return notification;
-}
 
 @end

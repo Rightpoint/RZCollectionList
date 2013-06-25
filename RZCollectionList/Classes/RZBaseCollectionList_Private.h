@@ -10,11 +10,6 @@
 #import "RZObserverCollection.h"
 #import "RZCollectionListNotificationWrappers.h"
 
-// Max number of notifications to keep around for reuse.
-// Exceeding this number in a single batch update will cause new allocations.
-// This can be fairly generous since notification objects are pretty small.
-#define kRZCollectionListNotificationReuseCacheMaxSize 64
-
 @interface RZBaseCollectionList ()
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
