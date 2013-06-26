@@ -12,6 +12,8 @@
 
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
+- (void)calculateCurrentIndexPathsForUpdates;
+
 @end
 
 @implementation RZFetchedCollectionList
@@ -48,6 +50,13 @@
     {
         NSLog(@"Error performing fetch for RZFetchedCollectionList controller: %@. Error: %@", controller, [error localizedDescription]);
     }
+}
+
+- (void)calculateCurrentIndexPathsForUpdates
+{
+    [self.pendingObjectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        notification.nuIndexPath = [self indexPathForObject:notification.object];
+    }];
 }
 
 #pragma mark - RZCollectionList
@@ -135,6 +144,9 @@
 {
     if (self.controller == controller)
     {
+        // get current index paths for update notifications
+        [self calculateCurrentIndexPathsForUpdates];
+        
         // Send out all object/section notifications
         [self sendAllPendingChangeNotifications];
 

@@ -15,7 +15,7 @@
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
-@property (nonatomic, strong) NSMutableSet *updatedObjects;
+@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
 
 @end
 
@@ -40,7 +40,7 @@
         // reload data here to prep for collection list observations
         [tableView reloadData];
         
-        self.updatedObjects = [NSMutableSet setWithCapacity:16];
+        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
     }
     
     return self;
@@ -201,14 +201,12 @@
                 UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
                 if (cell != nil){
                     
-                    NSIndexPath *currentIndexPathOfObject = [self.collectionList indexPathForObject:object];
-                    
                     // If the delegate implements the update method, update right now. Otherwise delay.
                     if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)]){
-                        [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:currentIndexPathOfObject];
+                        [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
                     else{
-                        [self.updatedObjects addObject:object];
+                        [self.updatedIndexPaths addObject:newIndexPath];
                     }
                 }
             }
@@ -258,23 +256,13 @@
         [self.tableView endUpdates];
         
         // delay update notifications
-        if (self.updatedObjects.count > 0){
+        if (self.updatedIndexPaths.count > 0){
             
-            NSMutableArray *updatedIndexPaths = [NSMutableArray arrayWithCapacity:self.updatedObjects.count];
             [self.tableView beginUpdates];
-            [self.updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-               
-                NSIndexPath *ip = [self.collectionList indexPathForObject:obj];
-                if (ip != nil){ 
-                    [updatedIndexPaths addObject:ip];
-                }
-                
-            }];
-            
-            [self.tableView reloadRowsAtIndexPaths:updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
+            [self.tableView reloadRowsAtIndexPaths:self.updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
             [self.tableView endUpdates];
             
-            [self.updatedObjects removeAllObjects];
+            [self.updatedIndexPaths removeAllObjects];
         }
 
     }

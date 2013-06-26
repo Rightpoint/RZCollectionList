@@ -15,7 +15,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
-@property (nonatomic, strong) NSMutableSet *updatedObjects;
+@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
 
 @end
 
@@ -38,7 +38,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         collectionView.dataSource = self;
         [collectionView reloadData];
         
-        self.updatedObjects = [NSMutableSet setWithCapacity:16];
+        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
     }
     
     return self;
@@ -91,17 +91,15 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
             UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
             if (cell != nil){
                 
-                NSIndexPath *currentIndexPathOfObject = [self.collectionList indexPathForObject:object];
-
                 if (self.useBatchUpdating){
                 
                     // If the delegate implements the update method, update right now. Otherwise delay.
                     if ([self.delegate respondsToSelector:@selector(collectionView:updateCell:forObject:atIndexPath:)])
                     {
-                        [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:currentIndexPathOfObject];
+                        [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
                     else{
-                        [self.updatedObjects addObject:object];
+                        [self.updatedIndexPaths addObject:newIndexPath];
                     }
                 }
                 else{
@@ -207,20 +205,12 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                 }];
             
                 // delayed item updates
-                if (self.updatedObjects.count > 0){
-                    
-                    NSMutableArray *updateIndexPaths = [NSMutableArray arrayWithCapacity:self.updatedObjects.count];
-                    [self.updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-                        NSIndexPath *ip = [self.collectionList indexPathForObject:obj];
-                        if (ip != nil){
-                            [updateIndexPaths addObject:ip];
-                        }
-                    }];
+                if (self.updatedIndexPaths.count > 0){
                     
                     [self.collectionView performBatchUpdates:^{
-                        [self.collectionView reloadItemsAtIndexPaths:updateIndexPaths];
+                        [self.collectionView reloadItemsAtIndexPaths:self.updatedIndexPaths];
                     } completion:^(BOOL finished) {
-                        [self.updatedObjects removeAllObjects];
+                        [self.updatedIndexPaths removeAllObjects];
                     }];
                 }
 

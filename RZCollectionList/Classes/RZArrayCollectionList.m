@@ -657,6 +657,11 @@
         {
             [invalidUpdates addIndex:idx];
         }
+        else
+        {
+            // calculate current index path
+            notification.nuIndexPath = [self indexPathForObject:notification.object];
+        }
         
     }];
     
