@@ -123,38 +123,6 @@
     }
 }
 
-//- (void)sortPendingNotifications
-//{
-//    // Remove Objects, sorted descending by index path
-//    if (self.pendingObjectRemoveNotifications.count)
-//    {
-//       [self.pendingObjectRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO] ]];
-//    }
-//    
-//    // Remove Sections, sorted descending by index
-//    if (self.pendingSectionRemoveNotifications.count)
-//    {
-//        [self.pendingSectionRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
-//    }
-//    
-//    // Insert Sections, ascending by index
-//    if (self.pendingSectionInsertNotifications.count)
-//    {
-//        [self.pendingSectionInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
-//    }
-//    
-//    // Insert Objects, ascending by index path
-//    if (self.pendingObjectInsertNotifications.count)
-//    {
-//        [self.pendingObjectInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
-//    }
-//    
-//    // Move Objects, ascending by destination index path
-//    if (self.pendingObjectMoveNotifications.count)
-//    {
-//        [self.pendingObjectMoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
-//    }
-//}
 
 - (void)sendWillChangeContentNotifications
 {
@@ -185,8 +153,44 @@
 }
 
 
+- (void)sortPendingNotifications
+{
+    // Remove Objects, sorted descending by index path
+    if (self.pendingObjectRemoveNotifications.count)
+    {
+        [self.pendingObjectRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO] ]];
+    }
+    
+    // Remove Sections, sorted descending by index
+    if (self.pendingSectionRemoveNotifications.count)
+    {
+        [self.pendingSectionRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
+    }
+    
+    // Insert Sections, ascending by index
+    if (self.pendingSectionInsertNotifications.count)
+    {
+        [self.pendingSectionInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
+    }
+    
+    // Insert Objects, ascending by index path
+    if (self.pendingObjectInsertNotifications.count)
+    {
+        [self.pendingObjectInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
+    }
+    
+    // Move Objects, ascending by destination index path
+    if (self.pendingObjectMoveNotifications.count)
+    {
+        [self.pendingObjectMoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES] ]];
+    }
+}
+
 - (void)sendAllPendingChangeNotifications
 {
+    // ---- Sort
+    [self sortPendingNotifications];
+    
     // ---- Send out notifications
     
     // Remove Objects, sorted descending by index path
@@ -198,14 +202,12 @@
     // Remove Sections, sorted descending by index
     if (self.pendingSectionRemoveNotifications.count)
     {
-        [self.pendingSectionRemoveNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:NO] ]];
         [self sendSectionNotifications:self.pendingSectionRemoveNotifications];
     }
     
     // Insert Sections, ascending by index
     if (self.pendingSectionInsertNotifications.count)
     {
-        [self.pendingSectionInsertNotifications sortUsingDescriptors:@[ [NSSortDescriptor sortDescriptorWithKey:@"sectionIndex" ascending:YES] ]];
         [self sendSectionNotifications:self.pendingSectionInsertNotifications];
     }
     

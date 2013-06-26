@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A15F189177B50E100800760 /* RZArrayCollectionListComboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AEAD7301772312C00B8A6BE /* RZArrayCollectionListComboTests.m */; };
+		9A15F18A177B510600800760 /* RZFetchedCollectionListComboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE7A3177360DA0003AD14 /* RZFetchedCollectionListComboTests.m */; };
 		9A7FD31F16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A7FD31E16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m */; };
 		9A8FE797177346820003AD14 /* RZCollectionListFetchOrderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE796177346820003AD14 /* RZCollectionListFetchOrderTests.m */; };
 		9A8FE79A1773469F0003AD14 /* RZCollectionListFetchTestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE7981773469F0003AD14 /* RZCollectionListFetchTestModel.xcdatamodeld */; };
 		9A8FE79E1773470B0003AD14 /* TestChildEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE79D1773470B0003AD14 /* TestChildEntity.m */; };
 		9A8FE7A11773470B0003AD14 /* TestParentEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE7A01773470B0003AD14 /* TestParentEntity.m */; };
-		9A8FE7A4177360DA0003AD14 /* RZFetchedCollectionListComboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE7A3177360DA0003AD14 /* RZFetchedCollectionListComboTests.m */; };
 		9A8FE7A71773629F0003AD14 /* RZCollectionListTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A8FE7A61773629F0003AD14 /* RZCollectionListTestsBase.m */; };
 		9AD4907C170C6B80003AB9D7 /* RZCollectionListCollectionViewDataSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AD4907B170C6B80003AB9D7 /* RZCollectionListCollectionViewDataSourceTests.m */; };
 		9AD49080170CCB06003AB9D7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AD4907F170CCB06003AB9D7 /* QuartzCore.framework */; };
 		9AD49081170CCB35003AB9D7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AD4907F170CCB06003AB9D7 /* QuartzCore.framework */; };
 		9AE7E40A17789D17001FC0EA /* RZCompositeCollectionListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7E40917789D17001FC0EA /* RZCompositeCollectionListTests.m */; };
-		9AEAD7311772312C00B8A6BE /* RZArrayCollectionListComboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AEAD7301772312C00B8A6BE /* RZArrayCollectionListComboTests.m */; };
 		9AEAD7341772324600B8A6BE /* RZCollectionListTestModelObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AEAD7331772324600B8A6BE /* RZCollectionListTestModelObject.m */; };
 		9AFC2D001774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */; };
 		9AFC2D011774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */; };
@@ -591,13 +591,11 @@
 				FE16938516F8BE18003AAD76 /* RZFilteredCollectionListTests.m in Sources */,
 				9A7FD31F16F8E19200739D8A /* RZCollectionListTableViewDataSourceTests.m in Sources */,
 				9AD4907C170C6B80003AB9D7 /* RZCollectionListCollectionViewDataSourceTests.m in Sources */,
-				9AEAD7311772312C00B8A6BE /* RZArrayCollectionListComboTests.m in Sources */,
 				9AEAD7341772324600B8A6BE /* RZCollectionListTestModelObject.m in Sources */,
 				9A8FE797177346820003AD14 /* RZCollectionListFetchOrderTests.m in Sources */,
 				9A8FE79A1773469F0003AD14 /* RZCollectionListFetchTestModel.xcdatamodeld in Sources */,
 				9A8FE79E1773470B0003AD14 /* TestChildEntity.m in Sources */,
 				9A8FE7A11773470B0003AD14 /* TestParentEntity.m in Sources */,
-				9A8FE7A4177360DA0003AD14 /* RZFetchedCollectionListComboTests.m in Sources */,
 				9A8FE7A71773629F0003AD14 /* RZCollectionListTestsBase.m in Sources */,
 				9AFC2D011774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */,
 				9AFC2D031774D44000FF5E53 /* RZArrayCollectionList.m in Sources */,
@@ -611,6 +609,8 @@
 				9AFC2D131774D44000FF5E53 /* RZSortedCollectionList.m in Sources */,
 				9AFC2D1F1774D82B00FF5E53 /* RZCollectionListNotificationWrappers.m in Sources */,
 				9AE7E40A17789D17001FC0EA /* RZCompositeCollectionListTests.m in Sources */,
+				9A15F189177B50E100800760 /* RZArrayCollectionListComboTests.m in Sources */,
+				9A15F18A177B510600800760 /* RZFetchedCollectionListComboTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

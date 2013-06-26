@@ -33,8 +33,9 @@
 - (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type;
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type;
 
-//! Sorts pending notifications by index/indexPath, depending on type
-//- (void)sortPendingNotifications;
+//! Sorts pending notifications by index/indexPath, depending on type.
+// This is automatically called when calling sendAllPendingChangeNotifications.
+- (void)sortPendingNotifications;
 
 //! Send will change notifications
 - (void)sendWillChangeContentNotifications;

@@ -280,7 +280,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
         STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:0], @"Incorrect fromIndexPath. Expected 0:0");
-        STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:1 inSection:1], @"Incorrect toIndexPath. Expected 1:1");
+        STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:1 inSection:0], @"Incorrect toIndexPath. Expected 1:0");
         didChangeObjectCalled = YES;
     };
     
