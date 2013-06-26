@@ -75,6 +75,8 @@ typedef enum {
 
 - (void)transformListForOldObjects:(NSArray*)oldObjects andNewObjects:(NSArray*)newObjects;
 
+- (void)processReceivedChangeNotifications;
+
 - (void)beginPotentialUpdates;
 - (void)confirmPotentialUpdates;
 - (void)endPotentialUpdates;

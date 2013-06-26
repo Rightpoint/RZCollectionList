@@ -18,6 +18,7 @@
 @property (nonatomic, strong) id<RZCollectionListSectionInfo> sectionInfo;
 @property (nonatomic, assign) NSUInteger sectionIndex;
 @property (nonatomic, assign) RZCollectionListChangeType type;
+@property (nonatomic, weak)   id<RZCollectionList> sourceList;
 
 - (void)clear;
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list;
@@ -30,6 +31,7 @@
 @property (nonatomic, strong) NSIndexPath *indexPath;
 @property (nonatomic, strong) NSIndexPath *nuIndexPath; // dumb spelling, but avoids cocoa naming convention build error (synthesized getter can't start with "new")
 @property (nonatomic, assign) RZCollectionListChangeType type;
+@property (nonatomic, weak)   id<RZCollectionList> sourceList;
 
 - (void)clear;
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list;

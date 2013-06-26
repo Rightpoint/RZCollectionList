@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionListProtocol.h"
+#import "RZBaseCollectionList.h"
 
-@interface RZCompositeCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
+@interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, copy) NSArray *sourceLists;
 

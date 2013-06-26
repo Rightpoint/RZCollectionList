@@ -31,7 +31,9 @@
 
 //! Helpers for enqueuing pending updates
 - (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type;
+- (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath*)indexPath newIndexPath:(NSIndexPath*)newIndexPath type:(RZCollectionListChangeType)type sourceList:(id<RZCollectionList>)list;
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type;
+- (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type sourceList:(id<RZCollectionList>)list;
 
 //! Sorts pending notifications by index/indexPath, depending on type.
 // This is automatically called when calling sendAllPendingChangeNotifications.

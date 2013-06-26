@@ -24,6 +24,7 @@
     self.sectionInfo = nil;
     self.type = RZCollectionListChangeInvalid;
     self.sectionIndex = NSNotFound;
+    self.sourceList = nil;
 }
 
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list
@@ -61,6 +62,7 @@
     self.indexPath = nil;
     self.nuIndexPath = nil;
     self.type = RZCollectionListChangeInvalid;
+    self.sourceList = nil;
 }
 
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list

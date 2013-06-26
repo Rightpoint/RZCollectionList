@@ -70,11 +70,17 @@
 
 - (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
+    [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type sourceList:nil];
+}
+
+- (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type sourceList:(id<RZCollectionList>)list
+{
     RZCollectionListObjectNotification *notification = [[RZCollectionListObjectNotification alloc] init];
     notification.object = object;
     notification.indexPath = indexPath;
     notification.nuIndexPath = newIndexPath;
     notification.type = type;
+    notification.sourceList = list;
     
     switch (type) {
         case RZCollectionListChangeDelete:
@@ -102,10 +108,16 @@
 
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type
 {
+    [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:sectionIndex type:type sourceList:nil];
+}
+
+- (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type sourceList:(id<RZCollectionList>)list
+{
     RZCollectionListSectionNotification *notification = [[RZCollectionListSectionNotification alloc] init];
     notification.sectionInfo = sectionInfo;
     notification.sectionIndex = sectionIndex;
     notification.type = type;
+    notification.sourceList = list;
     
     switch (type) {
         case RZCollectionListChangeDelete:
