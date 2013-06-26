@@ -753,7 +753,7 @@ typedef enum {
 
 - (void)processReceivedChangeNotifications
 {
-    // Make local copies of notifications received so far
+    // -- Make local copies of received notification caches --
     
     // -- Section
     NSArray *sectionRemoveNotifications = [self.pendingSectionRemoveNotifications copy];
@@ -766,15 +766,17 @@ typedef enum {
     NSArray *objectMoveNotifications     = [self.pendingObjectMoveNotifications copy];
     NSArray *objectUpdateNotifications   = [self.pendingObjectUpdateNotifications copy];
     
-    // clear cache in prep for outgoing notifications
+    // -- clear cache in prep for outgoing notifications --
+    
     [self resetPendingNotifications];
     
-    // process incoming notifications
+    // -- process incoming notifications - mutate internal state and produce cached outgoing notifications --
     
     [objectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self removeSourceObject:notification.object atSourceIndexPath:notification.indexPath];
     }];
     
+    // First half of move (remove object)
     [objectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self removeObjectForMoveNotification:notification];
     }];
@@ -793,6 +795,7 @@ typedef enum {
         [self addSourceObject:notification.object atSourceIndexPath:notification.nuIndexPath];
     }];
     
+    // Second half of move (insert object)
     [objectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self addObjectForMoveNotification:notification];
     }];
@@ -801,9 +804,9 @@ typedef enum {
         [self updateSourceObject:notification.object atSourceIndexPath:notification.indexPath currentSourceIndexPath:notification.nuIndexPath];
     }];
     
-    // TODO: Could maybe just nudge the index paths on the objects each time they need to change?
-    // Update all new index paths for any operations which may have changed them
-    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+    // -- Update all new index paths for any operations which may have changed them --
+    
+    [self.pendingObjectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         
         if (notification.nuIndexPath)
         {
@@ -825,6 +828,32 @@ typedef enum {
 }
 
 #pragma mark - RZCollectionListObserver
+
+/***************************************************************************************************
+ *
+ *  The batch mutation strategy is a bit complicated here. This is the gist:
+ *
+ *  1) When "willChange" notification is received, create copies of the current
+ *     index sets and source section indexes.
+ *
+ *  2) Cache each incoming object/section change notification, but take no other action yet.
+ *
+ *  3) When "didChange" notification is received, create local copies of cached notifications and
+ *     clear the notification cache in preparation for outgoing notifications
+ *  
+ *  4) Enumerate the received notifications in order (removal, insert, move, update) and mutate the
+ *     internal state. If an outgoing notification is produced, cache it.
+ *
+ *     -- To preserve causality in the internal index sets, bject move notifications need to be split 
+ *      into two phases - remove and then re-insert - which are performed immediately after the normal 
+ *      remove/insert mutations. See comments inline with code for details
+ *
+ *  5) Enumerate all outgoing notifications that produce an insert (insert and move) and update the
+ *      newIndexPath to account for other insertions that may have offset them.
+ *
+ *  6) Send out all cached outgoing notifications.
+ *
+ ***************************************************************************************************/
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
