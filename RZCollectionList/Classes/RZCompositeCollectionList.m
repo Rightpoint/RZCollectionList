@@ -162,7 +162,7 @@
         
     }];
     
-    [self.pendingObjectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self translateObjectNotification:notification];
     }];
 }
