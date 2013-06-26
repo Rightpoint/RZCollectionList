@@ -264,7 +264,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
         STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
-        STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeDelete, @"Section Change Type is not Delete.");
         STAssertTrue(sectionIndex == 0, @"Section Index to remove is not 0");
@@ -275,7 +275,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
-        STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+        STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
         STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
@@ -357,7 +357,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
         STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
-        STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         didChangeCalled = YES;
     };
@@ -404,14 +404,14 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
         
         switch (type) {
             case RZCollectionListChangeInsert:
-                STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+                STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
+                STAssertTrue(didChangeSectionCallCount == 1, @"Did Change Section Call Count should be 1.");
                 STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
                 STAssertTrue(sectionIndex == 0, @"Section Index to add is not 0");
                 break;
             case RZCollectionListChangeDelete:
-                STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
-                STAssertTrue(didChangeSectionCallCount == 1, @"Did Change Section Call Count should be 1.");
-                STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+                STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+                STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
                 STAssertTrue(sectionIndex == 2, @"Section Index to remove is not 2");
                 
                 break;
@@ -432,7 +432,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
         STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
-        STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:2], @"Incorrect fromIndexPath. Expected 1:0");
+        STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:1], @"Incorrect fromIndexPath. Expected 1:0");
         STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:0 inSection:0], @"Incorrect toIndexPath. Expected 0:0");
         didChangeObjectCalled = YES;
     };
