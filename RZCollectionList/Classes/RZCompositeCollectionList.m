@@ -91,11 +91,14 @@
     
     NSUInteger startModRange = indexForSourceList + 1;
     NSIndexSet *rangesToModify = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(startModRange, self.sourceListSectionRanges.count - startModRange)];
+    
+    __block NSMutableArray *sourceListSectionRangesCopy = [self.sourceListSectionRanges mutableCopy];
     [self.sourceListSectionRanges enumerateObjectsAtIndexes:rangesToModify options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSRange range = [obj rangeValue];
         NSValue *newRangeValue = [NSValue valueWithRange:NSMakeRange(range.location+1, range.length)];
-        [self.sourceListSectionRanges replaceObjectAtIndex:idx withObject:newRangeValue];
+        [sourceListSectionRangesCopy replaceObjectAtIndex:idx withObject:newRangeValue];
     }];
+    self.sourceListSectionRanges = sourceListSectionRangesCopy;
 }
 
 - (void)removeSectionForSourceList:(id<RZCollectionList>)sourceList
@@ -108,11 +111,14 @@
     
     NSUInteger startModRange = indexForSourceList + 1;
     NSIndexSet *rangesToModify = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(startModRange, self.sourceListSectionRanges.count - startModRange)];
+
+    __block NSMutableArray *sourceListSectionRangesCopy = [self.sourceListSectionRanges mutableCopy];
     [self.sourceListSectionRanges enumerateObjectsAtIndexes:rangesToModify options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSRange range = [obj rangeValue];
         NSValue *newRangeValue = [NSValue valueWithRange:NSMakeRange(range.location-1, range.length)];
-        [self.sourceListSectionRanges replaceObjectAtIndex:idx withObject:newRangeValue];
+        [sourceListSectionRangesCopy replaceObjectAtIndex:idx withObject:newRangeValue];
     }];
+    self.sourceListSectionRanges = sourceListSectionRangesCopy;
 }
 
 - (void)translateObjectNotification:(RZCollectionListObjectNotification *)notification
