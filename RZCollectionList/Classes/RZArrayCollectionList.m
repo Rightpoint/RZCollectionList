@@ -67,6 +67,7 @@
 @end
 
 @implementation RZArrayCollectionList
+
 @synthesize delegate = _delegate;
 
 - (id)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
@@ -76,7 +77,7 @@
 }
 
 - (id)initWithArray:(NSArray *)array sections:(NSArray *)sections
-{
+{    
     if ((self = [super init]))
     {
         if (array) {
@@ -96,6 +97,57 @@
         }];
     }
     
+    return self;
+}
+
+- (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ...
+{
+    if ((self = [super init]))
+    {
+        self.objects = [NSMutableArray array];
+        self.sectionsInfo = [NSMutableArray array];
+        
+        id arg = firstSectionTitle;
+        
+        va_list args;
+        va_start(args, firstSectionTitle);
+        
+        while (arg != nil)
+        {
+            if (![arg isKindOfClass:[NSString class]])
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Section title arguments must be of class NSString" userInfo:nil];
+            }
+            
+            NSString *sectionTitle = arg;
+            NSString *indexTitle = sectionTitle.length > 0 ? [sectionTitle substringToIndex:1] : nil;
+            
+            arg = va_arg(args, id);
+            
+            if (nil == arg)
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Invalid number of arguments. Must be even number (title, array, title, array...)" userInfo:nil];
+            }
+            
+            if (![arg isKindOfClass:[NSArray class]])
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Section array arguments must be of class NSArray" userInfo:nil];
+            }
+            
+            NSArray *sectionObjects = arg;
+        
+            RZArrayCollectionListSectionInfo *sectionInfo = [[RZArrayCollectionListSectionInfo alloc] initWithName:sectionTitle sectionIndexTitle:indexTitle numberOfObjects:sectionObjects.count];
+            sectionInfo.arrayList = self;
+            sectionInfo.indexOffset = self.objects.count;
+            
+            [self.objects addObjectsFromArray:sectionObjects];
+            [self.sectionsInfo addObject:sectionInfo];
+            
+            arg = va_arg(args, id);
+        }
+        
+        va_end(args);
+    }
     return self;
 }
 

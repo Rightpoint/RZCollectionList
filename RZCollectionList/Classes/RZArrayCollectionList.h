@@ -18,14 +18,22 @@
 
 @end
 
+/**** CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE *****/
+
 @interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 
-- (id)initWithArray:(NSArray*)array sections:(NSArray*)sections;
+// Automatically infer sections based on keypath
 - (id)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
 
-/**** CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE *****/
+// Manually create sections for objects in array
+- (id)initWithArray:(NSArray*)array sections:(NSArray*)sections;
+
+// Create multiple sections, each with a title and array of objects
+// Order of variadic args should be title (NSSTring), objects (NSArray)
+- (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ... NS_REQUIRES_NIL_TERMINATION;
+
 
 - (void)addObject:(id)object toSection:(NSUInteger)section;
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
