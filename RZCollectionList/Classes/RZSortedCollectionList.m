@@ -7,7 +7,7 @@
 //
 
 #import "RZSortedCollectionList.h"
-#import "RZObserverCollection.h"
+#import "RZBaseCollectionList_Private.h"
 
 @interface RZSortedCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
@@ -33,12 +33,9 @@ typedef enum {
 @property (nonatomic, strong, readwrite) id<RZCollectionList> sourceList;
 
 @property (nonatomic, strong) NSMutableArray *sortedListObjects;
-
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
+@property (nonatomic, strong) NSArray *cachedSortedListObjects;
 
 @property (nonatomic, assign) RZSortedSourceListContentChangeState contentChangeState;
-
-@property (nonatomic, strong) NSMutableArray *delayedUpdateNotifications;
 
 - (NSArray*)sortedSections;
 
@@ -48,13 +45,10 @@ typedef enum {
 - (void)updateSourceObject:(id)object;
 
 - (void)beginPotentialUpdates;
+- (void)confirmPotentialUpdates;
 - (void)endPotentialUpdates;
 
-// Notification helpers
-- (void)sendWillChangeContentNotifications;
-- (void)sendDidChangeContentNotifications;
-- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
-- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
+- (void)processReceivedChangeNotifications;
 
 @end
 
@@ -97,7 +91,7 @@ typedef enum {
             {
                 NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
                 NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:toIndex inSection:0];
-                [self sendDidChangeObjectNotification:obj atIndexPath:fromIndexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
+                [self cacheObjectNotificationWithObject:obj indexPath:fromIndexPath newIndexPath:toIndexPath type:RZCollectionListChangeMove];
             }
         }];
         
@@ -105,28 +99,10 @@ typedef enum {
         
         self.sortedListObjects = [sortedObjects mutableCopy];
         
+        [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
+        [self resetPendingNotifications];
     }
-}
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
-}
-
-- (NSMutableArray*)delayedUpdateNotifications
-{
-    if (nil == _delayedUpdateNotifications)
-    {
-        _delayedUpdateNotifications = [NSMutableArray array];
-    }
-    
-    return _delayedUpdateNotifications;
 }
 
 - (NSArray*)sortedSections
@@ -230,26 +206,11 @@ typedef enum {
     return index;
 }
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
-
 #pragma mark - Mutation Helpers
 
 - (void)addSourceObject:(id)object
 {
-    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
-    self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
+    [self confirmPotentialUpdates];
     
     NSUInteger insertIndex = [self.sortedListObjects indexOfObject:object inSortedRange:NSMakeRange(0, self.sortedListObjects.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
         __block NSComparisonResult compResult = NSOrderedSame;
@@ -268,47 +229,31 @@ typedef enum {
     
     [self.sortedListObjects insertObject:object atIndex:insertIndex];
     
-    [self sendDidChangeObjectNotification:object atIndexPath:nil forChangeType:RZCollectionListChangeInsert newIndexPath:[NSIndexPath indexPathForRow:insertIndex inSection:0]];
+    NSIndexPath *addIndexPath = [NSIndexPath indexPathForRow:insertIndex inSection:0];
+    [self cacheObjectNotificationWithObject:object indexPath:nil newIndexPath:addIndexPath type:RZCollectionListChangeInsert];
 }
 
 - (void)removeSourceObject:(id)object
 {
-    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
-    {
-        [self sendWillChangeContentNotifications];
-    }
+    [self confirmPotentialUpdates];
     
-    self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
-    
-    NSUInteger objectIndex = [self.sortedListObjects indexOfObject:object];
+    // message with original index
+    NSUInteger objectIndex = [self.cachedSortedListObjects indexOfObject:object];
     
     NSIndexPath *sortedIndexPath = [NSIndexPath indexPathForRow:objectIndex inSection:0];
     
-    [self.sortedListObjects removeObjectAtIndex:objectIndex];
+    // remove from current object set
+    [self.sortedListObjects removeObject:object];
     
-    [self sendDidChangeObjectNotification:object atIndexPath:sortedIndexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
-    
-//    if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
-//    {
-//        NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
-//        RZSortedCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
-//        
-//        [self sendDidChangeSectionNotification:filteredSectionInfo atIndex:filteredSection forChangeType:RZCollectionListChangeDelete];
-//        
-//        [self.sectionIndexes removeIndex:indexPath.section];
-//    }
+    [self cacheObjectNotificationWithObject:object indexPath:sortedIndexPath newIndexPath:nil type:RZCollectionListChangeDelete];
 }
 
 - (void)updateSourceObject:(id)object
 {
-    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
-    {
-        [self sendWillChangeContentNotifications];
-    }
+    [self confirmPotentialUpdates];
     
-    self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
-    
-    NSIndexPath *indexPath = [self indexPathForObject:object];
+    // former index path
+    NSIndexPath *prevIndexPath = [NSIndexPath indexPathForRow:[self.cachedSortedListObjects indexOfObject:object] inSection:0];
     
     NSMutableArray *sortedListCopy = [self.sortedListObjects mutableCopy];
     
@@ -339,106 +284,97 @@ typedef enum {
         
         NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:insertIndex inSection:0];
         
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeMove newIndexPath:toIndexPath];
-        
-        __block RZSortedCollectionList *bself = self;
-        
-        [self.delayedUpdateNotifications addObject:[^{
-            NSIndexPath *updateIndexPath = [bself indexPathForObject:object];
-            [bself sendDidChangeObjectNotification:object atIndexPath:updateIndexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
-        } copy]];
+        // explicitly move and update
+        [self cacheObjectNotificationWithObject:object indexPath:prevIndexPath newIndexPath:toIndexPath type:RZCollectionListChangeMove];
+        [self cacheObjectNotificationWithObject:object indexPath:prevIndexPath newIndexPath:toIndexPath type:RZCollectionListChangeUpdate];
     }
     else
     {
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+        // just update
+        [self cacheObjectNotificationWithObject:object indexPath:prevIndexPath newIndexPath:[self indexPathForObject:object] type:RZCollectionListChangeUpdate];
     }
-    
 
 }
 
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZSortedSourceListContentChangeStatePotentialChanges;
-//    self.cachedSourceSections = [self.sourceList.sections copy];
-    [self.delayedUpdateNotifications removeAllObjects];
+    self.cachedSortedListObjects = [self.sortedListObjects copy];
+}
+
+- (void)confirmPotentialUpdates
+{
+    if (self.contentChangeState == RZSortedSourceListContentChangeStatePotentialChanges)
+    {
+        [self sendWillChangeContentNotifications];
+    }
+    
+    self.contentChangeState = RZSortedSourceListContentChangeStateChanged;
 }
 
 - (void)endPotentialUpdates
 {
+    [self processReceivedChangeNotifications];
+    
     if (self.contentChangeState == RZSortedSourceListContentChangeStateChanged)
     {
+        [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
-        
-        if (self.delayedUpdateNotifications.count > 0)
-        {
-            [self sendWillChangeContentNotifications];
-            
-            [self.delayedUpdateNotifications enumerateObjectsUsingBlock:^(void (^updateBlock)(), NSUInteger idx, BOOL *stop) {
-                updateBlock();
-            }];
-            
-            [self sendDidChangeContentNotifications];
-            
-            [self.delayedUpdateNotifications removeAllObjects];
-        }
     }
     
+    [self resetPendingNotifications];
     self.contentChangeState = RZSortedSourceListContentChangeStateNoChanges;
-//    self.cachedSourceSections = nil;
+    self.cachedSortedListObjects = nil;
 }
 
-#pragma mark - Notification Helpers
-
-- (void)sendWillChangeContentNotifications
+- (void)processReceivedChangeNotifications
 {
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZSortedCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+    // -- Make local copies of received notification caches --
+    
+    // -- Object
+    NSArray *objectRemoveNotifications   = [self.pendingObjectRemoveNotifications copy];
+    NSArray *objectInsertNotifications   = [self.pendingObjectInsertNotifications copy];    
+    NSArray *objectUpdateNotifications   = [self.pendingObjectUpdateNotifications copy];
+    
+    // -- clear cache in prep for outgoing notifications --
+    
+    [self resetPendingNotifications];
+    
+    // -- process incoming notifications - mutate internal state and produce cached outgoing notifications --
+    
+    [objectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self removeSourceObject:notification.object];
+    }];
+    
+    [objectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self addSourceObject:notification.object];
+    }];
+    
+    [objectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self updateSourceObject:notification.object];
+    }];
+    
+    // -- Update all new index paths for any operations which may have changed them --
+    
+    [self.pendingObjectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop)
+    {
+        if (notification.nuIndexPath)
         {
-            [obj collectionListWillChangeContent:self];
+            notification.nuIndexPath = [self indexPathForObject:notification.object];
+        }
+        
+    }];
+    
+    // get rid of any invalid move operations (same start/end path)
+    NSMutableIndexSet *invalidMoves = [NSMutableIndexSet indexSet];
+    [self.pendingObjectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        if (nil == notification.nuIndexPath || nil == notification.indexPath || [notification.nuIndexPath isEqual:notification.indexPath])
+        {
+            [invalidMoves addIndex:idx];
         }
     }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZSortedCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListDidChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZSortedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
-        }
-    }];
-}
-
-- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZSortedCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
-        }
-    }];
+    
+    [self.pendingObjectMoveNotifications removeObjectsAtIndexes:invalidMoves];
 }
 
 #pragma mark - RZCollectionListObserver
@@ -447,15 +383,12 @@ typedef enum {
 {
     switch(type) {
         case RZCollectionListChangeInsert:
-            [self addSourceObject:object];
-            break;
         case RZCollectionListChangeDelete:
-            [self removeSourceObject:object];
+        case RZCollectionListChangeUpdate:
+            [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type];
             break;
         case RZCollectionListChangeMove:
-            break;
-        case RZCollectionListChangeUpdate:
-            [self updateSourceObject:object];
+            // we don't care about move
             break;
         default:
             //uncaught type
@@ -466,9 +399,9 @@ typedef enum {
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
+    // No action taken on purpose. Sorted list flattens all sections.
     switch(type) {
         case RZCollectionListChangeInsert:
-            break;
         case RZCollectionListChangeDelete:
             break;
         default:
