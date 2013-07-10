@@ -844,7 +844,7 @@ typedef enum {
  *  4) Enumerate the received notifications in order (removal, insert, move, update) and mutate the
  *     internal state. If an outgoing notification is produced, cache it.
  *
- *     -- To preserve causality in the internal index sets, bject move notifications need to be split 
+ *     -- To preserve causality in the internal index sets, object move notifications need to be split 
  *      into two phases - remove and then re-insert - which are performed immediately after the normal 
  *      remove/insert mutations. See comments inline with code for details
  *

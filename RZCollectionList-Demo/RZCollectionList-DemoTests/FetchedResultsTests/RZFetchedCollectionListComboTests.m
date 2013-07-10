@@ -161,15 +161,15 @@
         nuChild.name = @"Kai";
         nuChild.index = @8;
         
-//        // Kill gretchen
-//        NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
-//        gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
-//        NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
-//        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
-//        if (gretchenResults.count > 0){
-//            TestChildEntity *gretchen = gretchenResults[0];
-//            [moc deleteObject:gretchen];
-//        }
+        // Kill gretchen
+        NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
+        gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
+        NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
+        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
+        if (gretchenResults.count > 0){
+            TestChildEntity *gretchen = gretchenResults[0];
+            [moc deleteObject:gretchen];
+        }
         
     };
     
@@ -192,5 +192,48 @@
     
 }
 
+- (void)test101FetchWithSortChangeDescriptors
+{
+    [self insertTestObjectsToMoc];
+    
+    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
+    fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES],
+                              [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+    
+    NSFetchedResultsController *frc = [[NSFetchedResultsController alloc] initWithFetchRequest:fetch
+                                                                          managedObjectContext:self.moc
+                                                                            sectionNameKeyPath:nil
+                                                                                     cacheName:nil];
+    
+    // Fetch with ascending index, sort by descending index.
+    
+    self.fetchedList = [[RZFetchedCollectionList alloc] initWithFetchedResultsController:frc];
+    self.sortedList = [[RZSortedCollectionList alloc] initWithSourceList:self.fetchedList
+                                                         sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:NO],
+                       [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.sortedList
+                                                                            delegate:self];
+    
+    NSArray *orderedNames =  @[ @"Arthur",
+                                @"Barb",
+                                @"Carl",
+                                @"Denny",
+                                @"Edgar",
+                                @"Filburt",
+                                @"Gretchen",
+                                @"Horatio",
+                                @"Iggy",
+                                @"Jasper"];
+    
+    [self assertTitlesOfVisibleCells:orderedNames];
+    
+    [self waitFor:1];
+    
+    // swap order by changing sort descriptor
+    [self.sortedList setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES]]];
+    
+    [self assertTitlesOfVisibleCells:[[orderedNames reverseObjectEnumerator] allObjects]];
+}
 
 @end

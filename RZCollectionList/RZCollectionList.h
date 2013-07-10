@@ -8,7 +8,7 @@
 
 /************************************************************
  *
- * Include this file to get all the collection lists at once
+ *  Include this file to get all the collection lists at once
  *
  ************************************************************/
 

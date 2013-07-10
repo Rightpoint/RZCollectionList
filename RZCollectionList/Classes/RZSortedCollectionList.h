@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionListProtocol.h"
+#import "RZBaseCollectionList.h"
 
-@interface RZSortedCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
+@interface RZSortedCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, strong, readonly) id<RZCollectionList> sourceList;
 @property (nonatomic, copy) NSArray *sortDescriptors;
