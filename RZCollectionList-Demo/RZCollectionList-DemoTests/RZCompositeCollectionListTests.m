@@ -163,6 +163,7 @@
     
     [array1 removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     [array1 moveObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]]; // should cause no change, actually
+    [array1 insertObject:@"Uno" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     STAssertNoThrow([array1 endUpdates], @"Something went wrong");
     
@@ -173,7 +174,7 @@
     
     STAssertNoThrow([array2 endUpdates], @"Something went wrong");
     
-    NSArray *finalObjs = @[@"2",@"3",@"4",@"5",@"6",@"A point 5",@"B",@"C",@"D",@"E"];
+    NSArray *finalObjs = @[@"Uno",@"2",@"3",@"4",@"5",@"6",@"A point 5",@"B",@"C",@"D",@"E"];
     
     [self assertTitlesOfVisibleCells:finalObjs];
     

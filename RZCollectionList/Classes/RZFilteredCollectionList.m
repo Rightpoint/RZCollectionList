@@ -800,7 +800,7 @@ typedef enum {
     
     // -- Update all new index paths for any operations which may have changed them --
     
-    [self.pendingObjectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         
         if (notification.nuIndexPath)
         {

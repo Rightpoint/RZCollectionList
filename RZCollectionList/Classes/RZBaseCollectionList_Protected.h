@@ -52,7 +52,9 @@
 - (void)cacheSectionNotificationWithSectionInfo:(id<RZCollectionListSectionInfo>)sectionInfo sectionIndex:(NSUInteger)sectionIndex type:(RZCollectionListChangeType)type sourceList:(id<RZCollectionList>)list;
 
 //! Sorts pending notifications by index/indexPath, depending on type.
-// This is automatically called when calling sendAllPendingChangeNotifications.
+/*!
+    sendAllPendingChangeNotifications will automatically call this
+*/
 - (void)sortPendingNotifications;
 
 //! Send will change notifications
