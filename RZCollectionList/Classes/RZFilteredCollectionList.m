@@ -428,7 +428,7 @@ typedef enum {
 - (NSIndexPath*)indexPathForObject:(id)object
 {
     NSIndexPath *sourceIndexPath = [self.sourceList indexPathForObject:object];
-    return [self filteredIndexPathForSourceIndexPath:sourceIndexPath];
+    return sourceIndexPath ? [self filteredIndexPathForSourceIndexPath:sourceIndexPath] : nil;
 }
 
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName
