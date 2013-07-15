@@ -107,6 +107,7 @@
 - (NSArray*)allObjects
 {
 #if RZOCL_POINTER_ARRAY_AVAILABLE
+    [self.observerPointerArray compact]; // remove NULLs
     return [self.observerPointerArray allObjects];
 #else
     NSMutableArray *observers = [NSMutableArray arrayWithCapacity:self.observerAddresses.count];

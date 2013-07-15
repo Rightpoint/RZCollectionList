@@ -12,19 +12,7 @@
 #import "RZSortedCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
 
-// Comment this out to not pause as long between tests
-#define RZ_TESTS_USER_MODE
-
-#ifdef RZ_TESTS_USER_MODE
-#define kWaitTime   3.0
-#else
-#define kWaitTime   0.125
-#endif
-
 @interface RZCollectionListTableViewDataSourceTests () <RZCollectionListTableViewDataSourceDelegate>
-
-@property (nonatomic, strong) UIViewController *viewController;
-@property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
 @property (nonatomic, strong) RZCollectionListTableViewDataSource *dataSource;
@@ -37,24 +25,12 @@
 
 - (void)setUp{
     [super setUp];
-    
-    self.viewController = [[UIViewController alloc] init];
-    [self.viewController view];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:self.viewController.view.bounds];
-    [self.viewController.view addSubview:self.tableView];
-    
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-    
-    self.viewController.title = @"Table View Tests";
-    self.viewController.navigationItem.rightBarButtonItem.enabled = NO;
-    
-    [[[[UIApplication sharedApplication] delegate] window] setRootViewController:nav];
+    [self setupTableView];
 }
 
 - (void)tearDown{
+    [self waitFor:1.5];
     [super tearDown];
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
 }
 
 #pragma mark - Tests
@@ -68,6 +44,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     for (int i=0; i<10; i++){
         STAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
@@ -83,6 +61,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -112,6 +92,8 @@
                                                                             delegate:self];
     
     self.arrayList.objectUpdateNotifications = @[@"updateMyObject"];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
 
@@ -185,7 +167,7 @@
     newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
     [self.arrayList insertSection:newSection atIndex:2];
     
-    NSArray *lastSectionStrings = @[@"This",@"is",@"the",@"last",@"section"];
+    NSArray *lastSectionStrings = @[@"This",@"is",@"the",@"final",@"section"];
     [lastSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:2]];
     }];
@@ -193,6 +175,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+
+    [self waitFor:0.1];
     
     // batch modify sections and objects
         
@@ -202,7 +186,7 @@
     
     // remove first object
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    
+
     // insert object at second index
     [self.arrayList insertObject:@"first" atIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     
@@ -217,8 +201,8 @@
     
     // add object at first index
     [self.arrayList insertObject:@"second" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    
-    // move to second index - move does not play nice with section updates
+
+    // move to second index
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     // add objects at the end
@@ -261,6 +245,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -307,10 +293,11 @@
     }];
     
     
-    
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -337,8 +324,9 @@
     [self.arrayList removeSectionAtIndex:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:2], @"BLAH", @"Something went wrong here");
     
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kWaitTime]];
+    [self waitFor:1.5];
     
     // start over - test moving row to another section
 
@@ -349,12 +337,16 @@
     newSection = [[RZArrayCollectionListSectionInfo alloc] initWithName:nil sectionIndexTitle:nil numberOfObjects:0];
     [self.arrayList insertSection:newSection atIndex:0];
 
+    firstSectionStrings = @[@"Zero",@"Should",@"Precede",@"Me"];
     [firstSectionStrings enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self.arrayList insertObject:obj atIndexPath:[NSIndexPath indexPathForRow:idx inSection:0]];
     }];
+    
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -365,6 +357,7 @@
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:0], @"0", @"Zero string was not moved correctly");
 
 }
 
@@ -378,6 +371,8 @@
     self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
                                                                       collectionList:self.arrayList
                                                                             delegate:self];
+    
+    [self waitFor:0.1];
     
     [self.arrayList beginUpdates];
     
@@ -397,6 +392,33 @@
     [self.arrayList addObject:@"Pre-Numbers" toSection:0];
     
     STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]].textLabel.text, @"zero", @"Cell at index 1 should have title \"zero\"");
+    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]].textLabel.text, @"one", @"Cell at index 2 should have title \"one\"");
+}
+
+- (void)test8SeveralMoves
+{
+    NSArray *startArray = @[@"1",@"2",@"3",@"4",@"5"];
+    
+    self.arrayList = [[RZArrayCollectionList alloc] initWithArray:startArray sectionNameKeyPath:nil];
+    
+    self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                      collectionList:self.arrayList
+                                                                            delegate:self];
+    
+    [self.arrayList beginUpdates];
+    
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+
+    [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:4 inSection:0]];
+
+    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    
+    // Final order should be 3, 4, 1, 5, 2
+    NSArray *finalArray = @[@"3",@"4",@"1",@"5",@"2"];
+    STAssertEqualObjects(self.arrayList.listObjects, finalArray, @"Final array order is incorrect");
 }
 
 #pragma mark - Table View Data Source

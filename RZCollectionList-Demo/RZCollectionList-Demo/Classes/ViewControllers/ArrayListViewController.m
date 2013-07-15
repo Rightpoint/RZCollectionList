@@ -36,6 +36,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     // Do any additional setup after loading the view from its nib.
     self.navigationItem.rightBarButtonItem = self.addItemBarButton;
     
@@ -55,6 +56,7 @@
         [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:kRZCellIdentifier];
         [(UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout setItemSize:CGSizeMake(120, 120)];
     }
+    
 }
 
 - (void)didReceiveMemoryWarning

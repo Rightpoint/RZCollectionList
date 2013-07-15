@@ -7,6 +7,7 @@
 //
 
 #import "RZCompositeCollectionList.h"
+#import "RZBaseCollectionList_Private.h"
 #import "RZObserverCollection.h"
 
 @interface RZCompositeCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
@@ -28,13 +29,12 @@ typedef enum {
 
 @interface RZCompositeCollectionList ()
 
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 @property (nonatomic, strong) NSMutableArray *sourceListSectionRanges;
 @property (nonatomic, strong) NSMutableArray *sourceListForSection;
+@property (nonatomic, strong) NSArray *cachedSourceListSectionRanges;
 
 @property (nonatomic, assign) BOOL ignoreSections;
 @property (nonatomic, strong) RZCompositeCollectionListSectionInfo *singleSectionInfo;
-
 @property (nonatomic, assign) RZCompositeSourceListContentChangeState contentChangeState;
 
 - (void)configureSectionsWithSourceLists:(NSArray*)sourceLists;
@@ -47,11 +47,10 @@ typedef enum {
 - (void)beginPotentialUpdates;
 - (void)endPotentialUpdates;
 
-// Notification helpers
-- (void)sendWillChangeContentNotifications;
-- (void)sendDidChangeContentNotifications;
-- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
-- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
+- (void)translateObjectNotification:(RZCollectionListObjectNotification*)notification;
+- (void)translateSectionNotification:(RZCollectionListSectionNotification*)notification;
+
+- (void)processReceivedChangeNotifications;
 
 @end
 
@@ -73,6 +72,15 @@ typedef enum {
     }
     
     return self;
+}
+
+- (id<RZCollectionList>)sourceListForSectionIndex:(NSUInteger)sectionIndex
+{
+    id <RZCollectionList> sourceList = nil;
+    if (sectionIndex < self.sourceListForSection.count){
+        sourceList = [self.sourceLists objectAtIndex:[[self.sourceListForSection objectAtIndex:sectionIndex] unsignedIntegerValue]];
+    }
+    return sourceList;
 }
 
 - (void)configureSectionsWithSourceLists:(NSArray*)sourceLists
@@ -114,11 +122,14 @@ typedef enum {
     
     NSUInteger startModRange = indexForSourceList + 1;
     NSIndexSet *rangesToModify = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(startModRange, self.sourceListSectionRanges.count - startModRange)];
+    
+    __block NSMutableArray *sourceListSectionRangesCopy = [self.sourceListSectionRanges mutableCopy];
     [self.sourceListSectionRanges enumerateObjectsAtIndexes:rangesToModify options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSRange range = [obj rangeValue];
         NSValue *newRangeValue = [NSValue valueWithRange:NSMakeRange(range.location+1, range.length)];
-        [self.sourceListSectionRanges replaceObjectAtIndex:idx withObject:newRangeValue];
+        [sourceListSectionRangesCopy replaceObjectAtIndex:idx withObject:newRangeValue];
     }];
+    self.sourceListSectionRanges = sourceListSectionRangesCopy;
 }
 
 - (void)removeSectionForSourceList:(id<RZCollectionList>)sourceList
@@ -131,10 +142,65 @@ typedef enum {
     
     NSUInteger startModRange = indexForSourceList + 1;
     NSIndexSet *rangesToModify = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(startModRange, self.sourceListSectionRanges.count - startModRange)];
+
+    __block NSMutableArray *sourceListSectionRangesCopy = [self.sourceListSectionRanges mutableCopy];
     [self.sourceListSectionRanges enumerateObjectsAtIndexes:rangesToModify options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSRange range = [obj rangeValue];
         NSValue *newRangeValue = [NSValue valueWithRange:NSMakeRange(range.location-1, range.length)];
-        [self.sourceListSectionRanges replaceObjectAtIndex:idx withObject:newRangeValue];
+        [sourceListSectionRangesCopy replaceObjectAtIndex:idx withObject:newRangeValue];
+    }];
+    self.sourceListSectionRanges = sourceListSectionRangesCopy;
+}
+
+- (void)translateObjectNotification:(RZCollectionListObjectNotification *)notification
+{
+    NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:notification.sourceList];
+    
+    NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+    NSRange sourceListSectionRangeCached = [[self.cachedSourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+    
+    NSIndexPath *modifiedIndexPath = (notification.indexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.indexPath.row inSection:notification.indexPath.section + sourceListSectionRangeCached.location];
+    NSIndexPath *modifiedNewIndexPath = (notification.nuIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.nuIndexPath.row inSection:notification.nuIndexPath.section + sourceListSectionRange.location];
+    
+    notification.indexPath = modifiedIndexPath;
+    notification.nuIndexPath = modifiedNewIndexPath;
+}
+
+- (void)translateSectionNotification:(RZCollectionListSectionNotification *)notification
+{
+    NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:notification.sourceList];
+    
+    if (notification.type == RZCollectionListChangeInsert)
+    {
+        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+        notification.sectionIndex += sourceListSectionRange.location;
+    }
+    else if (notification.type == RZCollectionListChangeDelete)
+    {
+        NSRange sourceListSectionRange = [[self.cachedSourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+        notification.sectionIndex += sourceListSectionRange.location;
+    }
+}
+
+- (void)processReceivedChangeNotifications
+{
+    [self.allPendingSectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        
+        [self translateSectionNotification:notification];
+        
+        if (notification.type == RZCollectionListChangeDelete)
+        {
+            [self removeSectionForSourceList:notification.sourceList];
+        }
+        else if (notification.type == RZCollectionListChangeInsert)
+        {
+            [self addSectionForSourceList:notification.sourceList];
+        }
+        
+    }];
+    
+    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        [self translateObjectNotification:notification];
     }];
 }
 
@@ -158,16 +224,6 @@ typedef enum {
     // TODO - Send Add Section/Object messages
     
     [sourceLists makeObjectsPerformSelector:@selector(addCollectionListObserver:) withObject:self];
-}
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
 }
 
 #pragma mark - RZCollectionList
@@ -325,16 +381,6 @@ typedef enum {
     return index;
 }
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
-
 #pragma mark - Update Helpers
 
 - (void)beginPotentialUpdates
@@ -352,156 +398,115 @@ typedef enum {
     self.contentChangeState = RZCompositeSourceListContentChangeStateNoChanges;
 }
 
-#pragma mark - Notification Helpers
-
-- (void)sendWillChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-    
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListWillChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListDidChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
-        }
-    }];
-}
-
-- (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
-        }
-    }];
-}
-
 
 #pragma mark - RZCollectionListObserver
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    if (self.contentChangeState == RZCompositeSourceListContentChangeStatePotentialChanges)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
-    self.contentChangeState = RZCompositeSourceListContentChangeStateChanged;
-    
-    if (self.ignoreSections)
-    {
-        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
-        
-        __block NSUInteger rowOffset = 0;
-        
-        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger listIdx, BOOL *listStop) {
-            if (listIdx == indexOfSourceList)
-            {
-                [sourceList.sections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> section, NSUInteger sectionIdx, BOOL *sectionStop) {
-                    if (sectionIdx == indexPath.section)
-                    {
-                        *sectionStop = YES;
-                    }
-                    else
-                    {
-                        rowOffset += section.numberOfObjects;
-                    }
-                }];
-                *listStop = YES;
-            }
-            else
-            {
-                rowOffset += sourceList.listObjects.count;
-            }
-        }];
-        
-        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row + rowOffset inSection:0];
-        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row + rowOffset inSection:0];
-        
-        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
-    }
-    else
-    {
-        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
-        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
-        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section + sourceListSectionRange.location];
-        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row inSection:newIndexPath.section + sourceListSectionRange.location];
-        
-        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
-    }
+//    if (self.contentChangeState == RZCompositeSourceListContentChangeStatePotentialChanges)
+//    {
+//        [self sendWillChangeContentNotifications];
+//    }
+//    
+//    self.contentChangeState = RZCompositeSourceListContentChangeStateChanged;
+//    
+//    if (self.ignoreSections)
+//    {
+//        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
+//        
+//        __block NSUInteger rowOffset = 0;
+//        
+//        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger listIdx, BOOL *listStop) {
+//            if (listIdx == indexOfSourceList)
+//            {
+//                [sourceList.sections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> section, NSUInteger sectionIdx, BOOL *sectionStop) {
+//                    if (sectionIdx == indexPath.section)
+//                    {
+//                        *sectionStop = YES;
+//                    }
+//                    else
+//                    {
+//                        rowOffset += section.numberOfObjects;
+//                    }
+//                }];
+//                *listStop = YES;
+//            }
+//            else
+//            {
+//                rowOffset += sourceList.listObjects.count;
+//            }
+//        }];
+//        
+//        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row + rowOffset inSection:0];
+//        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row + rowOffset inSection:0];
+//        
+//        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
+//    }
+//    else
+//    {
+//        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
+//        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+//        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section + sourceListSectionRange.location];
+//        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row inSection:newIndexPath.section + sourceListSectionRange.location];
+//        
+//        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
+//    }
+
+    [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type sourceList:collectionList];
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
-    if (!self.ignoreSections)
-    {
-        if (self.contentChangeState == RZCompositeSourceListContentChangeStatePotentialChanges)
-        {
-            [self sendWillChangeContentNotifications];
-        }
-        
-        self.contentChangeState = RZCompositeSourceListContentChangeStateChanged;
-        
-        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
-        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
-        NSUInteger modifiedSectionIndex = sectionIndex + sourceListSectionRange.location;
-        
-        [self sendDidChangeSectionNotification:sectionInfo atIndex:modifiedSectionIndex forChangeType:type];
-        
-        switch(type) {
-            case RZCollectionListChangeInsert:
-                [self addSectionForSourceList:collectionList];
-                break;
-            case RZCollectionListChangeDelete:
-                [self removeSectionForSourceList:collectionList];
-                break;
-            default:
-                //uncaught type
-                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                break;
-        }
-    }
+//    if (!self.ignoreSections)
+//    {
+//        if (self.contentChangeState == RZCompositeSourceListContentChangeStatePotentialChanges)
+//        {
+//            [self sendWillChangeContentNotifications];
+//        }
+//        
+//        self.contentChangeState = RZCompositeSourceListContentChangeStateChanged;
+//        
+//        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
+//        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
+//        NSUInteger modifiedSectionIndex = sectionIndex + sourceListSectionRange.location;
+//        
+//        [self sendDidChangeSectionNotification:sectionInfo atIndex:modifiedSectionIndex forChangeType:type];
+//        
+//        switch(type) {
+//            case RZCollectionListChangeInsert:
+//                [self addSectionForSourceList:collectionList];
+//                break;
+//            case RZCollectionListChangeDelete:
+//                [self removeSectionForSourceList:collectionList];
+//                break;
+//            default:
+//                //uncaught type
+//                NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+//                break;
+//        }
+//    }
+    
+    [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:sectionIndex type:type sourceList:collectionList];
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
-    [self beginPotentialUpdates];
+    
+//    [self beginPotentialUpdates];
+
+    self.cachedSourceListSectionRanges = [[NSArray alloc] initWithArray:self.sourceListSectionRanges copyItems:YES];
+    [self sendWillChangeContentNotifications];
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    [self endPotentialUpdates];
+//    [self endPotentialUpdates];
+    
+    [self processReceivedChangeNotifications];
+    [self sendAllPendingChangeNotifications];
+    [self sendDidChangeContentNotifications];
+    [self resetPendingNotifications];
+    self.cachedSourceListSectionRanges = nil;
 }
 
 @end

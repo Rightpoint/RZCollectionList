@@ -8,6 +8,7 @@
 
 #import "RZArrayCollectionList.h"
 #import "RZObserverCollection.h"
+#import "RZBaseCollectionList_Private.h"
 
 @interface RZArrayCollectionListSectionInfo ()
 
@@ -21,6 +22,8 @@
 
 @end
 
+// --------------------------------------------------
+
 @interface RZArrayCollectionList ()
 {
 @private
@@ -31,8 +34,12 @@
 
 @property (nonatomic, strong) NSMutableArray *sectionsInfo;
 @property (nonatomic, strong) NSMutableArray *objects;
-@property (nonatomic, strong) RZObserverCollection *collectionListObservers;
+
 @property (nonatomic, assign, getter = isBatchUpdating) BOOL batchUpdating;
+
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateDeep;       // deep-copies - range/offset will not change during update
+@property (nonatomic, strong) NSArray *sourceSectionsInfoBeforeUpdateShallow;    // shallow-copies - same as the sectionInfo objects that are being updated
+@property (nonatomic, strong) NSArray *sourceObjectsBeforeUpdate;
 
 + (NSArray*)sectionsForObjects:(NSArray*)objects withNameKeyPath:(NSString*)keyPath;
 
@@ -47,16 +54,20 @@
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
 - (void)removeSectionAtIndex:(NSUInteger)index sendNotifications:(BOOL)shouldSendNotifications;
 
-- (void)sendWillChangeContentNotifications;
-- (void)sendDidChangeContentNotifications;
+// Helpers for batch update
+- (NSIndexPath*)previousIndexPathForObject:(id)object;
+
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
+
+- (void)processPendingChangeNotifications;
 
 - (void)objectUpdateNotificationReceived:(NSNotification*)notification;
 
 @end
 
 @implementation RZArrayCollectionList
+
 @synthesize delegate = _delegate;
 
 - (id)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
@@ -66,7 +77,7 @@
 }
 
 - (id)initWithArray:(NSArray *)array sections:(NSArray *)sections
-{
+{    
     if ((self = [super init]))
     {
         if (array) {
@@ -74,13 +85,69 @@
         } else {
             self.objects = [[NSArray array] mutableCopy];
         }
-        self.sectionsInfo = [sections mutableCopy];
+        
+        if (sections){
+            self.sectionsInfo = [sections mutableCopy];
+        } else {
+            self.sectionsInfo = [[NSArray array] mutableCopy];
+        }
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
         }];
     }
     
+    return self;
+}
+
+- (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ...
+{
+    if ((self = [super init]))
+    {
+        self.objects = [NSMutableArray array];
+        self.sectionsInfo = [NSMutableArray array];
+        
+        id arg = firstSectionTitle;
+        
+        va_list args;
+        va_start(args, firstSectionTitle);
+        
+        while (arg != nil)
+        {
+            if (![arg isKindOfClass:[NSString class]])
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Section title arguments must be of class NSString" userInfo:nil];
+            }
+            
+            NSString *sectionTitle = arg;
+            NSString *indexTitle = sectionTitle.length > 0 ? [sectionTitle substringToIndex:1] : nil;
+            
+            arg = va_arg(args, id);
+            
+            if (nil == arg)
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Invalid number of arguments. Must be even number (title, array, title, array...)" userInfo:nil];
+            }
+            
+            if (![arg isKindOfClass:[NSArray class]])
+            {
+                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Section array arguments must be of class NSArray" userInfo:nil];
+            }
+            
+            NSArray *sectionObjects = arg;
+        
+            RZArrayCollectionListSectionInfo *sectionInfo = [[RZArrayCollectionListSectionInfo alloc] initWithName:sectionTitle sectionIndexTitle:indexTitle numberOfObjects:sectionObjects.count];
+            sectionInfo.arrayList = self;
+            sectionInfo.indexOffset = self.objects.count;
+            
+            [self.objects addObjectsFromArray:sectionObjects];
+            [self.sectionsInfo addObject:sectionInfo];
+            
+            arg = va_arg(args, id);
+        }
+        
+        va_end(args);
+    }
     return self;
 }
 
@@ -99,16 +166,6 @@
     _delegate = delegate;
     
     _flags._sendSectionIndexTitleForSectionName = [delegate respondsToSelector:@selector(collectionList:sectionIndexTitleForSectionName:)];
-}
-
-- (RZObserverCollection*)collectionListObservers
-{
-    if (nil == _collectionListObservers)
-    {
-        _collectionListObservers = [[RZObserverCollection alloc] init];
-    }
-    
-    return _collectionListObservers;
 }
 
 - (void)setObjectUpdateNotifications:(NSArray *)objectUpdateNotifications
@@ -143,7 +200,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self insertObject:object atIndexPath:indexPath sendNotifications:YES];
+    [self insertObject:object atIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -168,7 +225,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self removeObjectAtIndexPath:indexPath sendNotifications:YES];
+    [self removeObjectAtIndexPath:indexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -183,7 +240,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:YES];
+    [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -198,7 +255,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:YES];
+    [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -227,7 +284,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self insertSection:section atIndex:index sendNotifications:YES];
+    [self insertSection:section atIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -249,7 +306,7 @@
         [self sendWillChangeContentNotifications];
     }
     
-    [self removeSectionAtIndex:index sendNotifications:YES];
+    [self removeSectionAtIndex:index sendNotifications:!self.batchUpdating];
     
     if (!self.batchUpdating)
     {
@@ -262,6 +319,12 @@
     if(!self.batchUpdating)
     {
         self.batchUpdating = YES;
+        self.sourceObjectsBeforeUpdate = [self.objects copy];
+       
+        // shallow copy sections
+        self.sourceSectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
+        self.sourceSectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
+        
         [self sendWillChangeContentNotifications];
     }
 }
@@ -270,6 +333,8 @@
 {
     if (self.batchUpdating)
     {
+        [self processPendingChangeNotifications];
+        [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
         self.batchUpdating = NO;
     }
@@ -284,6 +349,11 @@
     
     if (nil != object && nil != indexPath && index <= self.objects.count)
     {
+        if (self.isBatchUpdating)
+        {
+            [self cacheObjectNotificationWithObject:object indexPath:nil newIndexPath:indexPath type:RZCollectionListChangeInsert];
+        }
+        
         [self.objects insertObject:object atIndex:index];
         
         if (nil != self.objectUpdateNotifications)
@@ -318,6 +388,11 @@
     
     if (object)
     {
+        if (self.isBatchUpdating)
+        {
+            [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeDelete];
+        }
+        
         if (nil != self.objectUpdateNotifications)
         {
             NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
@@ -335,6 +410,7 @@
         {
             [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeDelete newIndexPath:nil];
         }
+
     }
 }
 
@@ -347,6 +423,11 @@
         
         if (index < self.objects.count)
         {
+            if (self.isBatchUpdating)
+            {
+                [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
+            }
+            
             id oldObject = [self.objects objectAtIndex:index];
             
             if (nil != self.objectUpdateNotifications && oldObject != object)
@@ -392,8 +473,34 @@
         
         if (nil != object)
         {
-            [self insertObject:object atIndexPath:destIndexPath sendNotifications:NO];
-            [self removeObjectAtIndexPath:removeIndexPath sendNotifications:NO];
+            
+            if (self.isBatchUpdating)
+            {
+                [self cacheObjectNotificationWithObject:object indexPath:removeIndexPath newIndexPath:destinationIndexPath type:RZCollectionListChangeMove];
+            }
+            
+            // ND: I manually unwound the insert/remove calls so the batch logic doesn't get messed up.
+            
+            // INSERT AT NEW INDEX
+            
+            RZArrayCollectionListSectionInfo *insertSectionInfo = [self sectionInfoForSection:destIndexPath.section];
+            NSUInteger insertIndex = insertSectionInfo.indexOffset + destIndexPath.row;
+            
+            if (nil != object && nil != destIndexPath && insertIndex <= self.objects.count)
+            {
+                [self.objects insertObject:object atIndex:insertIndex];
+                [self updateSection:insertSectionInfo withObjectCountChange:1];
+            }
+            
+            // REMOVE FROM OLD INDEX
+    
+            RZArrayCollectionListSectionInfo *removeSectionInfo = [self sectionInfoForSection:removeIndexPath.section];
+            NSUInteger removeIndex = removeSectionInfo.indexOffset + removeIndexPath.row;
+            [self.objects removeObjectAtIndex:removeIndex];
+            [self updateSection:removeSectionInfo withObjectCountChange:-1];
+            
+
+            // SEND MOVE NOTIFICATION
             
             if (shouldSendNotifications)
             {
@@ -407,6 +514,11 @@
 {
     if (nil != section && index <= self.sectionsInfo.count)
     {
+        if (self.isBatchUpdating)
+        {
+            [self cacheSectionNotificationWithSectionInfo:section sectionIndex:index type:RZCollectionListChangeInsert];
+        }
+        
         if (index > 0){
             RZArrayCollectionListSectionInfo *prevSection = [self.sectionsInfo objectAtIndex:index-1];
             section.indexOffset = prevSection.indexOffset + prevSection.numberOfObjects;
@@ -436,6 +548,12 @@
         
         [objectsToRemove enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
+            if (self.isBatchUpdating)
+            {
+                // index path doesn't matter, don't waste time allocating one here - it will be calculated at the end of the update
+                [self cacheObjectNotificationWithObject:obj indexPath:nil newIndexPath:nil type:RZCollectionListChangeDelete];
+            }
+            
             if (nil != self.objectUpdateNotifications)
             {
                 NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
@@ -454,6 +572,11 @@
     
     if (index < self.sectionsInfo.count)
     {
+        if (self.isBatchUpdating)
+        {
+            [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:index type:RZCollectionListChangeDelete];
+        }
+        
         [self.sectionsInfo removeObjectAtIndex:index];
         sectionInfo.arrayList = nil;
         
@@ -464,33 +587,38 @@
     }
 }
 
+#pragma mark - Batch update helpers
+
+- (NSIndexPath*)previousIndexPathForObject:(id)object
+{
+    NSUInteger index = [self.sourceObjectsBeforeUpdate indexOfObject:object];
+    
+    __block NSUInteger rowIndex = 0;
+    NSUInteger sectionIndex = [self.sourceSectionsInfoBeforeUpdateDeep indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        RZArrayCollectionListSectionInfo *section = (RZArrayCollectionListSectionInfo*)obj;
+        BOOL inRange = NSLocationInRange(index, section.range);
+        
+        if (inRange)
+        {
+            rowIndex = index - section.indexOffset;
+            *stop = YES;
+        }
+        
+        return inRange;
+    }];
+    
+    NSIndexPath *indexPathForObject = nil;
+    
+    if (sectionIndex != NSNotFound)
+    {
+        indexPathForObject = [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+    }
+    
+    return indexPathForObject;
+}
+
+
 #pragma mark - Notification Helpers
-
-- (void)sendWillChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZArrayCollectionList Will Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListWillChangeContent:self];
-        }
-    }];
-}
-
-- (void)sendDidChangeContentNotifications
-{
-#if kRZCollectionListNotificationsLogging
-    NSLog(@"RZArrayCollectionList Did Change");
-#endif
-    [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
-        {
-            [obj collectionListDidChangeContent:self];
-        }
-    }];
-}
 
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
@@ -518,6 +646,81 @@
     }];
 }
 
+- (void)processPendingChangeNotifications
+{
+    // First, set the index paths for all notifications based on the initial or final state of the data.
+
+    // section insertions
+    [self.pendingSectionInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification * notification, NSUInteger idx, BOOL *stop) {
+        notification.sectionIndex = [self.sections indexOfObject:notification.sectionInfo];
+    }];
+
+    // object insertions
+    [self.pendingObjectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification * notification, NSUInteger idx, BOOL *stop) {
+        notification.nuIndexPath = [self indexPathForObject:notification.object];
+    }];
+    
+    // object removals
+    [self.pendingObjectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification * notification, NSUInteger idx, BOOL *stop) {
+        notification.indexPath = [self previousIndexPathForObject:notification.object];
+    }];
+
+    // section removals
+    [self.pendingSectionRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification * notification, NSUInteger idx, BOOL *stop) {
+        notification.sectionIndex = [self.sourceSectionsInfoBeforeUpdateShallow indexOfObject:notification.sectionInfo];
+    }];
+    
+    NSSet *insertedObjects = [NSSet setWithArray:[self.pendingObjectInsertNotifications valueForKey:@"object"]];
+    NSSet *removedObjects = [NSSet setWithArray:[self.pendingObjectRemoveNotifications valueForKey:@"object"]];
+    
+    // object moves
+    NSMutableIndexSet *invalidMoves = [NSMutableIndexSet indexSet];
+    [self.pendingObjectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification * notification, NSUInteger idx, BOOL *stop) {
+        
+        NSIndexPath *prevIndexPath = [self previousIndexPathForObject:notification.object];
+        NSIndexPath *currIndexPath = [self indexPathForObject:notification.object];
+        
+        // Don't allow:
+        // - Move that results in no actual change in index path
+        // - Move of removed object (e.g. move, then remove)
+        // - Move of newly inserted object (insertion index path will be up-to-date)
+        if (prevIndexPath && currIndexPath && ![prevIndexPath isEqual:currIndexPath] && ![insertedObjects containsObject:notification.object] && ![removedObjects containsObject:notification.object])
+        {
+            notification.indexPath = prevIndexPath;
+            notification.nuIndexPath = currIndexPath;
+        }
+        else
+        {
+            [invalidMoves addIndex:idx];
+        }
+        
+    }];
+    
+    [self.pendingObjectMoveNotifications removeObjectsAtIndexes:invalidMoves];
+
+    // object updates
+    NSMutableIndexSet *invalidUpdates = [NSMutableIndexSet indexSet];
+    [self.pendingObjectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification * notification, NSUInteger idx, BOOL *stop) {
+        
+        // Don't allow:
+        // - Update to removed object
+        // - Update to inserted object
+        if ([insertedObjects containsObject:notification.object] || [removedObjects containsObject:notification.object])
+        {
+            [invalidUpdates addIndex:idx];
+        }
+        else
+        {
+            // calculate current index path
+            notification.nuIndexPath = [self indexPathForObject:notification.object];
+        }
+        
+    }];
+    
+    [self.pendingObjectUpdateNotifications removeObjectsAtIndexes:invalidUpdates];
+    
+}
+
 #pragma mark - ObjectUpdateObservation
 
 - (void)objectUpdateNotificationReceived:(NSNotification*)notification
@@ -531,13 +734,14 @@
         if (!self.batchUpdating)
         {
             [self sendWillChangeContentNotifications];
-        }
-        
-        [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
-        
-        if (!self.batchUpdating)
-        {
+            
+            [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+            
             [self sendDidChangeContentNotifications];
+        }
+        else
+        {
+            [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:nil type:RZCollectionListChangeUpdate];
         }
     }
 }
@@ -761,16 +965,6 @@
     return index;
 }
 
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
-
 @end
 
 
@@ -811,6 +1005,13 @@
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    RZArrayCollectionListSectionInfo *copy = [[RZArrayCollectionListSectionInfo alloc] initWithName:self.name sectionIndexTitle:self.indexTitle numberOfObjects:self.numberOfObjects];
+    copy.indexOffset = self.indexOffset;
+    return copy;
 }
 
 @end
