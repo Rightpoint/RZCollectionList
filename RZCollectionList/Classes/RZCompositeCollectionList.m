@@ -31,7 +31,6 @@
 @end
 
 @implementation RZCompositeCollectionList
-@synthesize delegate = _delegate;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists
 {
@@ -219,11 +218,6 @@
     }];
     
     return listSections;
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles

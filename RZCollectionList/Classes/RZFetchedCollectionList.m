@@ -17,7 +17,6 @@
 @end
 
 @implementation RZFetchedCollectionList
-@synthesize delegate = _delegate;
 
 - (id)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name
 {
@@ -69,11 +68,6 @@
 - (NSArray*)sections
 {
     return [self.controller sections];
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles

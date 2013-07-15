@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 
-/**************************************************
+/***************************************************************
  *
  * Base class for providing common variables and
  * utils for RZCollectionList "source" lists, i.e.
@@ -19,10 +19,12 @@
  * Currently used as subclass for RZFetchedCollectionList
  * and RZArrayCollectionList.
  *
- * This class does not implement the protocol itself.
+ * This class implements the protocol but requires subclasses
+ * to override the protocol methods, or an exception will be
+ * thrown.
  *
- **************************************************/
+ ****************************************************************/
 
-@interface RZBaseCollectionList : NSObject
+@interface RZBaseCollectionList : NSObject <RZCollectionList>
 
 @end

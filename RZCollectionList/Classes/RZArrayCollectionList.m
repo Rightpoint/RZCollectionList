@@ -68,8 +68,6 @@
 
 @implementation RZArrayCollectionList
 
-@synthesize delegate = _delegate;
-
 - (id)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
 {
     NSArray *sections = [RZArrayCollectionList sectionsForObjects:array withNameKeyPath:keyPath];
@@ -856,11 +854,6 @@
 - (NSArray*)sections
 {
     return [self.sectionsInfo copy];
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles
