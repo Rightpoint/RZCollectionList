@@ -7,7 +7,7 @@
 //
 
 #import "RZSortedCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
 
 @interface RZSortedCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
