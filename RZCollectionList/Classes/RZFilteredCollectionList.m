@@ -67,7 +67,7 @@ typedef enum {
 - (void)removeSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath;
 - (void)updateSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath currentSourceIndexPath:(NSIndexPath*)currentIndexPath;
 
-// moves must be done in two stages in a batch updaet
+// moves must be done in two stages in a batch update
 - (void)removeObjectForMoveNotification:(RZCollectionListObjectNotification*)moveNotification;
 - (void)addObjectForMoveNotification:(RZCollectionListObjectNotification*)moveNotification;
 
