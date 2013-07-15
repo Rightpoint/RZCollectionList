@@ -11,8 +11,6 @@
 
 @interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
-@property (nonatomic, copy) NSArray *sourceLists;
-
 - (id)initWithSourceLists:(NSArray*)sourceLists;
 - (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections; // Default is NO. If YES, will flatten list into one section.
 
