@@ -135,6 +135,54 @@
     [self waitFor:1];
 }
 
+- (void)test101MultipleArrayListsWithFlattenedSections
+{
+    RZArrayCollectionListSectionInfo *section0 = [[RZArrayCollectionListSectionInfo alloc] initWithName:@"0" sectionIndexTitle:nil numberOfObjects:3];
+    RZArrayCollectionListSectionInfo *section1 = [[RZArrayCollectionListSectionInfo alloc] initWithName:@"1" sectionIndexTitle:nil numberOfObjects:3];
+    section1.indexOffset = 3;
+    
+    NSArray *sect2Objs = @[@"A", @"B", @"C", @"D", @"E"];
+    
+    RZArrayCollectionList * array1 = [[RZArrayCollectionList alloc] initWithArray:@[@"1", @"2", @"3", @"4", @"5", @"6"] sections:@[section0, section1]];
+    RZArrayCollectionList * array2 = [[RZArrayCollectionList alloc] initWithArray:sect2Objs sectionNameKeyPath:nil];
+    RZCompositeCollectionList *composite = [[RZCompositeCollectionList alloc] initWithSourceLists:@[array1, array2] ignoreSections:YES];
+    
+    __attribute__((unused))
+    RZCollectionListTableViewDataSource *dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.tableView
+                                                                                                      collectionList:composite
+                                                                                                            delegate:self];
+    
+    NSArray *startObjs = @[@"1",@"2",@"3",@"4",@"5",@"6",@"A", @"B", @"C", @"D", @"E"];
+    
+    STAssertEquals([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
+    STAssertEqualObjects(startObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    
+    [self waitFor:1];
+    
+    [array1 beginUpdates];
+    
+    [array1 removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [array1 moveObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]]; // should cause no change, actually
+    
+    STAssertNoThrow([array1 endUpdates], @"Something went wrong");
+    
+    [array2 beginUpdates];
+    
+    [array2 removeObject:@"A"];
+    [array2 insertObject:@"A point 5" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    
+    STAssertNoThrow([array2 endUpdates], @"Something went wrong");
+    
+    NSArray *finalObjs = @[@"2",@"3",@"4",@"5",@"6",@"A point 5",@"B",@"C",@"D",@"E"];
+    
+    [self assertTitlesOfVisibleCells:finalObjs];
+    
+    STAssertEquals([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
+    STAssertEqualObjects(finalObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    
+    [self waitFor:1];
+}
+
 #pragma mark - Table Data Source
 
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForObject:(id)object atIndexPath:(NSIndexPath *)indexPath

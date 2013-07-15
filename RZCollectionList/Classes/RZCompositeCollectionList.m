@@ -36,6 +36,7 @@ typedef enum {
 @property (nonatomic, strong) NSMutableArray *sourceListSectionRanges;
 @property (nonatomic, strong) NSMutableArray *sourceListForSection;
 @property (nonatomic, strong) NSArray *cachedSourceListSectionRanges;
+@property (nonatomic, strong) NSArray *cachedSourceListSectionObjectCounts; // array of arrays, first dimension is source list, second dimension is # objs per section
 
 @property (nonatomic, assign) BOOL ignoreSections;
 @property (nonatomic, strong) RZCompositeCollectionListSectionInfo *singleSectionInfo;
@@ -158,38 +159,72 @@ typedef enum {
 
 - (void)translateObjectNotification:(RZCollectionListObjectNotification *)notification
 {
+    
     NSIndexPath *modifiedIndexPath = nil;
     NSIndexPath *modifiedNewIndexPath = nil;
-    
     NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:notification.sourceList];
     
     if (self.ignoreSections)
     {
-        __block NSUInteger rowOffset = 0;
+        __block NSUInteger oldRowOffset = 0;
+        __block NSUInteger newRowOffset = 0;
 
-        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger listIdx, BOOL *listStop) {
-            if (listIdx == indexOfSourceList)
-            {
-                [sourceList.sections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> section, NSUInteger sectionIdx, BOOL *sectionStop) {
-                    if (sectionIdx == notification.indexPath.section)
-                    {
-                        *sectionStop = YES;
-                    }
-                    else
-                    {
-                        rowOffset += section.numberOfObjects;
-                    }
-                }];
-                *listStop = YES;
-            }
-            else
-            {
-                rowOffset += sourceList.listObjects.count;
-            }
-        }];
+        // find old index path based on original object counts
+        if (nil != notification.indexPath)
+        {
+            [self.cachedSourceListSectionObjectCounts enumerateObjectsUsingBlock:^(NSArray *objCounts, NSUInteger listIdx, BOOL *listStop) {
+                
+                if (listIdx == indexOfSourceList)
+                {
+                    [objCounts enumerateObjectsUsingBlock:^(NSNumber *objCount, NSUInteger sectionIdx, BOOL *sectionStop) {
+                        if (sectionIdx == notification.indexPath.section)
+                        {
+                            *sectionStop = YES;
+                        }
+                        else
+                        {
+                            oldRowOffset += [objCount unsignedIntegerValue];
+                        }
+                    }];
+                    
+                    *listStop = YES;
+                }
+                else
+                {
+                    oldRowOffset += [[objCounts valueForKeyPath:@"@sum.self"] unsignedIntegerValue];
+                }
+            }];
+            
+        }
+        
+        if (nil != notification.nuIndexPath)
+        {
+            [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger listIdx, BOOL *listStop) {
+                if (listIdx == indexOfSourceList)
+                {
+                    [sourceList.sections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> section, NSUInteger sectionIdx, BOOL *sectionStop) {
+                        if (sectionIdx == notification.nuIndexPath.section)
+                        {
+                            *sectionStop = YES;
+                        }
+                        else
+                        {
+                            newRowOffset += section.numberOfObjects;
+                        }
+                    }];
+                    *listStop = YES;
+                }
+                else
+                {
+                    newRowOffset += sourceList.listObjects.count;
+                }
+            }];
 
-        modifiedIndexPath = (notification.indexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.indexPath.row + rowOffset inSection:0];
-        modifiedNewIndexPath = (notification.nuIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.nuIndexPath.row + rowOffset inSection:0];
+        }
+        
+
+        modifiedIndexPath = (notification.indexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.indexPath.row + oldRowOffset inSection:0];
+        modifiedNewIndexPath = (notification.nuIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:notification.nuIndexPath.row + newRowOffset inSection:0];
 
     }
     else
@@ -238,6 +273,7 @@ typedef enum {
         }
         
     }];
+    
     
     [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self translateObjectNotification:notification];
@@ -422,6 +458,25 @@ typedef enum {
 {
     self.contentChangeState = RZCompositeSourceListContentChangeStatePotentialChanges;
     self.cachedSourceListSectionRanges = [[NSArray alloc] initWithArray:self.sourceListSectionRanges copyItems:YES];
+    if (self.ignoreSections)
+    {
+        // keep track of initial number of objects in each section in each source list
+        NSMutableArray *sourceListSectionObjCounts = [NSMutableArray arrayWithCapacity:self.sourceLists.count];
+
+        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger sourceListIdx, BOOL *stop) {
+            
+            NSArray *sourceSections = [sourceList sections];
+            NSMutableArray *objCounts = [NSMutableArray arrayWithCapacity:sourceSections.count];
+            
+            [sourceSections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIdx, BOOL *stop) {
+                [objCounts addObject:[NSNumber numberWithUnsignedInteger:[sectionInfo numberOfObjects]]];
+            }];
+            
+            [sourceListSectionObjCounts addObject:objCounts];
+        }];
+        
+        self.cachedSourceListSectionObjectCounts = sourceListSectionObjCounts;
+    }
 }
 
 - (void)confirmPotentialUpdates
@@ -447,6 +502,7 @@ typedef enum {
     self.contentChangeState = RZCompositeSourceListContentChangeStateNoChanges;
     [self resetPendingNotifications];
     self.cachedSourceListSectionRanges = nil;
+    self.cachedSourceListSectionObjectCounts = nil;
 }
 
 
@@ -454,49 +510,8 @@ typedef enum {
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-//    
-//    if (self.ignoreSections)
-//    {
-//        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
-//        
-//        __block NSUInteger rowOffset = 0;
-//        
-//        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger listIdx, BOOL *listStop) {
-//            if (listIdx == indexOfSourceList)
-//            {
-//                [sourceList.sections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> section, NSUInteger sectionIdx, BOOL *sectionStop) {
-//                    if (sectionIdx == indexPath.section)
-//                    {
-//                        *sectionStop = YES;
-//                    }
-//                    else
-//                    {
-//                        rowOffset += section.numberOfObjects;
-//                    }
-//                }];
-//                *listStop = YES;
-//            }
-//            else
-//            {
-//                rowOffset += sourceList.listObjects.count;
-//            }
-//        }];
-//        
-//        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row + rowOffset inSection:0];
-//        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row + rowOffset inSection:0];
-//        
-//        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
-//    }
-//    else
-//    {
-//        NSUInteger indexOfSourceList = [self.sourceLists indexOfObject:collectionList];
-//        NSRange sourceListSectionRange = [[self.sourceListSectionRanges objectAtIndex:indexOfSourceList] rangeValue];
-//        NSIndexPath *modifiedIndexPath = (indexPath == nil) ? nil : [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section + sourceListSectionRange.location];
-//        NSIndexPath *modifiedNewIndexPath = (newIndexPath == nil) ? nil : [NSIndexPath indexPathForRow:newIndexPath.row inSection:newIndexPath.section + sourceListSectionRange.location];
-//        
-//        [self sendDidChangeObjectNotification:object atIndexPath:modifiedIndexPath forChangeType:type newIndexPath:modifiedNewIndexPath];
-//    }
-
+    // any object notification means we have updates, let's confirm them.
+    [self confirmPotentialUpdates];
     [self cacheObjectNotificationWithObject:object indexPath:indexPath newIndexPath:newIndexPath type:type sourceList:collectionList];
 }
 

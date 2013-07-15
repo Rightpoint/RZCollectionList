@@ -18,8 +18,8 @@
 		9AD4907C170C6B80003AB9D7 /* RZCollectionListCollectionViewDataSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AD4907B170C6B80003AB9D7 /* RZCollectionListCollectionViewDataSourceTests.m */; };
 		9AD49080170CCB06003AB9D7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AD4907F170CCB06003AB9D7 /* QuartzCore.framework */; };
 		9AD49081170CCB35003AB9D7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AD4907F170CCB06003AB9D7 /* QuartzCore.framework */; };
-		9AE7E40A17789D17001FC0EA /* RZCompositeCollectionListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7E40917789D17001FC0EA /* RZCompositeCollectionListTests.m */; };
 		9AEAD7341772324600B8A6BE /* RZCollectionListTestModelObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AEAD7331772324600B8A6BE /* RZCollectionListTestModelObject.m */; };
+		9AF2CA481794796400E408B8 /* RZCompositeCollectionListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AE7E40917789D17001FC0EA /* RZCompositeCollectionListTests.m */; };
 		9AFC2D001774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */; };
 		9AFC2D011774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CEB1774D44000FF5E53 /* NSFetchRequest+RZCreationHelpers.m */; };
 		9AFC2D021774D44000FF5E53 /* RZArrayCollectionList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFC2CED1774D44000FF5E53 /* RZArrayCollectionList.m */; };
@@ -608,9 +608,9 @@
 				9AFC2D111774D44000FF5E53 /* RZObserverCollection.m in Sources */,
 				9AFC2D131774D44000FF5E53 /* RZSortedCollectionList.m in Sources */,
 				9AFC2D1F1774D82B00FF5E53 /* RZCollectionListNotificationWrappers.m in Sources */,
-				9AE7E40A17789D17001FC0EA /* RZCompositeCollectionListTests.m in Sources */,
 				9A15F189177B50E100800760 /* RZArrayCollectionListComboTests.m in Sources */,
 				9A15F18A177B510600800760 /* RZFetchedCollectionListComboTests.m in Sources */,
+				9AF2CA481794796400E408B8 /* RZCompositeCollectionListTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
