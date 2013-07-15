@@ -95,12 +95,13 @@ typedef enum {
 {
     if ((self = [super init]))
     {
-        self.sourceList = sourceList;
-        self.predicate = predicate;
         self.filterOutEmptySections = filterOutEmptySections;
         self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
 
         [self setupIndexSetsForSourceList:sourceList predicate:predicate];
+        
+        self.sourceList = sourceList;
+        self.predicate = predicate;
         
         [self.sourceList addCollectionListObserver:self];
     }
