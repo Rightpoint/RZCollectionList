@@ -21,23 +21,6 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
 
 @synthesize delegate = _delegate;
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        
-        // allocate the mutable containers
-        _pendingSectionInsertNotifications  = [NSMutableArray arrayWithCapacity:8];
-        _pendingSectionRemoveNotifications  = [NSMutableArray arrayWithCapacity:8];
-        _pendingObjectInsertNotifications   = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectRemoveNotifications   = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectMoveNotifications     = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectUpdateNotifications   = [NSMutableArray arrayWithCapacity:16];
-        
-    }
-    return self;
-}
-
 #pragma mark - Protected Properties
 
 - (RZObserverCollection*)collectionListObservers
@@ -64,6 +47,62 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     NSMutableArray *allNotifications = [self.pendingSectionRemoveNotifications mutableCopy];
     [allNotifications addObjectsFromArray:self.pendingSectionInsertNotifications];
     return allNotifications;
+}
+
+// ------ Lazy-loaded collections ------
+
+- (NSMutableArray*)pendingSectionInsertNotifications
+{
+    if (nil == _pendingSectionInsertNotifications)
+    {
+        _pendingSectionInsertNotifications = [NSMutableArray arrayWithCapacity:8];
+    }
+    return _pendingSectionInsertNotifications;
+}
+
+- (NSMutableArray*)pendingSectionRemoveNotifications
+{
+    if (nil == _pendingSectionRemoveNotifications)
+    {
+        _pendingSectionRemoveNotifications = [NSMutableArray arrayWithCapacity:8];
+    }
+    return _pendingSectionRemoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectInsertNotifications
+{
+    if (nil == _pendingObjectInsertNotifications)
+    {
+        _pendingObjectInsertNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectInsertNotifications;
+}
+
+- (NSMutableArray*)pendingObjectRemoveNotifications
+{
+    if (nil == _pendingObjectRemoveNotifications)
+    {
+        _pendingObjectRemoveNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectRemoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectMoveNotifications
+{
+    if (nil == _pendingObjectMoveNotifications)
+    {
+        _pendingObjectMoveNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectMoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectUpdateNotifications
+{
+    if (nil == _pendingObjectUpdateNotifications)
+    {
+        _pendingObjectUpdateNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectUpdateNotifications;
 }
 
 #pragma mark - Protected Methods
