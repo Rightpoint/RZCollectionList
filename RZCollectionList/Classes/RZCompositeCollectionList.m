@@ -7,7 +7,7 @@
 //
 
 #import "RZCompositeCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
 #import "RZObserverCollection.h"
 
 @interface RZCompositeCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
@@ -55,7 +55,6 @@ typedef enum {
 @end
 
 @implementation RZCompositeCollectionList
-@synthesize delegate = _delegate;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists
 {
@@ -259,11 +258,6 @@ typedef enum {
     }
     
     return sections;
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles

@@ -98,17 +98,20 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                     {
                         [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
-                    else{
+                    else
+                    {
                         [self.updatedIndexPaths addObject:newIndexPath];
                     }
                 }
-                else{
+                else
+                {
                     [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
                 }
             }
 
         }
-        else{
+        else
+        {
             RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
                 switch(type) {
                     case RZCollectionListChangeInsert:

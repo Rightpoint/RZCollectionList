@@ -8,7 +8,7 @@
 
 #import "RZArrayCollectionList.h"
 #import "RZObserverCollection.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
 
 @interface RZArrayCollectionListSectionInfo ()
 
@@ -67,8 +67,6 @@
 @end
 
 @implementation RZArrayCollectionList
-
-@synthesize delegate = _delegate;
 
 - (id)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
 {
@@ -856,11 +854,6 @@
 - (NSArray*)sections
 {
     return [self.sectionsInfo copy];
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles

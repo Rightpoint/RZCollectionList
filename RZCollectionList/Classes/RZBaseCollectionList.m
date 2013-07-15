@@ -7,26 +7,19 @@
 //
 
 #import "RZBaseCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
+
+static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCollectionListMissingProtocolMethodException";
+
+@interface RZBaseCollectionList ()
+
+- (NSException*)missingProtocolMethodExceptionWithSelector:(SEL)selector;
+
+@end
 
 @implementation RZBaseCollectionList
 
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        
-        // allocate the mutable containers
-        _pendingSectionInsertNotifications  = [NSMutableArray arrayWithCapacity:8];
-        _pendingSectionRemoveNotifications  = [NSMutableArray arrayWithCapacity:8];
-        _pendingObjectInsertNotifications   = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectRemoveNotifications   = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectMoveNotifications     = [NSMutableArray arrayWithCapacity:16];
-        _pendingObjectUpdateNotifications   = [NSMutableArray arrayWithCapacity:16];
-        
-    }
-    return self;
-}
+@synthesize delegate = _delegate;
 
 #pragma mark - Protected Properties
 
@@ -56,17 +49,63 @@
     return allNotifications;
 }
 
+// ------ Lazy-loaded collections ------
+
+- (NSMutableArray*)pendingSectionInsertNotifications
+{
+    if (nil == _pendingSectionInsertNotifications)
+    {
+        _pendingSectionInsertNotifications = [NSMutableArray arrayWithCapacity:8];
+    }
+    return _pendingSectionInsertNotifications;
+}
+
+- (NSMutableArray*)pendingSectionRemoveNotifications
+{
+    if (nil == _pendingSectionRemoveNotifications)
+    {
+        _pendingSectionRemoveNotifications = [NSMutableArray arrayWithCapacity:8];
+    }
+    return _pendingSectionRemoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectInsertNotifications
+{
+    if (nil == _pendingObjectInsertNotifications)
+    {
+        _pendingObjectInsertNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectInsertNotifications;
+}
+
+- (NSMutableArray*)pendingObjectRemoveNotifications
+{
+    if (nil == _pendingObjectRemoveNotifications)
+    {
+        _pendingObjectRemoveNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectRemoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectMoveNotifications
+{
+    if (nil == _pendingObjectMoveNotifications)
+    {
+        _pendingObjectMoveNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectMoveNotifications;
+}
+
+- (NSMutableArray*)pendingObjectUpdateNotifications
+{
+    if (nil == _pendingObjectUpdateNotifications)
+    {
+        _pendingObjectUpdateNotifications = [NSMutableArray arrayWithCapacity:16];
+    }
+    return _pendingObjectUpdateNotifications;
+}
+
 #pragma mark - Protected Methods
-
-- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers addObject:listObserver];
-}
-
-- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
-{
-    [self.collectionListObservers removeObject:listObserver];
-}
 
 - (void)cacheObjectNotificationWithObject:(id)object indexPath:(NSIndexPath *)indexPath newIndexPath:(NSIndexPath *)newIndexPath type:(RZCollectionListChangeType)type
 {
@@ -251,8 +290,7 @@
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
-                // Making assumption that subclass implements protocol by casting
-                [obj collectionList:(id<RZCollectionList>)self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
+                [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
             }
         }];
     }];
@@ -264,8 +302,7 @@
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
-                // Making assumption that subclass implements protocol by casting
-                [obj collectionList:(id<RZCollectionList>)self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
+                [obj collectionList:self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
             }
         }];
     }];
@@ -282,5 +319,65 @@
     [self.pendingObjectUpdateNotifications    removeAllObjects];
 }
 
+- (NSException*)missingProtocolMethodExceptionWithSelector:(SEL)selector
+{
+    return [NSException exceptionWithName:RZCollectionListMissingProtocolMethodException
+                                   reason:[NSString stringWithFormat:@"RZBaseCollectionList subclass does not implement required method %@", NSStringFromSelector(selector)]
+                                 userInfo:nil];
+}
+
+#pragma mark - RZCollectionList Protocol
+
+- (NSArray*)listObservers
+{
+    return [self.collectionListObservers allObjects];
+}
+
+- (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers addObject:listObserver];
+}
+
+- (void)removeCollectionListObserver:(id<RZCollectionListObserver>)listObserver
+{
+    [self.collectionListObservers removeObject:listObserver];
+}
+
+// ---- Subclasses must implement the below methods. Otherwise an exception will be thrown. ----
+
+- (NSArray*)listObjects
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (NSArray*)sections
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (NSArray*)sectionIndexTitles
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (id)objectAtIndexPath:(NSIndexPath*)indexPath
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (NSIndexPath*)indexPathForObject:(id)object
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
+- (NSInteger)sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)sectionIndex
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
 
 @end

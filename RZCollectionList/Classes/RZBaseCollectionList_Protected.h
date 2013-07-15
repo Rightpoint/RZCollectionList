@@ -1,16 +1,32 @@
 //
-//  RZBaseCollectionList_Private.h
+//  RZBaseCollectionList_Protected.h
 //  RZCollectionList-Demo
 //
 //  Created by Nick Donaldson on 6/21/13.
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
+
+/***********************************************************************
+*
+*   This is the protected class extension header for RZBaseCollectionList.
+*
+*   Subclasses of RZBaseCollectionList should import this header in the
+*   source file, not in the header file. These methods should not be made
+*   publicly accessible.
+*
+*************************************************************************/
+
 #import "RZBaseCollectionList.h"
 #import "RZObserverCollection.h"
 #import "RZCollectionListNotificationWrappers.h"
 
 @interface RZBaseCollectionList ()
+{
+    // Exposed so subclasses can override delegate setter if desired.
+    @protected
+    __weak id<RZCollectionListDelegate> _delegate;
+}
 
 @property (nonatomic, strong) RZObserverCollection *collectionListObservers;
 

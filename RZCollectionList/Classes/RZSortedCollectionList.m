@@ -7,7 +7,7 @@
 //
 
 #import "RZSortedCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
 
 @interface RZSortedCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
@@ -53,7 +53,6 @@ typedef enum {
 @end
 
 @implementation RZSortedCollectionList
-@synthesize delegate = _delegate;
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList sortDescriptors:(NSArray *)sortDescriptors
 {
@@ -123,11 +122,6 @@ typedef enum {
 - (NSArray*)sections
 {
     return [self sortedSections];
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles

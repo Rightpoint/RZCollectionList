@@ -7,7 +7,7 @@
 //
 
 #import "RZFilteredCollectionList.h"
-#import "RZBaseCollectionList_Private.h"
+#import "RZBaseCollectionList_Protected.h"
 #import "RZObserverCollection.h"
 
 @interface RZFilteredCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
@@ -84,7 +84,6 @@ typedef enum {
 @end
 
 @implementation RZFilteredCollectionList
-@synthesize delegate = _delegate;
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
 {
@@ -393,11 +392,6 @@ typedef enum {
 - (NSArray*)sections
 {
     return [self filteredSections];
-}
-
-- (NSArray*)listObservers
-{
-    return [self.collectionListObservers allObjects];
 }
 
 - (NSArray*)sectionIndexTitles
