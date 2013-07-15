@@ -15,6 +15,11 @@
 @property (nonatomic, strong, readwrite) NSString *name;
 @property (nonatomic, strong, readwrite) NSString *indexTitle;
 
+@property (nonatomic, assign, readwrite) NSUInteger numberOfObjects;
+@property (nonatomic, strong, readwrite) NSArray *objects;
+
+@property (nonatomic, assign) BOOL isCachedCopy;
+
 @property (nonatomic, weak) RZCompositeCollectionList *compositeList;
 
 - (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
@@ -581,12 +586,32 @@ typedef enum {
 
 - (NSUInteger)numberOfObjects
 {
+    if (self.isCachedCopy)
+    {
+        return _numberOfObjects;
+    }
     return self.compositeList.listObjects.count;
 }
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return self.compositeList.listObjects;
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZCompositeCollectionListSectionInfo *copy = [[RZCompositeCollectionListSectionInfo alloc] initWithName:[self.name copy]
+                                                                                          sectionIndexTitle:[self.indexTitle copy]
+                                                                                              compositeList:self.compositeList];
+    
+    copy.objects = self.objects;
+    copy.numberOfObjects = self.numberOfObjects;
+    copy.isCachedCopy = YES;
+    return copy;
 }
 
 @end

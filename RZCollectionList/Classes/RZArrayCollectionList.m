@@ -321,7 +321,7 @@
        
         // shallow copy sections
         self.sourceSectionsInfoBeforeUpdateShallow = [self.sectionsInfo copy];
-        self.sourceSectionsInfoBeforeUpdateDeep = [[NSArray alloc] initWithArray:self.sectionsInfo copyItems:YES];
+        self.sourceSectionsInfoBeforeUpdateDeep = [self.sectionsInfo valueForKey:@"cachedCopy"];
         
         [self sendWillChangeContentNotifications];
     }
@@ -1000,7 +1000,7 @@
     return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id<RZCollectionListSectionInfo>)cachedCopy
 {
     RZArrayCollectionListSectionInfo *copy = [[RZArrayCollectionListSectionInfo alloc] initWithName:self.name sectionIndexTitle:self.indexTitle numberOfObjects:self.numberOfObjects];
     copy.indexOffset = self.indexOffset;

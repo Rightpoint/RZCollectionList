@@ -17,6 +17,8 @@
 @property (nonatomic, weak) id<RZCollectionListSectionInfo> sourceSectionInfo;
 @property (nonatomic, weak) RZFilteredCollectionList *filteredList;
 
+@property (nonatomic, assign) BOOL isCachedCopy;
+
 - (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
 
 @end
@@ -715,7 +717,7 @@ typedef enum {
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
-    self.cachedSourceSections = [self.sourceList.sections copy];
+    self.cachedSourceSections = [self.sourceList.sections valueForKey:@"cachedCopy"];
     self.cachedSectionIndexes = [self.sectionIndexes copy];
     self.cachedObjectIndexesForSectionShallow = [self.objectIndexesForSection copy];
     self.cachedObjectIndexesForSectionDeep = [[NSMutableArray alloc] initWithArray:self.objectIndexesForSection copyItems:YES];
@@ -913,7 +915,20 @@ typedef enum {
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return [self.filteredList filteredObjectsForSection:self];
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZFilteredCollectionListSectionInfo *copy = [[RZFilteredCollectionListSectionInfo alloc] initWithSourceSectionInfo:[self.sourceSectionInfo cachedCopy]
+                                                                                                          filteredList:self.filteredList];
+    copy.objects = self.objects;
+    copy.isCachedCopy = YES;
+    return copy;
 }
 
 @end

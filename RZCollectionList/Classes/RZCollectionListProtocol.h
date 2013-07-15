@@ -17,6 +17,10 @@
 @property (nonatomic, assign, readonly) NSUInteger numberOfObjects;
 @property (nonatomic, readonly) NSArray *objects;
 
+// distinct from copyWithZone in that all properties in a cached copy
+// must return a static value (not derived from a source list)
+- (id<RZCollectionListSectionInfo>)cachedCopy;
+
 @end
 
 @protocol RZCollectionListDelegate;
