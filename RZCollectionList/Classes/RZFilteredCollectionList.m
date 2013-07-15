@@ -43,6 +43,7 @@ typedef enum {
 
 @property (nonatomic, assign) RZFilteredSourceListContentChangeState contentChangeState;
 
+@property (nonatomic, assign) BOOL allowEmptySections;
 @property (nonatomic, assign) BOOL isTransformingForPredicateChange;
 
 - (void)setupIndexSetsForSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
@@ -88,13 +89,19 @@ typedef enum {
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
 {
+    return [self initWithSourceList:sourceList predicate:predicate allowEmptySections:NO];
+}
+
+- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate allowEmptySections:(BOOL)allowEmptySections
+{
     if ((self = [super init]))
     {
-        self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
-        [self setupIndexSetsForSourceList:sourceList predicate:predicate];
-        
         self.sourceList = sourceList;
         self.predicate = predicate;
+        self.allowEmptySections = allowEmptySections;
+        self.contentChangeState = RZFilteredSourceListContentChangeStateNoChanges;
+
+        [self setupIndexSetsForSourceList:sourceList predicate:predicate];
         
         [self.sourceList addCollectionListObserver:self];
     }
@@ -150,7 +157,7 @@ typedef enum {
         
         [objectIndexesForSection addObject:[objectIndexes mutableCopy]];
         
-        if ([objectIndexes count] > 0)
+        if ([objectIndexes count] > 0 || self.allowEmptySections)
         {
             [sectionIndexes addIndex:idx];
         }
@@ -526,7 +533,7 @@ typedef enum {
             NSIndexPath *filteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath cached:YES];
             [self cacheObjectNotificationWithObject:object indexPath:filteredIndexPath newIndexPath:nil type:RZCollectionListChangeDelete];
             
-            if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+            if (!self.allowEmptySections && [sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
             {
                 NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
                 RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
@@ -611,7 +618,7 @@ typedef enum {
                 [self cacheObjectNotificationWithObject:moveNotification.object indexPath:fromFilteredIndexPath newIndexPath:toFilteredIndexPath type:RZCollectionListChangeMove];
 
                 // Filter fromSection and send Remove Section Notification if fromSection has no objects remaining
-                if ([fromSectionObjectIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+                if (!self.allowEmptySections && [fromSectionObjectIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
                 {
                     NSUInteger fromFilteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
                     RZFilteredCollectionListSectionInfo *fromFilteredSectionInfo = [[self filteredCachedSections] objectAtIndex:fromFilteredSection];
@@ -669,7 +676,7 @@ typedef enum {
         
         [sectionIndexSet removeIndex:indexPath.row];
         
-        if ([sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+        if (!self.allowEmptySections && [sectionIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
         {
             NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
             RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
