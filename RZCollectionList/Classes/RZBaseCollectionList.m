@@ -7,7 +7,7 @@
 //
 
 #import "RZBaseCollectionList.h"
-#import "RZBaseCollectionList_Protected.h"
+#import "RZBaseCollectionList_Private.h"
 
 static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCollectionListMissingProtocolMethodException";
 

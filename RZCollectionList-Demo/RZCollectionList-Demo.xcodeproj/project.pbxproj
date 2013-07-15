@@ -123,7 +123,7 @@
 		9AFC2CED1774D44000FF5E53 /* RZArrayCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZArrayCollectionList.m; sourceTree = "<group>"; };
 		9AFC2CEE1774D44000FF5E53 /* RZBaseCollectionList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseCollectionList.h; sourceTree = "<group>"; };
 		9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZBaseCollectionList.m; sourceTree = "<group>"; };
-		9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseCollectionList_Protected.h; sourceTree = "<group>"; };
+		9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZBaseCollectionList_Private.h; sourceTree = "<group>"; };
 		9AFC2CF11774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListCollectionViewDataSource.h; sourceTree = "<group>"; };
 		9AFC2CF21774D44000FF5E53 /* RZCollectionListCollectionViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RZCollectionListCollectionViewDataSource.m; sourceTree = "<group>"; };
 		9AFC2CF31774D44000FF5E53 /* RZCollectionListProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RZCollectionListProtocol.h; sourceTree = "<group>"; };
@@ -262,7 +262,7 @@
 				9AFC2CF31774D44000FF5E53 /* RZCollectionListProtocol.h */,
 				9AFC2CEE1774D44000FF5E53 /* RZBaseCollectionList.h */,
 				9AFC2CEF1774D44000FF5E53 /* RZBaseCollectionList.m */,
-				9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Protected.h */,
+				9AFC2CF01774D44000FF5E53 /* RZBaseCollectionList_Private.h */,
 				9AFC2D1C1774D82A00FF5E53 /* RZCollectionListNotificationWrappers.h */,
 				9AFC2D1D1774D82A00FF5E53 /* RZCollectionListNotificationWrappers.m */,
 				9AFC2CEC1774D44000FF5E53 /* RZArrayCollectionList.h */,
