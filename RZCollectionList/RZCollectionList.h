@@ -20,7 +20,7 @@
 #import "RZCollectionListTableViewDataSource.h"
 
 #if (__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)
-    #import "RZcollectionListCollectionViewDataSource.h"
+    #import "RZCollectionListCollectionViewDataSource.h"
 #endif
 
 // Category for helping construct fetch requests

@@ -7,7 +7,7 @@
 //
 
 #import "RZBaseCollectionList.h"
-#import "RZBaseCollectionList_Protected.h"
+#import "RZBaseCollectionList_Private.h"
 
 static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCollectionListMissingProtocolMethodException";
 
@@ -183,8 +183,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
-            // Making assumption that subclass implements protocol by casting
-            [obj collectionListWillChangeContent:(id<RZCollectionList>)self];
+            [obj collectionListWillChangeContent:self];
         }
     }];
 }
@@ -197,8 +196,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
         {
-            // Making assumption that subclass implements protocol by casting
-            [obj collectionListDidChangeContent:(id<RZCollectionList>)self];
+            [obj collectionListDidChangeContent:self];
         }
     }];
 }
