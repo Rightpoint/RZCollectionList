@@ -11,6 +11,10 @@
 
 @interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
+// Currently readonly.
+// TODO: need to implement in-place source list array update.
+@property (nonatomic, readonly, copy) NSArray *sourceLists;
+
 - (id)initWithSourceLists:(NSArray*)sourceLists;
 - (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections; // Default is NO. If YES, will flatten list into one section.
 

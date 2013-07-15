@@ -29,9 +29,7 @@ typedef enum {
 
 @interface RZCompositeCollectionList ()
 
-// Currently private.
-// TODO: need to implement in-place source list array update.
-@property (nonatomic, copy) NSArray *sourceLists;
+@property (nonatomic, readwrite, copy) NSArray *sourceLists;
 
 @property (nonatomic, strong) NSMutableArray *sourceListSectionRanges;
 @property (nonatomic, strong) NSMutableArray *sourceListForSection;
