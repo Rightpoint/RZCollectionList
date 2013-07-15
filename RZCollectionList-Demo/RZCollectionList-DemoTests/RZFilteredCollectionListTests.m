@@ -465,7 +465,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
 - (void)test071MoveLastShownObjectInSectionIntoEmptySectionWithEmptySectionsAllowed
 {
     // must overwrite filtered list created in "setUp"
-    self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:self.arrayList predicate:nil allowEmptySections:YES];
+    self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:self.arrayList predicate:nil filterOutEmptySections:NO];
     [self.filteredList addCollectionListObserver:self];
     
     self.filteredList.predicate = [NSPredicate predicateWithBlock:^BOOL(ListItemObject *evaluatedObject, NSDictionary *bindings) {

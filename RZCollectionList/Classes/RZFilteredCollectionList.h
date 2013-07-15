@@ -15,6 +15,6 @@
 @property (nonatomic, strong) NSPredicate *predicate;
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate allowEmptySections:(BOOL)allowEmptySections; // defaults to NO, will hide empty sections
+- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate filterOutEmptySections:(BOOL)filterOutEmptySections; // defaults to YES, will hide empty sections
 
 @end
