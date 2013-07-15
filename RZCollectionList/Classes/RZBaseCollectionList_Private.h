@@ -48,10 +48,9 @@
 //! Sends out all pending notifications in the expected order
 - (void)sendAllPendingChangeNotifications;
 
+//! Clear out and reset the pending notification cache
 /*! 
-    If a subclass does not use sendObjectAndSectionNotificationsToObservers:,
-    it MUST call this method after notifications are sent and no longer needed
-    in order to clear out the pending notifications for the next update.
+    sendAllPendingChangeNotifications will automatically call this
 */
 - (void)resetPendingNotifications;
 
