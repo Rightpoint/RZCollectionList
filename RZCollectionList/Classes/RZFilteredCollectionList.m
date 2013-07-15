@@ -732,7 +732,8 @@ typedef enum {
 
 - (void)endPotentialUpdates
 {
-    if (!self.isTransformingForPredicateChange){
+    if (!self.isTransformingForPredicateChange)
+    {
         [self processReceivedChangeNotifications];
     }
     
