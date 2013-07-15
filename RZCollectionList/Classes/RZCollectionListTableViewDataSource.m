@@ -199,13 +199,16 @@
             {                
                 // is this row visible? If so we need to update this cell.
                 UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-                if (cell != nil){
+                if (cell != nil)
+                {
                     
                     // If the delegate implements the update method, update right now. Otherwise delay.
-                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)]){
+                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)])
+                    {
                         [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
-                    else{
+                    else
+                    {
                         [self.updatedIndexPaths addObject:newIndexPath];
                     }
                 }
@@ -256,8 +259,8 @@
         [self.tableView endUpdates];
         
         // delay update notifications
-        if (self.updatedIndexPaths.count > 0){
-            
+        if (self.updatedIndexPaths.count > 0)
+        {
             [self.tableView beginUpdates];
             [self.tableView reloadRowsAtIndexPaths:self.updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
             [self.tableView endUpdates];

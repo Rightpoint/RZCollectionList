@@ -49,10 +49,12 @@
 
 - (void)addObject:(id)observer
 {
-    if (observer == nil){
+    if (observer == nil)
+    {
         [NSException raise:NSInternalInconsistencyException format:@"Attempting to add nil observer to RZObserverCollection"];
     }
-    else{
+    else
+    {
 #if RZOCL_POINTER_ARRAY_AVAILABLE
         [self.observerPointerArray addPointer:(__bridge void *)(observer)];
 #else
@@ -68,7 +70,8 @@
 
 - (void)removeObject:(id)observer
 {
-    if (observer != nil){
+    if (observer != nil)
+    {
 #if RZOCL_POINTER_ARRAY_AVAILABLE
         NSUInteger observerIndex = [self indexOfObserverInPointerArray:observer];
         if (observerIndex != NSNotFound){
