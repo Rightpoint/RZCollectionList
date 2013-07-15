@@ -81,7 +81,7 @@
 
 - (NSArray*)listItemObjects
 {
-    NSUInteger numItems = 100;
+    NSUInteger numItems = 500;
     NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:numItems];
     
     for (int i=0; i < numItems; ++i)

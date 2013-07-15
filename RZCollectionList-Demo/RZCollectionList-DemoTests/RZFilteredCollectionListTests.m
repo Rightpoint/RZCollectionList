@@ -24,7 +24,6 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
 @property (nonatomic, copy) RZCollectionListTestObserverDidChangeBlock didChangeBlock;
 
 
-
 - (NSArray*)listItemObjects;
 
 - (void)logCollectionList:(id<RZCollectionList>)collectionList;
@@ -265,7 +264,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
         STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
-        STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeDelete, @"Section Change Type is not Delete.");
         STAssertTrue(sectionIndex == 0, @"Section Index to remove is not 0");
@@ -276,12 +275,12 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     
     RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
-        STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+        STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
         STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
         STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:0], @"Incorrect fromIndexPath. Expected 0:0");
-        STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:1 inSection:1], @"Incorrect toIndexPath. Expected 1:1");
+        STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:1 inSection:0], @"Incorrect toIndexPath. Expected 1:0");
         didChangeObjectCalled = YES;
     };
     
@@ -358,7 +357,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
         STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
         STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
-        STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         didChangeCalled = YES;
     };
@@ -405,14 +404,14 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
         
         switch (type) {
             case RZCollectionListChangeInsert:
-                STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+                STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
+                STAssertTrue(didChangeSectionCallCount == 1, @"Did Change Section Call Count should be 1.");
                 STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
                 STAssertTrue(sectionIndex == 0, @"Section Index to add is not 0");
                 break;
             case RZCollectionListChangeDelete:
-                STAssertTrue(didChangeSectionCalled, @"Did Change Section should have already been called.");
-                STAssertTrue(didChangeSectionCallCount == 1, @"Did Change Section Call Count should be 1.");
-                STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+                STAssertFalse(didChangeSectionCalled, @"Did Change Section has already been called.");
+                STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
                 STAssertTrue(sectionIndex == 2, @"Section Index to remove is not 2");
                 
                 break;
@@ -433,7 +432,7 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
         STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
         STAssertFalse(didChangeCalled, @"Did Change has already been called.");
         STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
-        STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:2], @"Incorrect fromIndexPath. Expected 1:0");
+        STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:1], @"Incorrect fromIndexPath. Expected 1:0");
         STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:0 inSection:0], @"Incorrect toIndexPath. Expected 0:0");
         didChangeObjectCalled = YES;
     };
@@ -462,6 +461,76 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     NSLog(@"End Filtered Array:\n");
     [self logCollectionList:self.filteredList];
 }
+
+- (void)test071MoveLastShownObjectInSectionIntoEmptySectionWithEmptySectionsAllowed
+{
+    // must overwrite filtered list created in "setUp"
+    self.filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:self.arrayList predicate:nil filterOutEmptySections:NO];
+    [self.filteredList addCollectionListObserver:self];
+    
+    self.filteredList.predicate = [NSPredicate predicateWithBlock:^BOOL(ListItemObject *evaluatedObject, NSDictionary *bindings) {
+        return (1 == [evaluatedObject.subtitle intValue]%2);
+    }];
+    
+    [self logCollectionList:self.filteredList];
+
+    // didChangeSection should NOT be called
+    
+    __block BOOL willChangeCalled = NO;
+    __block BOOL didChangeObjectCalled = NO;
+    __block BOOL didChangeSectionCalled = NO;
+    __block BOOL didChangeCalled = NO;
+    
+    RZCollectionListTestObserverWillChangeBlock willChangeBlock = ^(id<RZCollectionList> collectionList){
+        STAssertFalse(willChangeCalled, @"Will Change has already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
+        STAssertFalse(didChangeCalled, @"Did Change has already been called.");
+        willChangeCalled = YES;
+    };
+    
+    self.willChangeBlock = willChangeBlock;
+    
+    RZCollectionListTestObserverDidChangeSectionBlock didChangeSectionBlock = ^(id<RZCollectionList> collectionList, id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIndex, RZCollectionListChangeType type){
+        // Should not be called
+        didChangeSectionCalled = YES;
+    };
+    
+    self.didChangeSectionBlock = didChangeSectionBlock;
+    
+    RZCollectionListTestObserverDidChangeObjectBlock didChangeObjectBlock = ^(id<RZCollectionList> collectionList, id object, NSIndexPath *indexPath, RZCollectionListChangeType type, NSIndexPath *newIndexPath){
+        STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
+        STAssertFalse(didChangeObjectCalled, @"Did Change Object has already been called.");
+        STAssertFalse(didChangeCalled, @"Did Change has already been called.");
+        STAssertTrue(type == RZCollectionListChangeMove, @"Object Change Type is not Move.");
+        STAssertEqualObjects(indexPath, [NSIndexPath indexPathForRow:0 inSection:3], @"Incorrect fromIndexPath. Expected 3:0");
+        STAssertEqualObjects(newIndexPath, [NSIndexPath indexPathForRow:0 inSection:0], @"Incorrect toIndexPath. Expected 0:0");
+        didChangeObjectCalled = YES;
+    };
+    
+    self.didChangeObjectBlock = didChangeObjectBlock;
+    
+    RZCollectionListTestObserverDidChangeBlock didChangeBlock = ^(id<RZCollectionList> collectionList){
+        STAssertTrue(willChangeCalled, @"Will Change should have already been called.");
+        STAssertFalse(didChangeSectionCalled, @"Did Change Section should never have been called.");
+        STAssertTrue(didChangeObjectCalled, @"Did Change Object should have already been called.");
+        STAssertFalse(didChangeCalled, @"Did Change has already been called.");
+        didChangeCalled = YES;
+    };
+    
+    self.didChangeBlock = didChangeBlock;
+    
+    NSLog(@"Start Filtered Array:\n");
+    [self logCollectionList:self.filteredList];
+    
+    NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:0 inSection:3];
+    NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    
+    [self.arrayList moveObjectAtIndexPath:fromIndexPath toIndexPath:toIndexPath];
+    
+    NSLog(@"End Filtered Array:\n");
+    [self logCollectionList:self.filteredList];
+}
+
 
 #pragma mark - Moving Filtered Objects
 

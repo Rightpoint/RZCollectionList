@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListCollectionViewDataSource.h"
-#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
@@ -16,8 +15,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
-
-@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
+@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
 
 @end
 
@@ -39,6 +37,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         
         collectionView.dataSource = self;
         [collectionView reloadData];
+        
+        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
     }
     
     return self;
@@ -46,30 +46,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self.observerAdapter];
-}
-
-#pragma mark - Properties
-
-- (void)setUseBatchUpdating:(BOOL)useBatchUpdating
-{
-    if (_useBatchUpdating != useBatchUpdating){
-        
-        // Can't use adapter for non-batch updates
-        if (!useBatchUpdating){
-            if (self.observerAdapter != nil){
-                [self.collectionList removeCollectionListObserver:self.observerAdapter];
-                self.observerAdapter = nil;
-            }
-            [self.collectionList addCollectionListObserver:self];
-        }
-        else{
-            self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-            [self.collectionList removeCollectionListObserver:self];
-            [self.collectionList addCollectionListObserver:self.observerAdapter];
-        }
-    }
-    _useBatchUpdating = useBatchUpdating;
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -109,36 +86,58 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
-        RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
-            switch(type) {
-                case RZCollectionListChangeInsert:
-                    [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
-                    break;
-                case RZCollectionListChangeDelete:
-                    [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
-                    break;
-                case RZCollectionListChangeMove:
-                    [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
-                    break;
-                case RZCollectionListChangeUpdate:
-                {
-                    [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+        if (type == RZCollectionListChangeUpdate){
+
+            UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:indexPath];
+            if (cell != nil){
+                
+                if (self.useBatchUpdating){
+                
+                    // If the delegate implements the update method, update right now. Otherwise delay.
+                    if ([self.delegate respondsToSelector:@selector(collectionView:updateCell:forObject:atIndexPath:)])
+                    {
+                        [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:newIndexPath];
+                    }
+                    else
+                    {
+                        [self.updatedIndexPaths addObject:newIndexPath];
+                    }
                 }
-                    break;
-                default:
-                    //uncaught type
-                    NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                    break;
+                else
+                {
+                    [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+                }
             }
-        };
-        
-        if (self.useBatchUpdating && nil != self.batchUpdates)
-        {
-            [self.batchUpdates addObject:[objectChangeBlock copy]];
+
         }
         else
         {
-            objectChangeBlock();
+            RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
+                switch(type) {
+                    case RZCollectionListChangeInsert:
+                        [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
+                        break;
+                    case RZCollectionListChangeDelete:
+                        [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+                        break;
+                    case RZCollectionListChangeMove:
+                        [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
+                        break;
+                    default:
+                        //uncaught type
+                        NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                        break;
+                }
+            };
+            
+            if (self.useBatchUpdating && nil != self.batchUpdates)
+            {
+                [self.batchUpdates addObject:[objectChangeBlock copy]];
+            }
+            else
+            {
+                objectChangeBlock();
+            }
         }
     }
 }
@@ -195,37 +194,29 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
             if (nil != self.batchUpdates)
             {
                 
-                @try {
-                
-                    [self.collectionView performBatchUpdates:^{
-                        
-                        [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
-                            changeBlock();
-                        }];
-                        
-                    } completion:^(BOOL finished) {
-                        
-                        if (self.observerAdapter.needsReload){
-                            [self.collectionView reloadData];
-                        }   
-                        [self.batchUpdates removeAllObjects];
-                        self.batchUpdates = nil;
-                        
+                [self.collectionView performBatchUpdates:^{
+                    
+                    [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
+                        changeBlock();
                     }];
-                }
-                @catch (NSException *exception) {
+                    
+                } completion:^(BOOL finished) {
                     
                     [self.batchUpdates removeAllObjects];
                     self.batchUpdates = nil;
                     
-                    if ([self.delegate respondsToSelector:@selector(handleBatchException:forCollectionView:)])
-                    {
-                        [self.delegate handleBatchException:exception forCollectionView:self.collectionView];
-                    }
-                    else{
-                        @throw exception;
-                    }
+                }];
+            
+                // delayed item updates
+                if (self.updatedIndexPaths.count > 0){
+                    
+                    [self.collectionView performBatchUpdates:^{
+                        [self.collectionView reloadItemsAtIndexPaths:self.updatedIndexPaths];
+                    } completion:^(BOOL finished) {
+                        [self.updatedIndexPaths removeAllObjects];
+                    }];
                 }
+
             }
         }
     }
