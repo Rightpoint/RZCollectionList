@@ -808,8 +808,12 @@ typedef enum {
     
     // -- Update all new index paths for any operations which may have changed them --
     
-    [self.pendingObjectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        notification.nuIndexPath = [self indexPathForObject:notification.object];
+    [self.allPendingObjectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        
+        if (notification.nuIndexPath)
+        {
+            notification.nuIndexPath = [self indexPathForObject:notification.object];
+        }
     }];
     
     // get rid of any invalid move operations (same start/end path)
