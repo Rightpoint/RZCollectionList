@@ -561,6 +561,7 @@ typedef enum {
     // we don't care about section notifications if we are ignoring sections
     if (!self.ignoreSections)
     {
+        [self confirmPotentialUpdates];
         [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:sectionIndex type:type sourceList:collectionList];
     }
 }

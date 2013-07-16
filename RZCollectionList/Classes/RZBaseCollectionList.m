@@ -178,7 +178,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
 - (void)sendWillChangeContentNotifications
 {
 #if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Will Change");
+    NSLog(@"%@ Will Change", self);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
@@ -191,7 +191,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
 - (void)sendDidChangeContentNotifications
 {
 #if kRZCollectionListNotificationsLogging
-    NSLog(@"RZFilteredCollectionList Did Change");
+    NSLog(@"%@ Did Change", self);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
@@ -288,6 +288,9 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
+#if kRZCollectionListNotificationsLogging
+                NSLog(@"%@ Changed Section %@", self, notification);
+#endif
                 [obj collectionList:self didChangeSection:(id<RZCollectionListSectionInfo>)notification.sectionInfo atIndex:notification.sectionIndex forChangeType:notification.type];
             }
         }];
@@ -300,6 +303,9 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
             {
+#if kRZCollectionListNotificationsLogging
+                NSLog(@"%@ Changed Object %@", self, notification);
+#endif
                 [obj collectionList:self didChangeObject:notification.object atIndexPath:notification.indexPath forChangeType:notification.type newIndexPath:notification.nuIndexPath];
             }
         }];

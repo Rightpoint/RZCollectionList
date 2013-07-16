@@ -406,7 +406,12 @@ typedef enum {
 
 - (NSArray*)cachedSections
 {
-    return [self filteredCachedSections];
+    if (nil != self.cachedSourceSections)
+    {
+        return [self filteredCachedSections];
+    }
+    return [self sections];
+
 }
 
 - (NSArray*)sectionIndexTitles
@@ -934,6 +939,25 @@ typedef enum {
     copy.objects = self.objects;
     copy.isCachedCopy = YES;
     return copy;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if ([object isKindOfClass:[RZFilteredCollectionListSectionInfo class]])
+    {
+        return [self.sourceSectionInfo isEqual:[object sourceSectionInfo]] && (self.cachedCopy == [object cachedCopy]);
+    }
+    return NO;
+}
+
+- (NSUInteger)hash
+{
+    return [self.sourceSectionInfo hash] ^ [NSStringFromClass([self class]) hash];
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ number of objects: %d isCached: %@ source info: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no", self.sourceSectionInfo];
 }
 
 @end

@@ -244,4 +244,24 @@
     return copy;
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if ([object isKindOfClass:[RZFetchedCollectionListSectionInfo class]])
+    {
+        return (self.fetchedSectionInfo == [object fetchedSectionInfo]) && (self.isCachedCopy == [object isCachedCopy]);
+    }
+    return NO;
+}
+
+- (NSUInteger)hash
+{
+    // Might want to try to find a better hash for this...
+    return [[self.fetchedSectionInfo objects] hash] ^ self.numberOfObjects;
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ number of objects: %d  isCached: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no"];
+}
+
 @end
