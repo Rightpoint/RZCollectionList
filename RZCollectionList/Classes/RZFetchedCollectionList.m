@@ -24,6 +24,8 @@
 
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
+@property (nonatomic, strong) NSArray *cachedFetchedSections;
+
 - (void)calculateCurrentIndexPathsForUpdates;
 
 @end
@@ -88,6 +90,16 @@
     return sections;
 }
 
+- (NSArray*)cachedSections
+{
+    // if we aren't updating, just return normal sections
+    if (nil != self.cachedFetchedSections)
+    {
+        return [self.cachedFetchedSections copy];
+    }
+    return self.sections;
+}
+
 - (NSArray*)sectionIndexTitles
 {
     return [self.controller sectionIndexTitles];
@@ -148,6 +160,7 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
+        self.cachedFetchedSections = [self.sections valueForKey:@"cachedCopy"];
         [self sendWillChangeContentNotifications];
     }
 }
@@ -167,6 +180,8 @@
 #endif
         // Send out DidChange Notifications
         [self sendDidChangeContentNotifications];
+        
+        self.cachedFetchedSections = nil;
     }
 }
 

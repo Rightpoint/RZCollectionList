@@ -37,6 +37,7 @@ typedef enum {
 
 @property (nonatomic, strong) NSMutableArray *sortedListObjects;
 @property (nonatomic, strong) NSArray *cachedSortedListObjects;
+@property (nonatomic, strong) NSArray *cachedSortedSections;
 
 @property (nonatomic, assign) RZSortedSourceListContentChangeState contentChangeState;
 
@@ -125,6 +126,15 @@ typedef enum {
 - (NSArray*)sections
 {
     return [self sortedSections];
+}
+
+- (NSArray*)cachedSections
+{
+    if (nil != self.cachedSortedSections)
+    {
+        return self.cachedSortedSections;
+    }
+    return self.sections;
 }
 
 - (NSArray*)sectionIndexTitles
@@ -297,6 +307,7 @@ typedef enum {
 {
     self.contentChangeState = RZSortedSourceListContentChangeStatePotentialChanges;
     self.cachedSortedListObjects = [self.sortedListObjects copy];
+    self.cachedSortedSections = [self.sortedSections valueForKey:@"cachedCopy"];
 }
 
 - (void)confirmPotentialUpdates
@@ -322,6 +333,7 @@ typedef enum {
     [self resetPendingNotifications];
     self.contentChangeState = RZSortedSourceListContentChangeStateNoChanges;
     self.cachedSortedListObjects = nil;
+    self.cachedSortedSections = nil;
 }
 
 - (void)processReceivedChangeNotifications

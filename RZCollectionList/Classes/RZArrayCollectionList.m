@@ -60,6 +60,10 @@
 // Helpers for batch update
 - (NSIndexPath*)previousIndexPathForObject:(id)object;
 
+// if not in a batch update, send necessary notifications, etc
+- (void)prepareForUpdateIfNecessary;
+- (void)finalizeUpdateIfNecessary;
+
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath;
 - (void)sendDidChangeSectionNotification:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex  forChangeType:(RZCollectionListChangeType)type;
 
@@ -196,17 +200,9 @@
 
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self insertObject:object atIndexPath:indexPath sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)removeObject:(id)object
@@ -221,47 +217,23 @@
 
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self removeObjectAtIndexPath:indexPath sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)removeAllObjects
@@ -280,17 +252,9 @@
 
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self insertSection:section atIndex:index sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)removeSection:(RZArrayCollectionListSectionInfo*)section
@@ -302,17 +266,9 @@
 
 - (void)removeSectionAtIndex:(NSUInteger)index
 {
-    if (!self.batchUpdating)
-    {
-        [self sendWillChangeContentNotifications];
-    }
-    
+    [self prepareForUpdateIfNecessary];
     [self removeSectionAtIndex:index sendNotifications:!self.batchUpdating];
-    
-    if (!self.batchUpdating)
-    {
-        [self sendDidChangeContentNotifications];
-    }
+    [self finalizeUpdateIfNecessary];
 }
 
 - (void)beginUpdates
@@ -337,6 +293,11 @@
         [self processPendingChangeNotifications];
         [self sendAllPendingChangeNotifications];
         [self sendDidChangeContentNotifications];
+        
+        self.sourceObjectsBeforeUpdate = nil;
+        self.sourceSectionsInfoBeforeUpdateShallow = nil;
+        self.sourceSectionsInfoBeforeUpdateDeep = nil;
+        
         self.batchUpdating = NO;
     }
 }
@@ -621,6 +582,25 @@
 
 #pragma mark - Notification Helpers
 
+- (void)prepareForUpdateIfNecessary
+{
+    if (!self.batchUpdating)
+    {
+        // always need to have valid cached sections before sending willChange
+        self.sourceSectionsInfoBeforeUpdateDeep = [self.sectionsInfo valueForKey:@"cachedCopy"];
+        [self sendWillChangeContentNotifications];
+    }
+}
+
+- (void)finalizeUpdateIfNecessary
+{
+    if (!self.batchUpdating)
+    {
+        [self sendDidChangeContentNotifications];
+        self.sourceSectionsInfoBeforeUpdateDeep = nil;
+    }
+}
+
 - (void)sendDidChangeObjectNotification:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
 #if kRZCollectionListNotificationsLogging
@@ -857,6 +837,16 @@
 - (NSArray*)sections
 {
     return [self.sectionsInfo copy];
+}
+
+- (NSArray*)cachedSections
+{
+    // if we aren't updating, just return regular sections
+    if (nil != self.sourceSectionsInfoBeforeUpdateDeep)
+    {
+        return [self.sourceSectionsInfoBeforeUpdateDeep copy];
+    }
+    return self.sections;
 }
 
 - (NSArray*)sectionIndexTitles

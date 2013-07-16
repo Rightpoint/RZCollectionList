@@ -32,8 +32,11 @@
 
 @protocol RZCollectionList <NSObject>
 
+@required
+
 @property (nonatomic, readonly) NSArray *listObjects;
 @property (nonatomic, readonly) NSArray *sections;
+@property (nonatomic, readonly) NSArray *cachedSections; // sections cached prior to update, cleared when update is finished
 @property (nonatomic, readonly) NSArray *listObservers;
 @property (nonatomic, weak) id<RZCollectionListDelegate> delegate;
 

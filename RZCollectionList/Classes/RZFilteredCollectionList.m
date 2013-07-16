@@ -404,6 +404,11 @@ typedef enum {
     return [self filteredSections];
 }
 
+- (NSArray*)cachedSections
+{
+    return [self filteredCachedSections];
+}
+
 - (NSArray*)sectionIndexTitles
 {
     NSArray *sections = self.sections;
@@ -717,7 +722,7 @@ typedef enum {
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
-    self.cachedSourceSections = [self.sourceList.sections valueForKey:@"cachedCopy"];
+    self.cachedSourceSections = [self.sourceList cachedSections];
     self.cachedSectionIndexes = [self.sectionIndexes copy];
     self.cachedObjectIndexesForSectionShallow = [self.objectIndexesForSection copy];
     self.cachedObjectIndexesForSectionDeep = [[NSMutableArray alloc] initWithArray:self.objectIndexesForSection copyItems:YES];

@@ -353,6 +353,11 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
 }
 
+- (NSArray*)cachedSections
+{
+    @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
+}
+
 - (NSArray*)sectionIndexTitles
 {
     @throw [self missingProtocolMethodExceptionWithSelector:_cmd];
