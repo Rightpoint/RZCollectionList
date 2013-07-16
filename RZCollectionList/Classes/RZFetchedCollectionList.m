@@ -10,6 +10,18 @@
 #import "RZObserverCollection.h"
 #import "RZBaseCollectionList_Private.h"
 
+@interface RZFetchedCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
+
+@property (nonatomic, strong, readwrite) NSArray *objects;
+
+@property (nonatomic, strong) id<NSFetchedResultsSectionInfo> fetchedSectionInfo;
+@property (nonatomic, assign) BOOL isCachedCopy;
+
+- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo;
+
+@end
+
+
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
 
 - (void)calculateCurrentIndexPathsForUpdates;
@@ -67,7 +79,13 @@
 
 - (NSArray*)sections
 {
-    return [self.controller sections];
+    // convert to internal, cacheable section representation
+    NSArray *rawSections = [self.controller sections];
+    NSMutableArray *sections = [NSMutableArray arrayWithCapacity:rawSections.count];
+    [rawSections enumerateObjectsUsingBlock:^(id<NSFetchedResultsSectionInfo> fetchedSection, NSUInteger idx, BOOL *stop) {
+        [sections addObject:[[RZFetchedCollectionListSectionInfo alloc] initWithFetchedResultsSectionInfo:fetchedSection]];
+    }];
+    return sections;
 }
 
 - (NSArray*)sectionIndexTitles
@@ -160,6 +178,55 @@
     }
     
     return nil;
+}
+
+@end
+
+@implementation RZFetchedCollectionListSectionInfo
+
+- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo
+{
+    if ((self = [super init]))
+    {
+        self.fetchedSectionInfo = fetchedSectionInfo;
+    }
+    return self;
+}
+
+- (NSString*)name
+{
+    return [self.fetchedSectionInfo name];
+}
+
+- (NSString*)indexTitle
+{
+    return [self.fetchedSectionInfo indexTitle];
+}
+
+- (NSArray*)objects
+{
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
+    return [self.fetchedSectionInfo objects];
+}
+
+- (NSUInteger)numberOfObjects
+{
+    if (self.isCachedCopy)
+    {
+        return [_objects count];
+    }
+    return [self.fetchedSectionInfo numberOfObjects];
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZFetchedCollectionListSectionInfo *copy = [[RZFetchedCollectionListSectionInfo alloc] initWithFetchedResultsSectionInfo:self.fetchedSectionInfo];
+    copy.objects = [self objects];
+    copy.isCachedCopy = YES;
+    return copy;
 }
 
 @end

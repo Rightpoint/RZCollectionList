@@ -14,9 +14,12 @@
 
 @property (nonatomic, readwrite) NSString *name;
 @property (nonatomic, readwrite) NSString *indexTitle;
+@property (nonatomic, strong, readwrite) NSArray *objects;
 @property (nonatomic, assign, readwrite) NSUInteger numberOfObjects;
 
 @property (nonatomic, weak) RZArrayCollectionList *arrayList;
+
+@property (nonatomic, assign) BOOL isCachedCopy;
 
 - (NSRange)range;
 
@@ -987,6 +990,10 @@
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return [self.arrayList.listObjects subarrayWithRange:NSMakeRange(self.indexOffset, self.numberOfObjects)];
 }
 
@@ -1003,7 +1010,10 @@
 - (id<RZCollectionListSectionInfo>)cachedCopy
 {
     RZArrayCollectionListSectionInfo *copy = [[RZArrayCollectionListSectionInfo alloc] initWithName:self.name sectionIndexTitle:self.indexTitle numberOfObjects:self.numberOfObjects];
+    copy.arrayList = self.arrayList;
     copy.indexOffset = self.indexOffset;
+    copy.objects = self.objects;
+    copy.isCachedCopy = YES;
     return copy;
 }
 
