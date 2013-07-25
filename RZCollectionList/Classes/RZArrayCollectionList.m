@@ -716,7 +716,7 @@
         {
             [self sendWillChangeContentNotifications];
             
-            [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:nil];
+            [self sendDidChangeObjectNotification:object atIndexPath:indexPath forChangeType:RZCollectionListChangeUpdate newIndexPath:indexPath];
             
             [self sendDidChangeContentNotifications];
         }
