@@ -17,6 +17,14 @@
 @property (nonatomic, assign, readonly) NSUInteger numberOfObjects;
 @property (nonatomic, readonly) NSArray *objects;
 
+//! Return a copy of this object which returns STATIC values for all properties above
+/*!
+    This is different from NSCopying in the sense that a cachedCopy of section info
+    should not derive its property values from a dynamic source (source list, etc)
+    but rather should return a static value for each property.
+*/
+- (id<RZCollectionListSectionInfo>)cachedCopy;
+
 @end
 
 @protocol RZCollectionListDelegate;
@@ -24,8 +32,11 @@
 
 @protocol RZCollectionList <NSObject>
 
+@required
+
 @property (nonatomic, readonly) NSArray *listObjects;
 @property (nonatomic, readonly) NSArray *sections;
+@property (nonatomic, readonly) NSArray *cachedSections; // sections cached prior to update, cleared when update is finished
 @property (nonatomic, readonly) NSArray *listObservers;
 @property (nonatomic, weak) id<RZCollectionListDelegate> delegate;
 

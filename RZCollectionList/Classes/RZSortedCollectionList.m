@@ -13,8 +13,11 @@
 
 @property (nonatomic, readwrite) NSString *name;
 @property (nonatomic, readwrite) NSString *indexTitle;
+@property (nonatomic, strong, readwrite) NSArray *objects;
 @property (nonatomic, assign, readwrite) NSUInteger numberOfObjects;
 @property (nonatomic, assign) NSUInteger indexOffset;
+
+@property (nonatomic, assign) BOOL isCachedCopy;
 
 @property (nonatomic, weak) RZSortedCollectionList *sortedList;
 
@@ -34,6 +37,7 @@ typedef enum {
 
 @property (nonatomic, strong) NSMutableArray *sortedListObjects;
 @property (nonatomic, strong) NSArray *cachedSortedListObjects;
+@property (nonatomic, strong) NSArray *cachedSortedSections;
 
 @property (nonatomic, assign) RZSortedSourceListContentChangeState contentChangeState;
 
@@ -122,6 +126,15 @@ typedef enum {
 - (NSArray*)sections
 {
     return [self sortedSections];
+}
+
+- (NSArray*)cachedSections
+{
+    if (nil != self.cachedSortedSections)
+    {
+        return self.cachedSortedSections;
+    }
+    return self.sections;
 }
 
 - (NSArray*)sectionIndexTitles
@@ -294,6 +307,7 @@ typedef enum {
 {
     self.contentChangeState = RZSortedSourceListContentChangeStatePotentialChanges;
     self.cachedSortedListObjects = [self.sortedListObjects copy];
+    self.cachedSortedSections = [self.sortedSections valueForKey:@"cachedCopy"];
 }
 
 - (void)confirmPotentialUpdates
@@ -319,6 +333,7 @@ typedef enum {
     [self resetPendingNotifications];
     self.contentChangeState = RZSortedSourceListContentChangeStateNoChanges;
     self.cachedSortedListObjects = nil;
+    self.cachedSortedSections = nil;
 }
 
 - (void)processReceivedChangeNotifications
@@ -444,6 +459,10 @@ typedef enum {
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return [self.sortedList.listObjects subarrayWithRange:NSMakeRange(self.indexOffset, self.numberOfObjects)];
 }
 
@@ -457,11 +476,15 @@ typedef enum {
     return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id<RZCollectionListSectionInfo>)cachedCopy
 {
-    RZSortedCollectionListSectionInfo *copy = [[RZSortedCollectionListSectionInfo alloc] initWithName:self.name sectionIndexTitle:self.indexTitle numberOfObjects:self.numberOfObjects];
+    RZSortedCollectionListSectionInfo *copy = [[RZSortedCollectionListSectionInfo alloc] initWithName:[self.name copy]
+                                                                                    sectionIndexTitle:[self.indexTitle copy]
+                                                                                      numberOfObjects:self.numberOfObjects];
     copy.indexOffset = self.indexOffset;
     copy.sortedList = self.sortedList;
+    copy.objects = self.objects;
+    copy.isCachedCopy = YES;
     return copy;
 }
 
