@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionList.h"
+#import "RZCollectionListProtocol.h"
 
 @protocol RZCollectionListCollectionViewDataSourceDelegate <NSObject>
 
@@ -15,10 +15,15 @@
 - (UICollectionViewCell*)collectionView:(UICollectionView*)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 @optional
+
+//! Implement this to immediately update a cell's contents as part of a batch update, as opposed to a parallel animation (which can look strange)
+/*!
+    The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated.
+ */
+- (void)collectionView:(UICollectionView*)collectionView updateCell:(UICollectionViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+
 // The view that is returned must be retrieved from a call to -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
-
-- (void)handleBatchException:(NSException*)exception forCollectionView:(UICollectionView*)collectionView;
 
 @end
 

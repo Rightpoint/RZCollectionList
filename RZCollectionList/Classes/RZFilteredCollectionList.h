@@ -7,13 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RZCollectionList.h"
+#import "RZBaseCollectionList.h"
 
-@interface RZFilteredCollectionList : NSObject <RZCollectionList, RZCollectionListObserver>
+@interface RZFilteredCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
 @property (nonatomic, strong, readonly) id<RZCollectionList> sourceList;
 @property (nonatomic, strong) NSPredicate *predicate;
 
 - (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
+- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate filterOutEmptySections:(BOOL)filterOutEmptySections; // defaults to YES, will hide empty sections
 
 @end

@@ -7,7 +7,6 @@
 //
 
 #import "RZCollectionListTableViewDataSource.h"
-#import "RZCollectionListUIKitDataSourceAdapter.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -16,7 +15,7 @@
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
-@property (nonatomic, strong) RZCollectionListUIKitDataSourceAdapter *observerAdapter;
+@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
 
 @end
 
@@ -30,8 +29,7 @@
         self.delegate = delegate;
         self.tableView = tableView;
 
-        self.observerAdapter = [[RZCollectionListUIKitDataSourceAdapter alloc] initWithObserver:self];
-        [self.collectionList addCollectionListObserver:self.observerAdapter];
+        [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
@@ -41,6 +39,8 @@
         
         // reload data here to prep for collection list observations
         [tableView reloadData];
+        
+        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
     }
     
     return self;
@@ -48,7 +48,7 @@
 
 - (void)dealloc
 {
-    [self.collectionList removeCollectionListObserver:self.observerAdapter];
+    [self.collectionList removeCollectionListObserver:self];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
@@ -196,7 +196,23 @@
                 [self.tableView moveRowAtIndexPath:indexPath toIndexPath:newIndexPath];
                 break;
             case RZCollectionListChangeUpdate:
-                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:self.updateObjectAnimation];
+            {                
+                // is this row visible? If so we need to update this cell.
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+                if (cell != nil)
+                {
+                    
+                    // If the delegate implements the update method, update right now. Otherwise delay.
+                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)])
+                    {
+                        [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:newIndexPath];
+                    }
+                    else
+                    {
+                        [self.updatedIndexPaths addObject:newIndexPath];
+                    }
+                }
+            }
                 break;
             default:
                 //uncaught type
@@ -204,6 +220,7 @@
                 break;
         }
     }
+    
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
@@ -239,28 +256,18 @@
 {
     if (self.animateTableChanges)
     {
-        [CATransaction begin];
+        [self.tableView endUpdates];
         
-        [CATransaction setCompletionBlock:^{
-            if (self.observerAdapter.needsReload || self.shouldAlwaysReloadAfterAnimating){
-                [self.tableView reloadData];
-            }
-        }];
-        
-        @try {
+        // delay update notifications
+        if (self.updatedIndexPaths.count > 0)
+        {
+            [self.tableView beginUpdates];
+            [self.tableView reloadRowsAtIndexPaths:self.updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
             [self.tableView endUpdates];
+            
+            [self.updatedIndexPaths removeAllObjects];
         }
-        @catch (NSException *exception) {
-            if ([self.delegate respondsToSelector:@selector(handleBatchException:forTableView:)])
-            {
-                [self.delegate handleBatchException:exception forTableView:self.tableView];
-            }
-            else{
-                @throw exception;
-            }
-        }
-        
-        [CATransaction commit];
+
     }
     else
     {
