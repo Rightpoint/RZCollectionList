@@ -10,7 +10,7 @@
 #import "RZCollectionListProtocol.h"
 #import "RZBaseCollectionList.h"
 
-@interface RZArrayCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo, NSCopying>
+@interface RZArrayCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
 
 @property (nonatomic, assign) NSUInteger indexOffset;
 
