@@ -10,7 +10,21 @@
 #import "RZObserverCollection.h"
 #import "RZBaseCollectionList_Private.h"
 
+@interface RZFetchedCollectionListSectionInfo : NSObject <RZCollectionListSectionInfo>
+
+@property (nonatomic, strong, readwrite) NSArray *objects;
+
+@property (nonatomic, strong) id<NSFetchedResultsSectionInfo> fetchedSectionInfo;
+@property (nonatomic, assign) BOOL isCachedCopy;
+
+- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo;
+
+@end
+
+
 @interface RZFetchedCollectionList () <NSFetchedResultsControllerDelegate>
+
+@property (nonatomic, strong) NSArray *cachedFetchedSections;
 
 - (void)calculateCurrentIndexPathsForUpdates;
 
@@ -67,7 +81,23 @@
 
 - (NSArray*)sections
 {
-    return [self.controller sections];
+    // convert to internal, cacheable section representation
+    NSArray *rawSections = [self.controller sections];
+    NSMutableArray *sections = [NSMutableArray arrayWithCapacity:rawSections.count];
+    [rawSections enumerateObjectsUsingBlock:^(id<NSFetchedResultsSectionInfo> fetchedSection, NSUInteger idx, BOOL *stop) {
+        [sections addObject:[[RZFetchedCollectionListSectionInfo alloc] initWithFetchedResultsSectionInfo:fetchedSection]];
+    }];
+    return sections;
+}
+
+- (NSArray*)cachedSections
+{
+    // if we aren't updating, just return normal sections
+    if (nil != self.cachedFetchedSections)
+    {
+        return [self.cachedFetchedSections copy];
+    }
+    return self.sections;
 }
 
 - (NSArray*)sectionIndexTitles
@@ -130,6 +160,7 @@
 #if kRZCollectionListNotificationsLogging
         NSLog(@"RZFetchedCollectionList Will Change");
 #endif
+        self.cachedFetchedSections = [self.sections valueForKey:@"cachedCopy"];
         [self sendWillChangeContentNotifications];
     }
 }
@@ -149,6 +180,8 @@
 #endif
         // Send out DidChange Notifications
         [self sendDidChangeContentNotifications];
+        
+        self.cachedFetchedSections = nil;
     }
 }
 
@@ -160,6 +193,75 @@
     }
     
     return nil;
+}
+
+@end
+
+@implementation RZFetchedCollectionListSectionInfo
+
+- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo
+{
+    if ((self = [super init]))
+    {
+        self.fetchedSectionInfo = fetchedSectionInfo;
+    }
+    return self;
+}
+
+- (NSString*)name
+{
+    return [self.fetchedSectionInfo name];
+}
+
+- (NSString*)indexTitle
+{
+    return [self.fetchedSectionInfo indexTitle];
+}
+
+- (NSArray*)objects
+{
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
+    return [self.fetchedSectionInfo objects];
+}
+
+- (NSUInteger)numberOfObjects
+{
+    if (self.isCachedCopy)
+    {
+        return [_objects count];
+    }
+    return [self.fetchedSectionInfo numberOfObjects];
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZFetchedCollectionListSectionInfo *copy = [[RZFetchedCollectionListSectionInfo alloc] initWithFetchedResultsSectionInfo:self.fetchedSectionInfo];
+    copy.objects = [self objects];
+    copy.isCachedCopy = YES;
+    return copy;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if ([object isKindOfClass:[RZFetchedCollectionListSectionInfo class]])
+    {
+        return (self.fetchedSectionInfo == [object fetchedSectionInfo]) && (self.isCachedCopy == [object isCachedCopy]);
+    }
+    return NO;
+}
+
+- (NSUInteger)hash
+{
+    // Might want to try to find a better hash for this...
+    return [[self.fetchedSectionInfo objects] hash] ^ self.numberOfObjects;
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ number of objects: %d  isCached: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no"];
 }
 
 @end

@@ -15,6 +15,11 @@
 @property (nonatomic, strong, readwrite) NSString *name;
 @property (nonatomic, strong, readwrite) NSString *indexTitle;
 
+@property (nonatomic, assign, readwrite) NSUInteger numberOfObjects;
+@property (nonatomic, strong, readwrite) NSArray *objects;
+
+@property (nonatomic, assign) BOOL isCachedCopy;
+
 @property (nonatomic, weak) RZCompositeCollectionList *compositeList;
 
 - (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
@@ -34,10 +39,11 @@ typedef enum {
 @property (nonatomic, strong) NSMutableArray *sourceListSectionRanges;
 @property (nonatomic, strong) NSMutableArray *sourceListForSection;
 @property (nonatomic, strong) NSArray *cachedSourceListSectionRanges;
-@property (nonatomic, strong) NSArray *cachedSourceListSectionObjectCounts; // array of arrays, first dimension is source list, second dimension is # objs per section
+@property (nonatomic, strong) NSArray *cachedSourceListSections;
 
 @property (nonatomic, assign) BOOL ignoreSections;
 @property (nonatomic, strong) RZCompositeCollectionListSectionInfo *singleSectionInfo;
+@property (nonatomic, strong) RZCompositeCollectionListSectionInfo *cachedSingleSectionInfo;
 @property (nonatomic, assign) RZCompositeSourceListContentChangeState contentChangeState;
 
 - (void)configureSectionsWithSourceLists:(NSArray*)sourceLists;
@@ -47,7 +53,7 @@ typedef enum {
 - (void)removeSectionForSourceList:(id<RZCollectionList>)sourceList;
 
 // Update Helpers
-- (void)beginPotentialUpdates;
+- (void)beginPotentialUpdatesFromList:(id<RZCollectionList>)updatingList;
 - (void)confirmPotentialUpdates;
 - (void)endPotentialUpdates;
 
@@ -170,18 +176,18 @@ typedef enum {
         // find old index path based on original object counts
         if (nil != notification.indexPath)
         {
-            [self.cachedSourceListSectionObjectCounts enumerateObjectsUsingBlock:^(NSArray *objCounts, NSUInteger listIdx, BOOL *listStop) {
+            [self.cachedSourceListSections enumerateObjectsUsingBlock:^(NSArray *sourceSections, NSUInteger listIdx, BOOL *listStop) {
                 
                 if (listIdx == indexOfSourceList)
                 {
-                    [objCounts enumerateObjectsUsingBlock:^(NSNumber *objCount, NSUInteger sectionIdx, BOOL *sectionStop) {
+                    [sourceSections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIdx, BOOL *sectionStop) {
                         if (sectionIdx == notification.indexPath.section)
                         {
                             *sectionStop = YES;
                         }
                         else
                         {
-                            oldRowOffset += [objCount unsignedIntegerValue];
+                            oldRowOffset += [sectionInfo numberOfObjects];
                         }
                     }];
                     
@@ -189,7 +195,7 @@ typedef enum {
                 }
                 else
                 {
-                    oldRowOffset += [[objCounts valueForKeyPath:@"@sum.self"] unsignedIntegerValue];
+                    oldRowOffset += [[sourceSections valueForKeyPath:@"@sum.numberOfObjects"] unsignedIntegerValue];
                 }
             }];
             
@@ -356,6 +362,29 @@ typedef enum {
     return sections;
 }
 
+- (NSArray*)cachedSections
+{
+    NSArray *sections = nil;
+    if (self.ignoreSections)
+    {
+        sections = self.cachedSingleSectionInfo ? @[self.cachedSingleSectionInfo] : @[self.singleSectionInfo];
+    }
+    else if (nil != self.cachedSourceListSections)
+    {
+        NSMutableArray *cachedSections = [NSMutableArray array];
+        [self.cachedSourceListSections enumerateObjectsUsingBlock:^(NSArray *sectionsArray, NSUInteger idx, BOOL *stop) {
+            [cachedSections addObjectsFromArray:sectionsArray];
+        }];
+        sections = cachedSections;
+    }
+    else
+    {
+        sections = self.sections;
+    }
+    
+    return sections;
+}
+
 - (NSArray*)sectionIndexTitles
 {
     NSArray *sections = self.sections;
@@ -473,29 +502,22 @@ typedef enum {
 
 #pragma mark - Update Helpers
 
-- (void)beginPotentialUpdates
+- (void)beginPotentialUpdatesFromList:(id<RZCollectionList>)updatingList
 {
     self.contentChangeState = RZCompositeSourceListContentChangeStatePotentialChanges;
     self.cachedSourceListSectionRanges = [[NSArray alloc] initWithArray:self.sourceListSectionRanges copyItems:YES];
-    if (self.ignoreSections)
-    {
-        // keep track of initial number of objects in each section in each source list
-        NSMutableArray *sourceListSectionObjCounts = [NSMutableArray arrayWithCapacity:self.sourceLists.count];
 
-        [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger sourceListIdx, BOOL *stop) {
-            
-            NSArray *sourceSections = [sourceList sections];
-            NSMutableArray *objCounts = [NSMutableArray arrayWithCapacity:sourceSections.count];
-            
-            [sourceSections enumerateObjectsUsingBlock:^(id<RZCollectionListSectionInfo> sectionInfo, NSUInteger sectionIdx, BOOL *stop) {
-                [objCounts addObject:[NSNumber numberWithUnsignedInteger:[sectionInfo numberOfObjects]]];
-            }];
-            
-            [sourceListSectionObjCounts addObject:objCounts];
-        }];
+    NSMutableArray *cachedSourceListSections = [NSMutableArray arrayWithCapacity:self.sourceLists.count];
+    [self.sourceLists enumerateObjectsUsingBlock:^(id<RZCollectionList> sourceList, NSUInteger sourceListIdx, BOOL *stop) {
         
-        self.cachedSourceListSectionObjectCounts = sourceListSectionObjCounts;
-    }
+        // don't care about cached sections if the list isn't updating
+        NSArray *sourceSections = (sourceList == updatingList) ? [sourceList cachedSections] : [sourceList sections];
+        [cachedSourceListSections addObject:sourceSections];
+        
+    }];
+    self.cachedSourceListSections = cachedSourceListSections;
+    
+    self.cachedSingleSectionInfo = [self.singleSectionInfo cachedCopy];
 }
 
 - (void)confirmPotentialUpdates
@@ -521,7 +543,7 @@ typedef enum {
     self.contentChangeState = RZCompositeSourceListContentChangeStateNoChanges;
     [self resetPendingNotifications];
     self.cachedSourceListSectionRanges = nil;
-    self.cachedSourceListSectionObjectCounts = nil;
+    self.cachedSourceListSections = nil;
 }
 
 
@@ -539,13 +561,14 @@ typedef enum {
     // we don't care about section notifications if we are ignoring sections
     if (!self.ignoreSections)
     {
+        [self confirmPotentialUpdates];
         [self cacheSectionNotificationWithSectionInfo:sectionInfo sectionIndex:sectionIndex type:type sourceList:collectionList];
     }
 }
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
-    [self beginPotentialUpdates];
+    [self beginPotentialUpdatesFromList:collectionList];
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
@@ -581,12 +604,32 @@ typedef enum {
 
 - (NSUInteger)numberOfObjects
 {
+    if (self.isCachedCopy)
+    {
+        return _numberOfObjects;
+    }
     return self.compositeList.listObjects.count;
 }
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return self.compositeList.listObjects;
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZCompositeCollectionListSectionInfo *copy = [[RZCompositeCollectionListSectionInfo alloc] initWithName:[self.name copy]
+                                                                                          sectionIndexTitle:[self.indexTitle copy]
+                                                                                              compositeList:self.compositeList];
+    
+    copy.objects = self.objects;
+    copy.numberOfObjects = self.numberOfObjects;
+    copy.isCachedCopy = YES;
+    return copy;
 }
 
 @end

@@ -11,17 +11,16 @@
 
 /***************************************************************
  *
- * Base class for providing common variables and
- * utils for RZCollectionList "source" lists, i.e.
- * lists that maintain/represent a concrete collection
- * of objects, rather than a "modified" collection.
- * 
- * Currently used as subclass for RZFetchedCollectionList
- * and RZArrayCollectionList.
+ *  Base class for providing common variables and
+ *  utils for classes implementing the RZCollectionList protocol.
  *
- * This class implements the protocol but requires subclasses
- * to override the protocol methods, or an exception will be
- * thrown.
+ *  Classes implementing the protocol are not required to use this
+ *  as a base class.
+ *
+ *  This class implements the protocol itself, but requires 
+ *  subclasses to override the protocol methods, or a runtime
+ *  exception will be thrown when an unimplemented method is
+ *  called.
  *
  ****************************************************************/
 

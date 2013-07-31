@@ -17,6 +17,8 @@
 @property (nonatomic, weak) id<RZCollectionListSectionInfo> sourceSectionInfo;
 @property (nonatomic, weak) RZFilteredCollectionList *filteredList;
 
+@property (nonatomic, assign) BOOL isCachedCopy;
+
 - (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
 
 @end
@@ -402,6 +404,16 @@ typedef enum {
     return [self filteredSections];
 }
 
+- (NSArray*)cachedSections
+{
+    if (nil != self.cachedSourceSections)
+    {
+        return [self filteredCachedSections];
+    }
+    return [self sections];
+
+}
+
 - (NSArray*)sectionIndexTitles
 {
     NSArray *sections = self.sections;
@@ -428,7 +440,7 @@ typedef enum {
 - (NSIndexPath*)indexPathForObject:(id)object
 {
     NSIndexPath *sourceIndexPath = [self.sourceList indexPathForObject:object];
-    return [self filteredIndexPathForSourceIndexPath:sourceIndexPath];
+    return sourceIndexPath ? [self filteredIndexPathForSourceIndexPath:sourceIndexPath] : nil;
 }
 
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName
@@ -715,7 +727,7 @@ typedef enum {
 - (void)beginPotentialUpdates
 {
     self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
-    self.cachedSourceSections = [self.sourceList.sections copy];
+    self.cachedSourceSections = [self.sourceList cachedSections];
     self.cachedSectionIndexes = [self.sectionIndexes copy];
     self.cachedObjectIndexesForSectionShallow = [self.objectIndexesForSection copy];
     self.cachedObjectIndexesForSectionDeep = [[NSMutableArray alloc] initWithArray:self.objectIndexesForSection copyItems:YES];
@@ -913,7 +925,39 @@ typedef enum {
 
 - (NSArray*)objects
 {
+    if (self.isCachedCopy)
+    {
+        return _objects;
+    }
     return [self.filteredList filteredObjectsForSection:self];
+}
+
+- (id<RZCollectionListSectionInfo>)cachedCopy
+{
+    RZFilteredCollectionListSectionInfo *copy = [[RZFilteredCollectionListSectionInfo alloc] initWithSourceSectionInfo:[self.sourceSectionInfo cachedCopy]
+                                                                                                          filteredList:self.filteredList];
+    copy.objects = self.objects;
+    copy.isCachedCopy = YES;
+    return copy;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if ([object isKindOfClass:[RZFilteredCollectionListSectionInfo class]])
+    {
+        return [self.sourceSectionInfo isEqual:[object sourceSectionInfo]] && (self.cachedCopy == [object cachedCopy]);
+    }
+    return NO;
+}
+
+- (NSUInteger)hash
+{
+    return [self.sourceSectionInfo hash] ^ [NSStringFromClass([self class]) hash];
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ number of objects: %d isCached: %@ source info: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no", self.sourceSectionInfo];
 }
 
 @end
