@@ -24,7 +24,7 @@ A transformable list that combines an array of source lists into a single collec
 #### RZCollectionListTableViewDataSource
 A data source object that takes an RZCollectionList and makes it the data source of a UITableView.
 
-#### RZCollectionListCollectionViewDataSource (TODO)
+#### RZCollectionListCollectionViewDataSource
 A data source object that takes an RZCollectionList and makes it the data source of a UICollectionView.
 
 ## Examples
