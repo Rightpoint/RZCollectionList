@@ -17,6 +17,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
 @property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
 
+@property (nonatomic, strong) NSMutableArray *insertedSectionIndexes;
+
 @end
 
 @implementation RZCollectionListCollectionViewDataSource
@@ -37,8 +39,6 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         
         collectionView.dataSource = self;
         [collectionView reloadData];
-        
-        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
     }
     
     return self;
@@ -112,31 +112,42 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
         }
         else
         {
-            RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
-                switch(type) {
-                    case RZCollectionListChangeInsert:
-                        [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
-                        break;
-                    case RZCollectionListChangeDelete:
-                        [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
-                        break;
-                    case RZCollectionListChangeMove:
-                        [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
-                        break;
-                    default:
-                        //uncaught type
-                        NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
-                        break;
-                }
-            };
             
-            if (self.useBatchUpdating && nil != self.batchUpdates)
+            BOOL shouldChangeObject = YES;
+            
+            if (type == RZCollectionListChangeInsert)
             {
-                [self.batchUpdates addObject:[objectChangeBlock copy]];
+                shouldChangeObject = ![self.insertedSectionIndexes containsObject:@(newIndexPath.section)];
             }
-            else
+            
+            if (shouldChangeObject)
             {
-                objectChangeBlock();
+                RZCollectionListCollectionViewBatchUpdateBlock objectChangeBlock = ^{
+                    switch(type) {
+                        case RZCollectionListChangeInsert:
+                            [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:newIndexPath]];
+                            break;
+                        case RZCollectionListChangeDelete:
+                            [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+                            break;
+                        case RZCollectionListChangeMove:
+                            [self.collectionView moveItemAtIndexPath:indexPath toIndexPath:newIndexPath];
+                            break;
+                        default:
+                            //uncaught type
+                            NSLog(@"We got to the default switch statement we should not have gotten to. The Change Type is: %d", type);
+                            break;
+                    }
+                };
+                
+                if (self.useBatchUpdating && nil != self.batchUpdates)
+                {
+                    [self.batchUpdates addObject:[objectChangeBlock copy]];
+                }
+                else
+                {
+                    objectChangeBlock();
+                }
             }
         }
     }
@@ -146,6 +157,11 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
+        if (type == RZCollectionListChangeInsert)
+        {
+            [self.insertedSectionIndexes addObject:@(sectionIndex)];
+        }
+        
         RZCollectionListCollectionViewBatchUpdateBlock sectionChangeBlock = ^{
             switch(type) {
                 case RZCollectionListChangeInsert:
@@ -180,7 +196,9 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
     {
         if (self.useBatchUpdating)
         {
+            self.updatedIndexPaths = [NSMutableArray array];
             self.batchUpdates = [NSMutableArray array];
+            self.insertedSectionIndexes = [NSMutableArray array];
         }
     }
 }
@@ -202,7 +220,6 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                     
                 } completion:^(BOOL finished) {
                     
-                    [self.batchUpdates removeAllObjects];
                     self.batchUpdates = nil;
                     
                 }];
@@ -211,13 +228,19 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                 if (self.updatedIndexPaths.count > 0){
                     
                     [self.collectionView performBatchUpdates:^{
+                        
                         [self.collectionView reloadItemsAtIndexPaths:self.updatedIndexPaths];
+                        
                     } completion:^(BOOL finished) {
-                        [self.updatedIndexPaths removeAllObjects];
+                        
+                        self.updatedIndexPaths = nil;
+                        
                     }];
                 }
 
             }
+            
+            self.insertedSectionIndexes = nil;
         }
     }
     else
