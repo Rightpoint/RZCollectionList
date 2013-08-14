@@ -209,7 +209,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
     {
         if (self.useBatchUpdating)
         {
-            if (nil != self.batchUpdates)
+            if (self.batchUpdates.count > 0)
             {
                 
                 [self.collectionView performBatchUpdates:^{
