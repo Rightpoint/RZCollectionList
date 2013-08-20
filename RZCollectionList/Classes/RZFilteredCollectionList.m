@@ -14,7 +14,7 @@
 
 @property (nonatomic, strong, readwrite) NSArray *objects;
 
-@property (nonatomic, weak) id<RZCollectionListSectionInfo> sourceSectionInfo;
+@property (nonatomic, strong) id<RZCollectionListSectionInfo> sourceSectionInfo;
 @property (nonatomic, weak) RZFilteredCollectionList *filteredList;
 
 @property (nonatomic, assign) BOOL isCachedCopy;
