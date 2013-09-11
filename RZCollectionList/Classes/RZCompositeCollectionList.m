@@ -387,15 +387,13 @@ typedef enum {
 
 - (NSArray*)sectionIndexTitles
 {
-    NSArray *sections = self.sections;
-    NSMutableArray *indexTitles = [NSMutableArray arrayWithCapacity:sections.count];
+    NSMutableArray *indexTitles = [NSMutableArray array];
     
-    [sections enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *indexTitle = ((id<RZCollectionListSectionInfo>)obj).indexTitle;
-        
-        if (indexTitle)
+    [self.sourceLists enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSArray *listTitles = [(id<RZCollectionList>)obj sectionIndexTitles];
+        if (listTitles.count > 0)
         {
-            [indexTitles addObject:indexTitle];
+            [indexTitles addObjectsFromArray:listTitles];
         }
     }];
     
@@ -464,7 +462,6 @@ typedef enum {
     {
         NSArray *filteredArray = [self.sections filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", sectionName]];
         id<RZCollectionListSectionInfo> section = [filteredArray lastObject];
-        
         sectionIndexTitle = section.indexTitle;
     }
     

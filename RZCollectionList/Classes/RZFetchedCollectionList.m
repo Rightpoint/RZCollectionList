@@ -192,7 +192,7 @@
         return [self.delegate collectionList:self sectionIndexTitleForSectionName:sectionName];
     }
     
-    return nil;
+    return [self.controller sectionIndexTitleForSectionName:sectionName];
 }
 
 @end
