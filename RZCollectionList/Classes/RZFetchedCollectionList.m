@@ -132,28 +132,7 @@
     if (self.controller == controller)
     {
 #if kRZCollectionListNotificationsLogging
-        NSString *changeType = nil;
-        switch (type) {
-            case RZCollectionListChangeDelete:
-                changeType = @"DELETE";
-                break;
-                
-            case RZCollectionListChangeInsert:
-                changeType = @"INSERT";
-                break;
-                
-            case RZCollectionListChangeMove:
-                changeType = @"MOVE";
-                break;
-                
-            case RZCollectionListChangeUpdate:
-                changeType = @"UPDATE";
-                break;
-                
-            default:
-                break;
-        }
-        NSLog(@"RZFetchedCollectionList Did %@ Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@\n", changeType, anObject, indexPath, type, newIndexPath);
+        NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@\n", changeType, anObject, indexPath, type, newIndexPath);
 #endif
       
         [self cacheObjectNotificationWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:(RZCollectionListChangeType)type];
