@@ -132,7 +132,7 @@
     if (self.controller == controller)
     {
 #if kRZCollectionListNotificationsLogging
-        NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@\n", changeType, anObject, indexPath, type, newIndexPath);
+        NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
 #endif
       
         [self cacheObjectNotificationWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:(RZCollectionListChangeType)type];
