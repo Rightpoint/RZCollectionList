@@ -729,7 +729,7 @@ typedef enum {
     self.contentChangeState = RZFilteredSourceListContentChangeStatePotentialChanges;
     self.cachedSourceSections = [self.sourceList cachedSections];
     self.cachedSectionIndexes = [self.sectionIndexes copy];
-    self.cachedObjectIndexesForSectionShallow = [self.objectIndexesForSection copy];
+    self.cachedObjectIndexesForSectionShallow = [self.objectIndexesForSection mutableCopy];
     self.cachedObjectIndexesForSectionDeep = [[NSMutableArray alloc] initWithArray:self.objectIndexesForSection copyItems:YES];
 }
 
@@ -792,7 +792,10 @@ typedef enum {
     }];
     
     // First half of move (remove object)
-    [objectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+    // Need to re-sort the move notifications descending by index path since we're breaking them up to do remove first
+    NSArray *objectMoveNotificationsForRemove = [objectMoveNotifications sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO]]];
+    
+    [objectMoveNotificationsForRemove enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self removeObjectForMoveNotification:notification];
     }];
     
