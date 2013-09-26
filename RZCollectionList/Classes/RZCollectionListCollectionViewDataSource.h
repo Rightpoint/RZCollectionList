@@ -16,9 +16,9 @@
 
 @optional
 
-//! Implement this to immediately update a cell's contents as part of a batch update, as opposed to a parallel animation (which can look strange)
+//! Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animatino
 /*!
-    The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated.
+    The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated!!
  */
 - (void)collectionView:(UICollectionView*)collectionView updateCell:(UICollectionViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
