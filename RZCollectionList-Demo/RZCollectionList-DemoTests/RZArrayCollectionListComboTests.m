@@ -150,7 +150,6 @@
     [self waitFor:1.5];
 }
 
-
 - (void)test200SortedArrayBatchUpdate
 {
     NSArray *objects = [self uniqueStartingObjects];
