@@ -787,18 +787,23 @@ typedef enum {
     
     // -- process incoming notifications - mutate internal state and produce cached outgoing notifications --
     
-    [objectRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [self removeSourceObject:notification.object atSourceIndexPath:notification.indexPath];
-    }];
     
-    // First half of move (remove object)
+    // First half of move (remove object) and other removes
     // Need to re-sort the move notifications descending by index path since we're breaking them up to do remove first
-    NSArray *objectMoveNotificationsForRemove = [objectMoveNotifications sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO]]];
     
-    [objectMoveNotificationsForRemove enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [self removeObjectForMoveNotification:notification];
+    NSArray *allRemoveNotifications = [[objectRemoveNotifications arrayByAddingObjectsFromArray:objectMoveNotifications] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"indexPath" ascending:NO]]];
+    [allRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        if (notification.type == RZCollectionListChangeDelete)
+        {
+            [self removeSourceObject:notification.object atSourceIndexPath:notification.indexPath];
+        }
+        else if (notification.type == RZCollectionListChangeMove)
+        {
+            [self removeObjectForMoveNotification:notification];
+        }
     }];
-    
+
+
     [sectionRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
         [self.sectionIndexes shiftIndexesStartingAtIndex:notification.sectionIndex+1 by:-1];
         [self.objectIndexesForSection removeObjectAtIndex:notification.sectionIndex];
@@ -809,14 +814,23 @@ typedef enum {
         [self.objectIndexesForSection insertObject:[NSMutableIndexSet indexSet] atIndex:notification.sectionIndex];
     }];
     
-    [objectInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [self addSourceObject:notification.object atSourceIndexPath:notification.nuIndexPath];
+    
+    // Second half of move (insert object) and other insertions. Need to re-sort together.
+    NSArray *allInsertNotifications = [[objectInsertNotifications arrayByAddingObjectsFromArray:objectMoveNotifications] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"nuIndexPath" ascending:YES]]];
+    
+    [allInsertNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
+        if (notification.type == RZCollectionListChangeInsert)
+        {
+            [self addSourceObject:notification.object atSourceIndexPath:notification.nuIndexPath];
+        }
+        else if (notification.type == RZCollectionListChangeMove)
+        {
+            [self addObjectForMoveNotification:notification];
+        }
     }];
     
-    // Second half of move (insert object)
-    [objectMoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
-        [self addObjectForMoveNotification:notification];
-    }];
+
+
 
     [objectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self updateSourceObject:notification.object atSourceIndexPath:notification.indexPath currentSourceIndexPath:notification.nuIndexPath];

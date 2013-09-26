@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define kRZCollectionListNotificationsLogging 0
+#define kRZCollectionListNotificationsLogging 1
 
 @protocol RZCollectionListSectionInfo <NSObject>
 
