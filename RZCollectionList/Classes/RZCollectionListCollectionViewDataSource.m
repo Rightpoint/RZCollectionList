@@ -15,9 +15,10 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
-@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
-
 @property (nonatomic, strong) NSMutableArray *insertedSectionIndexes;
+
+@property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
+@property (nonatomic, assign) BOOL reloadAfterAnimation;
 
 @end
 
@@ -47,6 +48,12 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setDelegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate
+{
+    _delegate = delegate;
+    self.delegateImplementsInPlaceUpdate = [delegate respondsToSelector:@selector(collectionView:updateCell:forObject:atIndexPath:)];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -94,13 +101,13 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                 if (self.useBatchUpdating){
                 
                     // If the delegate implements the update method, update right now. Otherwise delay.
-                    if ([self.delegate respondsToSelector:@selector(collectionView:updateCell:forObject:atIndexPath:)])
+                    if (self.delegateImplementsInPlaceUpdate)
                     {
                         [self.delegate collectionView:self.collectionView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
                     else
                     {
-                        [self.updatedIndexPaths addObject:newIndexPath];
+                        self.reloadAfterAnimation = YES;
                     }
                 }
                 else
@@ -196,7 +203,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
     {
         if (self.useBatchUpdating)
         {
-            self.updatedIndexPaths = [NSMutableArray array];
+            self.reloadAfterAnimation = NO;
             self.batchUpdates = [NSMutableArray array];
             self.insertedSectionIndexes = [NSMutableArray array];
         }
@@ -209,7 +216,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
     {
         if (self.useBatchUpdating)
         {
-            if (nil != self.batchUpdates)
+            if (self.batchUpdates.count > 0)
             {
                 
                 [self.collectionView performBatchUpdates:^{
@@ -220,23 +227,14 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
                     
                 } completion:^(BOOL finished) {
                     
+                    if (self.reloadAfterAnimation)
+                    {
+                        [self.collectionView reloadData];
+                        self.reloadAfterAnimation = NO;
+                    }
                     self.batchUpdates = nil;
                     
                 }];
-            
-                // delayed item updates
-                if (self.updatedIndexPaths.count > 0){
-                    
-                    [self.collectionView performBatchUpdates:^{
-                        
-                        [self.collectionView reloadItemsAtIndexPaths:self.updatedIndexPaths];
-                        
-                    } completion:^(BOOL finished) {
-                        
-                        self.updatedIndexPaths = nil;
-                        
-                    }];
-                }
 
             }
             
@@ -255,6 +253,5 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     return nil;
 }
-
 
 @end

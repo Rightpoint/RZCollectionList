@@ -15,7 +15,8 @@
 @property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
-@property (nonatomic, strong) NSMutableArray *updatedIndexPaths;
+@property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
+@property (nonatomic, assign) BOOL reloadAfterAnimation;
 
 @end
 
@@ -38,9 +39,7 @@
         tableView.dataSource = self;
         
         // reload data here to prep for collection list observations
-        [tableView reloadData];
-        
-        self.updatedIndexPaths = [NSMutableArray arrayWithCapacity:16];
+        [tableView reloadData];        
     }
     
     return self;
@@ -49,6 +48,12 @@
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setDelegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+{
+    _delegate = delegate;
+    self.delegateImplementsInPlaceUpdate = [delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)];
 }
 
 - (void)setAllAnimations:(UITableViewRowAnimation)animation
@@ -203,13 +208,13 @@
                 {
                     
                     // If the delegate implements the update method, update right now. Otherwise delay.
-                    if ([self.delegate respondsToSelector:@selector(tableView:updateCell:forObject:atIndexPath:)])
+                    if (self.delegateImplementsInPlaceUpdate)
                     {
                         [self.delegate tableView:self.tableView updateCell:cell forObject:object atIndexPath:newIndexPath];
                     }
                     else
                     {
-                        [self.updatedIndexPaths addObject:newIndexPath];
+                        self.reloadAfterAnimation = YES;
                     }
                 }
             }
@@ -256,18 +261,21 @@
 {
     if (self.animateTableChanges)
     {
+        if (self.reloadAfterAnimation)
+        {
+            [CATransaction begin];
+            [CATransaction setCompletionBlock:^{
+                [self.tableView reloadData];
+            }];
+        }
+        
         [self.tableView endUpdates];
         
-        // delay update notifications
-        if (self.updatedIndexPaths.count > 0)
+        if (self.reloadAfterAnimation)
         {
-            [self.tableView beginUpdates];
-            [self.tableView reloadRowsAtIndexPaths:self.updatedIndexPaths withRowAnimation:self.updateObjectAnimation];
-            [self.tableView endUpdates];
-            
-            [self.updatedIndexPaths removeAllObjects];
+            [CATransaction commit];
+            self.reloadAfterAnimation = NO;
         }
-
     }
     else
     {
