@@ -214,7 +214,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if (self.animateCollectionChanges)
     {
-        if (self.useBatchUpdating)
+        // If collection view isn't on screen yet, don't animate anything - it doesn't like that.
+        if (self.useBatchUpdating && self.collectionView.window != nil)
         {
             if (self.batchUpdates.count > 0)
             {
