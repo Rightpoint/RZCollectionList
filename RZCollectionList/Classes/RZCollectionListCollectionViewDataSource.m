@@ -212,14 +212,13 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    if (self.animateCollectionChanges)
+    // If collection view isn't on screen yet, don't animate anything - it doesn't like that.
+    if (self.animateCollectionChanges  && self.collectionView.window != nil)
     {
-        // If collection view isn't on screen yet, don't animate anything - it doesn't like that.
-        if (self.useBatchUpdating && self.collectionView.window != nil)
+        if (self.useBatchUpdating)
         {
             if (self.batchUpdates.count > 0)
-            {
-                
+            {                
                 [self.collectionView performBatchUpdates:^{
                     
                     [self.batchUpdates enumerateObjectsUsingBlock:^(RZCollectionListCollectionViewBatchUpdateBlock changeBlock, NSUInteger idx, BOOL *stop) {
