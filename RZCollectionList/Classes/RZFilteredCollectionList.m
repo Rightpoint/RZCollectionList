@@ -974,7 +974,7 @@ typedef enum {
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ number of objects: %lu isCached: %@ source info: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no", self.sourceSectionInfo];
+    return [NSString stringWithFormat:@"%@ number of objects: %lu isCached: %@ source info: %@", [super description], (unsigned long) self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no", self.sourceSectionInfo];
 }
 
 @end
