@@ -473,7 +473,7 @@ typedef enum {
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
+    return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%lu NumberOfObjects:%lu", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
 }
 
 - (id<RZCollectionListSectionInfo>)cachedCopy
