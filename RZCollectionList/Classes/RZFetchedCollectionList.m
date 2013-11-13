@@ -261,7 +261,7 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ number of objects: %d  isCached: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no"];
+    return [NSString stringWithFormat:@"%@ number of objects: %ld  isCached: %@", [super description], self.numberOfObjects, self.isCachedCopy ? @"yes" : @"no"];
 }
 
 @end

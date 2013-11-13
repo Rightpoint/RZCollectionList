@@ -760,7 +760,7 @@
             
             if (nil == sectionName)
             {
-                @throw [NSException exceptionWithName:@"RZArrayCollectionListInvalidSecionNameKeyPath" reason:[NSString stringWithFormat:@"An object at index %u returned nil for the keyPath:%@", idx, keyPath] userInfo:@{@"keyPath" : keyPath, @"index" : [NSNumber numberWithUnsignedInteger:idx], @"object" : obj}];
+                @throw [NSException exceptionWithName:@"RZArrayCollectionListInvalidSecionNameKeyPath" reason:[NSString stringWithFormat:@"An object at index %lu returned nil for the keyPath:%@", (unsigned long)idx, keyPath] userInfo:@{@"keyPath" : keyPath, @"index" : [NSNumber numberWithUnsignedInteger:idx], @"object" : obj}];
             }
             
             if (![currentSection.name isEqualToString:sectionName])
@@ -800,11 +800,11 @@
 {
     if (self.sectionsInfo.count == 0)
     {
-        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %u not found. No sections exist.", section] userInfo:nil];
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. No sections exist.", section] userInfo:nil];
     }
     else if (section >= self.sectionsInfo.count)
     {
-        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %u not found. Outside valid section index range 0..%u", section, self.sectionsInfo.count-1] userInfo:nil];
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. Outside valid section index range 0..%lu", section, self.sectionsInfo.count-1] userInfo:nil];
     }
     
     return [self.sectionsInfo objectAtIndex:section];
@@ -994,7 +994,7 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%u NumberOfObjects:%u", [super description], self.name, self.indexTitle, self.indexOffset, self.numberOfObjects];
+    return [NSString stringWithFormat:@"%@ Name:%@ IndexTitle:%@ IndexOffset:%lu NumberOfObjects:%lu", [super description], self.name, self.indexTitle, (unsigned long)self.indexOffset, (unsigned long)self.numberOfObjects];
 }
 
 - (id<RZCollectionListSectionInfo>)cachedCopy
