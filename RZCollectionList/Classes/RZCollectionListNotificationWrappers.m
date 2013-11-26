@@ -40,7 +40,7 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ Section Info: %@ Section Index: %ld Type %d", [super description], self.sectionInfo, self.sectionIndex, self.type];
+    return [NSString stringWithFormat:@"%@ Section Info: %@ Section Index: %lu Type %d", [super description], self.sectionInfo, (unsigned long)self.sectionIndex, self.type];
 }
 
 @end
