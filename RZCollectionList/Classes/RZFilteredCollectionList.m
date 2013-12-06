@@ -576,7 +576,10 @@ typedef enum {
     NSUInteger sectionCount = self.objectIndexesForSection.count;
     if (newIndexPath.section >= 0 && newIndexPath.section < sectionCount)
     {
+        // Occasionally, a move produced by a fetched list will actually result in the object no longer passing the predicate.
+        // Need to handle that case.
         BOOL isObjectInFilteredList = [self sourceIndexPathIsInFilteredList:indexPath cached:YES];
+        BOOL passesPredicate = ([self.predicate evaluateWithObject:moveNotification.object] || nil == self.predicate);
 
         // use shallow copy so we actually modify the current index set
         NSMutableIndexSet *fromSectionObjectIndexSet = [self.cachedObjectIndexesForSectionShallow objectAtIndex:indexPath.section];
@@ -604,12 +607,28 @@ typedef enum {
             // With possible new section added get fromFilteredIndexPath
             fromFilteredIndexPath = [self filteredIndexPathForSourceIndexPath:indexPath cached:YES];
 
+            if (!passesPredicate)
+            {
+                [self confirmPotentialUpdates];
+                [self cacheObjectNotificationWithObject:moveNotification.object indexPath:fromFilteredIndexPath newIndexPath:nil type:RZCollectionListChangeDelete];
+                
+                // Filter fromSection and send Remove Section Notification if fromSection has no objects remaining
+                if (self.filterOutEmptySections && [fromSectionObjectIndexSet count] == 0 && [self.sectionIndexes containsIndex:indexPath.section])
+                {
+                    NSUInteger fromFilteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section];
+                    RZFilteredCollectionListSectionInfo *fromFilteredSectionInfo = [[self filteredCachedSections] objectAtIndex:fromFilteredSection];
+                    
+                    [self.sectionIndexes removeIndex:indexPath.section];
+                    
+                    [self cacheSectionNotificationWithSectionInfo:fromFilteredSectionInfo sectionIndex:fromFilteredSection type:RZCollectionListChangeDelete];
+                }
+            }
         }
         
         // Make room at toIndex in toSection
         [toSectionObjectIndexSet shiftIndexesStartingAtIndex:newIndexPath.row by:1];
 
-        if (isObjectInFilteredList)
+        if (isObjectInFilteredList && passesPredicate)
         {
             // Unfilter toIndex if object is in filtered list
             [toSectionObjectIndexSet addIndex:newIndexPath.row];
@@ -829,9 +848,6 @@ typedef enum {
         }
     }];
     
-
-
-
     [objectUpdateNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [self updateSourceObject:notification.object atSourceIndexPath:notification.indexPath currentSourceIndexPath:notification.nuIndexPath];
     }];
