@@ -802,11 +802,11 @@
 {
     if (self.sectionsInfo.count == 0)
     {
-        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. No sections exist.", section] userInfo:nil];
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. No sections exist.", (unsigned long)section] userInfo:nil];
     }
     else if (section >= self.sectionsInfo.count)
     {
-        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. Outside valid section index range 0..%lu", section, self.sectionsInfo.count-1] userInfo:nil];
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Section %lu not found. Outside valid section index range 0..%lu", (unsigned long)section, (unsigned long) self.sectionsInfo.count-1] userInfo:nil];
     }
     
     return [self.sectionsInfo objectAtIndex:section];
