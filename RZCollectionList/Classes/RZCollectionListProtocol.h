@@ -33,13 +33,30 @@
 @protocol RZCollectionList <NSObject>
 
 @required
-
+/**
+ *  All Objects in the CollectionList
+ */
 @property (nonatomic, readonly) NSArray *listObjects;
+/**
+ *  An array of RZArrayCollectionListSectionInfo
+ */
 @property (nonatomic, readonly) NSArray *sections;
-@property (nonatomic, readonly) NSArray *cachedSections; // sections cached prior to update, cleared when update is finished
+/**
+ *  Sections cached prior to update, cleared when update is finished
+ */
+@property (nonatomic, readonly) NSArray *cachedSections;
+/**
+ *  A list of all entities who subscribe to the RZCollectionListObserver protocol for this RZCollectionList instance
+ */
 @property (nonatomic, readonly) NSArray *listObservers;
+/**
+ *  The object you want to implement the following protocol method:
+ @code - (NSString *)collectionList:(id<RZCollectionList>)collectionList sectionIndexTitleForSectionName:(NSString *)sectionName;
+ */
 @property (nonatomic, weak) id<RZCollectionListDelegate> delegate;
-
+/**
+ *  Titles for all sections of this RZCollectionList instance
+ */
 @property (nonatomic, readonly) NSArray *sectionIndexTitles;
 
 
@@ -54,7 +71,9 @@
 
 @end
 
-
+/**
+ *  An observer protocol to receive RZCollectionList change events
+ */
 @protocol RZCollectionListObserver <NSObject>
 
 typedef enum {
