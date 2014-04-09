@@ -18,20 +18,39 @@
 
 @end
 
-/**** CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE *****/
-
+/**
+ *  @warning CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE
+ */
 @interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 
-// Automatically infer sections based on keypath
+/**
+ *  Automatically infer sections based on keypath
+ *
+ *  @param array   input array
+ *  @param keyPath keyPath for which we can infer the title from the object
+ *
+ *  @return An instance of RZArrayCollectionList populated with the supplied array and organized into sections based on the supplied keypath
+ */
 - (id)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
 
-// Manually create sections for objects in array
+/**
+ *  Manually create sections for objects in array
+ *
+ *  @param array    input array
+ *  @param sections all objects must be of type RZArrayCollectionListSectionInfo
+ *
+ *  @return An instance of RZArrayCollectionList populated with the supplied sections and array
+ */
 - (id)initWithArray:(NSArray*)array sections:(NSArray*)sections;
 
-// Create multiple sections, each with a title and array of objects
-// Order of variadic args should be title (NSSTring), objects (NSArray)
+/**
+ *  Create multiple sections, each with a title and array of objects
+ *  Order of variadic args should be title (NSString), objects (NSArray)
+ *
+ *  @return An instance of RZArrayCollectionList populated with the supplied sections
+ */
 - (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ... NS_REQUIRES_NIL_TERMINATION;
 
 
@@ -48,7 +67,13 @@
 - (void)removeSection:(RZArrayCollectionListSectionInfo*)section;
 - (void)removeSectionAtIndex:(NSUInteger)index;
 
+/**
+ *  Call before all of your batch update logic
+ */
 - (void)beginUpdates;
+/**
+ *  Call after all of your batch update logic
+ */
 - (void)endUpdates;
 
 @end
