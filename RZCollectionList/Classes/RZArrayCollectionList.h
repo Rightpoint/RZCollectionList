@@ -53,18 +53,84 @@
  */
 - (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ... NS_REQUIRES_NIL_TERMINATION;
 
-
+/**
+ *  Add an object to a particular section.
+ *
+ *  @param object  The object to add.
+ *  @param section The section in which to place the object.
+ */
 - (void)addObject:(id)object toSection:(NSUInteger)section;
+
+/**
+ *  Insert an object at a specific index path
+ *
+ *  @param object    The object to insert.
+ *  @param indexPath The index path at which the desired object for insertion lies.
+ */
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+
+/**
+ *  Remove an object.
+ *
+ *  @param object The object to remove.
+ */
 - (void)removeObject:(id)object;
+
+/**
+ *  Remove an object at a specific index path.
+ *
+ *  @param indexPath The index path at which the desired object for removal lies.
+ */
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath;
+
+/**
+ *  Replace an existing object with a new object.
+ *
+ *  @param indexPath The index path of the existing object.
+ *  @param object    The new object to replace the existing object.
+ */
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object;
+
+/**
+ *  Move an existing object to a new index path.
+ *
+ *  @param sourceIndexPath      The current index path of the object to move.
+ *  @param destinationIndexPath The destination index path of the object to move.
+ */
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath;
+
+/**
+ *  Remove all objects in an id<RZcollectionList> instance.
+ */
 - (void)removeAllObjects;
 
+/**
+ *  Adds a section to an id<RZcollectionList> instance.
+ *
+ *  @param section The section to add.
+ */
 - (void)addSection:(RZArrayCollectionListSectionInfo*)section;
+
+/**
+ *  Insert a section at a specific index.
+ *
+ *  @param section The section to insert.
+ *  @param index   The index at which to insert the section.
+ */
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index;
+
+/**
+ *  Remove a section from an id<RZcollectionList> instance.
+ *
+ *  @param section The section to remove.
+ */
 - (void)removeSection:(RZArrayCollectionListSectionInfo*)section;
+
+/**
+ *  Remove a section at a specific index.
+ *
+ *  @param index The index at which to remove the section.
+ */
 - (void)removeSectionAtIndex:(NSUInteger)index;
 
 /**
