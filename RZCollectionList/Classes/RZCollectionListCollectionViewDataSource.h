@@ -45,11 +45,13 @@
 - (void)collectionView:(UICollectionView*)collectionView updateCell:(UICollectionViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 /**
- *  Use this callback instead of - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
+ *  Use this callback instead of - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:
+ *  (NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
  *  @warning The view that is returned must be retrieved from a call to -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
  *
  *  @param collectionView The collection view associated with this data source.
- *  @param kind           The kind of supplementary view to provide. The value of this string is defined by the layout object that supports the supplementary view.
+ *  @param kind           The kind of supplementary view to provide. The value of this string is defined by the layout object that supports the supplementary
+ *  view.
  *  @param indexPath      The index path that specifies the location of the new supplementary view.
  *
  *  @return A configured supplementary view object. You must not return nil from this method.
