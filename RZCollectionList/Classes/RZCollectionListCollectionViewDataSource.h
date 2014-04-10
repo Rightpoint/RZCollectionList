@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 
+/**
+ *  An object that adopts the RZCollectionListCollectionViewDataSourceDelegate protocol is responsible for providing the data and views required by an
+ *  RZCollectionListCollectionViewDataSource instance. It also handles the creation and configuration of cells and supplementary views used by the collection
+ *  view to display the data in the supplied id<RZCollecitonList>.
+ */
 @protocol RZCollectionListCollectionViewDataSourceDelegate <NSObject>
 
 @required
