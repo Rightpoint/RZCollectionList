@@ -34,8 +34,8 @@
 
 /**
  *  Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation.
- *  @warning The indexPath parameter is the index path of the object in the collection list at the time this method is called, @b NOT the index path of the cell
- *  being updated!
+ *  @warning The indexPath parameter is the index path of the object in the collection list at the time this method is called, @b NOT the index path of the
+ *  cell being updated!
  *
  *  @param collectionView The collection view associated with this data source.
  *  @param cell           The cell to be updated.
@@ -43,8 +43,6 @@
  *  @param indexPath      The index path of the object being updated
  */
 - (void)collectionView:(UICollectionView*)collectionView updateCell:(UICollectionViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
-
-// The view that is returned must be retrieved from a call to -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
 
 /**
  *  Use this callback instead of - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
@@ -61,14 +59,14 @@
 @end
 
 /**
- *  Use RZCollectionListCollectionViewDataSource when using an id<RZCollectionList> as the data for a UICollectionView. You initialize an instance of this class, usually saved as a property on your View Controller, with an initialized id<RZCollectionList>.
-    For example:
- 
-    @code
- self.collectionList = [[RZArrayCollectionList alloc] initWithArray:@[@"This", @"CollectionView", @"Will", @"Be", @"Awesome!"]  sectionNameKeyPath:nil];
- self.dataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView
- collectionList:self.self.collectionList
- delegate:self];
+ *  Use RZCollectionListCollectionViewDataSource when using an id<RZCollectionList> as the data for a UICollectionView. You initialize an instance of this
+ *  class, usually saved as a property on your View Controller, with an initialized id<RZCollectionList>.
+ *  For example:
+ *   @code
+ *  self.collectionList = [[RZArrayCollectionList alloc] initWithArray:@[@"This", @"CollectionView", @"Will", @"Be", @"Awesome!"]  sectionNameKeyPath:nil];
+ *  self.dataSource = [[RZCollectionListCollectionViewDataSource alloc] initWithCollectionView:self.collectionView
+ *  collectionList:self.self.collectionList
+ *  delegate:self];
  */
 @interface RZCollectionListCollectionViewDataSource : NSObject <UICollectionViewDataSource>
 
@@ -104,8 +102,10 @@
 /**
  *  Initializer for RZCollectionListCollectionViewDataSourceDelegate instance.
  *
- *  @param collectionView The collection view to be updated by this RZCollectionListCollectionViewDataSourceDelegate instance. There can only be one collection view per RZCollectionListCollectionViewDataSourceDelegate instance.
- *  @param collectionList the collection list used to update the supplied collection view. There can only be one collection list per RZCollectionListCollectionViewDataSourceDelegate instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
+ *  @param collectionView The collection view to be updated by this RZCollectionListCollectionViewDataSourceDelegate instance. There can only be one
+ *  collection view per RZCollectionListCollectionViewDataSourceDelegate instance.
+ *  @param collectionList the collection list used to update the supplied collection view. There can only be one collection list per
+ *  RZCollectionListCollectionViewDataSourceDelegate instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
  *  @param delegate       An object that conforms to the RZCollectionListCollectionViewDataSourceDelegate protocol. This should never be nil.
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
