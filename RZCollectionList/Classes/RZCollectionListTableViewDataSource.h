@@ -9,9 +9,25 @@
 #import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 
+/**
+ *  An object that adopts the RZCollectionListTableViewDataSourceDelegate protocol is responsible for providing the data and views required by an
+ *  RZCollectionListTableViewDataSource instance for a UITableView. It also handles the creation and configuration of cells
+ *  used by the table view to display the data in the supplied id<RZCollecitonList>.
+ */
 @protocol RZCollectionListTableViewDataSourceDelegate <NSObject>
 
 @required
+
+/**
+ *  Use this callback instead of - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+ *  @warning Must return a valid UITableViewCell from - (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
+ *
+ *  @param tableView The table view associated with this data source.
+ *  @param object    Use this object to populate your cell.
+ *  @param indexPath The index path of the object in your id<RZCollectionList>.
+ *
+ *  @return A configured UITableViewCell object. You must not return nil from this method.
+ */
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 @optional

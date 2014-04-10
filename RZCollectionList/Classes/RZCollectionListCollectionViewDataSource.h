@@ -26,7 +26,7 @@
  *  @param object         Use this object to populate your cell.
  *  @param indexPath      The index path of the object in your id<RZCollectionList>.
  *
- *  @return               A configured supplementary view object. You must not return nil from this method.
+ *  @return A configured UICollectionViewCell object. You must not return nil from this method.
  */
 - (UICollectionViewCell *)collectionView:(UICollectionView*)collectionView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
