@@ -28,11 +28,6 @@
 @optional
 
 /**
-    The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated!!
-    @b Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation
- */
-
-/**
  *  Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation.
  *  @warning The indexPath parameter is the index path of the object in the collection list at the time this method is called, @b NOT the index path of the cell
  *  being updated!
