@@ -36,8 +36,25 @@
 /*!
     The indexPath parameter is the index path of the object in the collection list at the time this method is called, NOT the index path of the cell being updated!
  */
+
+/**
+ *  Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation.
+ *
+ *  @param tableView The table view associated with this data source.
+ *  @param cell      The cell to be updated.
+ *  @param object    The object used to populate the cell.
+ *  @param indexPath The index path of the object being updated
+ */
 - (void)tableView:(UITableView*)tableView updateCell:(UITableViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
+/**
+ *  Use this method to provide the title of the header of the specified section of the table view.
+ *
+ *  @param tableView the table view associated with this data source.
+ *  @param section   The section to be associated with the provided title.
+ *
+ *  @return A string to be shown in the header of this section of the table view.
+ */
 - (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section;
 - (NSString*)tableView:(UITableView*)tableView titleForFooterInSection:(NSInteger)section;
 
