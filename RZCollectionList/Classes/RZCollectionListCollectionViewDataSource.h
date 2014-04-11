@@ -40,7 +40,7 @@
  *  @param collectionView The collection view associated with this data source.
  *  @param cell           The cell to be updated.
  *  @param object         The object used to populate the cell.
- *  @param indexPath      The index path of the object being updated
+ *  @param indexPath      The index path of the cell being updated
  */
 - (void)collectionView:(UICollectionView*)collectionView updateCell:(UICollectionViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
