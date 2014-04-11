@@ -28,7 +28,7 @@
  *
  *  @return A configured UITableViewCell object. You must not return nil from this method.
  */
-- (UITableViewCell*)tableView:(UITableView*)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+- (UITableViewCell*)tableView:(UITableView *)tableView cellForObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 @optional
 
@@ -40,7 +40,7 @@
  *  @param object    The object used to populate the cell.
  *  @param indexPath The index path of the cell being updated.
  */
-- (void)tableView:(UITableView*)tableView updateCell:(UITableViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+- (void)tableView:(UITableView *)tableView updateCell:(UITableViewCell*)cell forObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 /**
  *  A mirror of the UITableViewDataSource callback, use this method instead.
@@ -50,7 +50,7 @@
  *
  *  @return A string to be shown in the header of this section of the table view.
  */
-- (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section;
+- (NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section;
 
 /**
  *  A mirror of the UITableViewDataSource callback, use this method instead.
@@ -60,7 +60,7 @@
  *
  *  @return A string to be shown in the footer of this section of the table view.
  */
-- (NSString*)tableView:(UITableView*)tableView titleForFooterInSection:(NSInteger)section;
+- (NSString*)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section;
 
 /**
  * A mirror of the UITableViewDataSource callback, use this method instead.
@@ -71,7 +71,7 @@
  *
  *  @return A boolean to allow or disallow the editing of the cell.
  */
-- (BOOL)tableView:(UITableView*)tableView canEditObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+- (BOOL)tableView:(UITableView *)tableView canEditObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 /**
  *  A mirror of the UITableViewDataSource callback, use this method instead.
@@ -82,7 +82,7 @@
  *
  *  @return A boolean to allow or disallow the reordering of the cell.
  */
-- (BOOL)tableView:(UITableView*)tableView canMoveObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
+- (BOOL)tableView:(UITableView *)tableView canMoveObject:(id)object atIndexPath:(NSIndexPath*)indexPath;
 
 /**
  *  A mirror of the UITableViewDataSource callback, use this method instead.
@@ -91,7 +91,7 @@
  *  @param editingStyle UITableViewCellEditingStyleNone, UITableViewCellEditingStyleDelete, or UITableViewCellEditingStyleInsert
  *  @param indexPath    The index path of the cell requesting this information.
  */
-- (void)tableView:(UITableView*)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  *  A mirror of the UITableViewDataSource callback, use this method instead.
@@ -100,7 +100,7 @@
  *  @param sourceIndexPath      The current index path for the object.
  *  @param destinationIndexPath The new index path for the object.
  */
-- (void)tableView:(UITableView*)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath;
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath;
 
 @end
 
