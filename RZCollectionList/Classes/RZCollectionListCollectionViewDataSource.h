@@ -74,14 +74,14 @@
 
 /**
  *  The collection list used as the data source for _collectionView.
- *  @warning Can only be set during initialization with the constructor method: - (id)initWithCollectionView:(UICollectionView*)collectionView 
+ *  @note Can only be set during initialization with the constructor method: - (id)initWithCollectionView:(UICollectionView*)collectionView
  *  collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
  */
 @property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
 
 /**
  *  The collection view associated with this data source.
- *  @warning Can only be set during initialization with the constructor method: - (id)initWithCollectionView:(UICollectionView*)collectionView
+ *  @note Can only be set during initialization with the constructor method: - (id)initWithCollectionView:(UICollectionView*)collectionView
  *  collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
  */
 @property (nonatomic, weak, readonly) UICollectionView *collectionView;
