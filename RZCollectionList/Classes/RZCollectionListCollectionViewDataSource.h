@@ -102,12 +102,12 @@
 @property (nonatomic, assign, getter = shouldUseBatchUpdating) BOOL useBatchUpdating; // Defaults to YES
 
 /**
- *  Initializer for RZCollectionListCollectionViewDataSourceDelegate instance.
+ *  Initializer for an RZCollectionListCollectionViewDataSourceDelegate instance.
  *
  *  @param collectionView The collection view to be updated by this RZCollectionListCollectionViewDataSourceDelegate instance. There can only be one
  *  collection view per RZCollectionListCollectionViewDataSourceDelegate instance.
- *  @param collectionList the collection list used to update the supplied collection view. There can only be one collection list per
- *  RZCollectionListCollectionViewDataSourceDelegate instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
+ *  @param collectionList the collection list used to update _collectionView.
+ *  @note There can only be one collection list per RZCollectionListCollectionViewDataSourceDelegate instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
  *  @param delegate       An object that conforms to the RZCollectionListCollectionViewDataSourceDelegate protocol. This should never be nil.
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
