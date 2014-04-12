@@ -9,10 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "RZBaseCollectionList.h"
 
+/**
+ *  RZCompositeCollectionList is a "list of lists." All you need to do to properly use RZCompositeCollectionList is to create one or 
+ *  more instances of id<RZCollectionList>.
+ */
 @interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
 
-// Currently readonly.
-// TODO: need to implement in-place source list array update.
+/**
+ *  An array of the lists in an instance of RZCompositeCollectionList.
+ *  @note Currently read-only.
+ *  @todo Need to implement in-place source list array update.
+ */
 @property (nonatomic, readonly, copy) NSArray *sourceLists;
 
 - (id)initWithSourceLists:(NSArray*)sourceLists;
