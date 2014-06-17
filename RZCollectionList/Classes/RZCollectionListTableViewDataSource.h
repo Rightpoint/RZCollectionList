@@ -35,7 +35,7 @@
 
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
 
-@property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readonly) UITableView *tableView;
 
 @property (nonatomic, weak) id<RZCollectionListTableViewDataSourceDelegate> delegate;

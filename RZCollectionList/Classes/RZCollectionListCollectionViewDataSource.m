@@ -12,7 +12,6 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 @interface RZCollectionListCollectionViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
-@property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray *batchUpdates;
 @property (nonatomic, strong) NSMutableArray *insertedSectionIndexes;
@@ -28,18 +27,15 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 {
     if ((self = [super init]))
     {
-        self.collectionList = collectionList;
         self.delegate = delegate;
         self.collectionView = collectionView;
         
-        [self.collectionList addCollectionListObserver:self];
-        
         self.animateCollectionChanges = YES;
         self.useBatchUpdating = YES;
-        collectionList.delegate = self;
         
         collectionView.dataSource = self;
-        [collectionView reloadData];
+        
+        self.collectionList = collectionList;
     }
     
     return self;
@@ -48,6 +44,28 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setCollectionList:(id<RZCollectionList>)collectionList
+{
+    if (collectionList != _collectionList)
+    {
+        if (nil != _collectionList)
+        {
+            [_collectionList removeCollectionListObserver:self];
+            _collectionList.delegate = nil;
+        }
+        
+        _collectionList = collectionList;
+        
+        if (nil != collectionList)
+        {
+            [collectionList addCollectionListObserver:self];
+            collectionList.delegate = self;
+        }
+        
+        [self.collectionView reloadData];
+    }
 }
 
 - (void)setDelegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate
