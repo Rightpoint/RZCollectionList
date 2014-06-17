@@ -805,6 +805,15 @@ typedef enum {
 
 
     [sectionRemoveNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
+        if (!self.filterOutEmptySections)
+        {
+            NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:notification.sectionIndex];
+            RZFilteredCollectionListSectionInfo *filteredSectionInfo = [[self filteredCachedSections] objectAtIndex:filteredSection];
+            
+            [self cacheSectionNotificationWithSectionInfo:filteredSectionInfo sectionIndex:filteredSection type:RZCollectionListChangeDelete];
+            
+        }
+        
         [self.sectionIndexes shiftIndexesStartingAtIndex:notification.sectionIndex+1 by:-1];
         [self.objectIndexesForSection removeObjectAtIndex:notification.sectionIndex];
     }];
