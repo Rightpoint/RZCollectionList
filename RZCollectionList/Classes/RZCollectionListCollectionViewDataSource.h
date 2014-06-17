@@ -29,7 +29,7 @@
 
 @interface RZCollectionListCollectionViewDataSource : NSObject <UICollectionViewDataSource>
 
-@property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readonly) UICollectionView *collectionView;
 
 @property (nonatomic, weak) id<RZCollectionListCollectionViewDataSourceDelegate> delegate;
