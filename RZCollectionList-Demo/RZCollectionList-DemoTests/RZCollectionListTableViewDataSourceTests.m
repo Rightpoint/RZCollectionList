@@ -48,7 +48,7 @@
     [self waitFor:0.1];
     
     for (int i=0; i<10; i++){
-        STAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
+        XCTAssertNoThrow([self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]], @"Table view exception");
     }
 }
 
@@ -77,7 +77,7 @@
         [self.arrayList addObject:idx toSection:0];
     }
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     
 }
 
@@ -126,7 +126,7 @@
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0]];
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0]];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     
     // final order should be:
     // first
@@ -142,9 +142,9 @@
     // last
     
     UITableViewCell *firstCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    STAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
+    XCTAssertEqualObjects(firstCell.textLabel.text, @"first", @"Update notification in batch update failed");
     UITableViewCell *secondCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
-    STAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
+    XCTAssertEqualObjects(secondCell.textLabel.text, @"second", @"Move notification in batch update failed");
 }
 
 - (void)test4ArrayListBatchWithSectionUpdates
@@ -214,7 +214,7 @@
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:5 inSection:0]];
     [self.arrayList removeObjectAtIndexPath:[NSIndexPath indexPathForRow:5 inSection:0]];
 
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
 
 }
 
@@ -265,7 +265,7 @@
     // remove section 2
     [self.arrayList removeSectionAtIndex:1];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
 
 }
 
@@ -323,8 +323,8 @@
     // remove first section again
     [self.arrayList removeSectionAtIndex:0];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
-    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:2], @"BLAH", @"Something went wrong here");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertEqualObjects([self.arrayList.listObjects objectAtIndex:2], @"BLAH", @"Something went wrong here");
     
     [self waitFor:1.5];
     
@@ -356,8 +356,8 @@
     // move 1,1 to 0,0
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
-    STAssertEqualObjects([self.arrayList.listObjects objectAtIndex:0], @"0", @"Zero string was not moved correctly");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertEqualObjects([self.arrayList.listObjects objectAtIndex:0], @"0", @"Zero string was not moved correctly");
 
 }
 
@@ -391,9 +391,9 @@
     
     [self.arrayList addObject:@"Pre-Numbers" toSection:0];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
-    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]].textLabel.text, @"zero", @"Cell at index 1 should have title \"zero\"");
-    STAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]].textLabel.text, @"one", @"Cell at index 2 should have title \"one\"");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]].textLabel.text, @"zero", @"Cell at index 1 should have title \"zero\"");
+    XCTAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]].textLabel.text, @"one", @"Cell at index 2 should have title \"one\"");
 }
 
 - (void)test8SeveralMoves
@@ -414,11 +414,11 @@
 
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:4 inSection:0]];
 
-    STAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
     
     // Final order should be 3, 4, 1, 5, 2
     NSArray *finalArray = @[@"3",@"4",@"1",@"5",@"2"];
-    STAssertEqualObjects(self.arrayList.listObjects, finalArray, @"Final array order is incorrect");
+    XCTAssertEqualObjects(self.arrayList.listObjects, finalArray, @"Final array order is incorrect");
 }
 
 #pragma mark - Table View Data Source

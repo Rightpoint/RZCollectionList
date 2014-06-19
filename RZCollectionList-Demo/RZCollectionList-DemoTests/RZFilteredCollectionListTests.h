@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
 @class RZArrayCollectionList;
 @class RZFilteredCollectionList;
 
-@interface RZFilteredCollectionListTests : SenTestCase
+@interface RZFilteredCollectionListTests : XCTestCase
 
 @property (nonatomic, strong) RZArrayCollectionList *arrayList;
 @property (nonatomic, strong) RZFilteredCollectionList *filteredList;

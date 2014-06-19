@@ -20,6 +20,6 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ - %d", self.name, self.number.integerValue];
+    return [NSString stringWithFormat:@"%@ - %ld", self.name, (long)self.number.integerValue];
 }
 @end

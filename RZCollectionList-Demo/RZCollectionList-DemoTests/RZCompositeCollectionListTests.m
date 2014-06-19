@@ -47,9 +47,9 @@
     NSArray *startObjs0 = @[@"1",@"2",@"3"];
     NSArray *startObjs1 = @[@"4",@"5",@"6"];
     
-    STAssertEqualObjects(startObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
-    STAssertEqualObjects(startObjs1, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
-    STAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:2] objects], @"Incorrect starting objects in section 2");
+    XCTAssertEqualObjects(startObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqualObjects(startObjs1, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
+    XCTAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:2] objects], @"Incorrect starting objects in section 2");
     
     [self waitFor:1];
     
@@ -58,16 +58,16 @@
     [array1 removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     [array1 moveObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
     
-    STAssertNoThrow([array1 endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([array1 endUpdates], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[@"2",@"3",@"4",@"5",@"6",@"A",@"B",@"C",@"D",@"E"]];
     
     NSArray *finalObjs0 = @[@"2",@"3",@"4"];
     NSArray *finalObjs1 = @[@"5",@"6"];
     
-    STAssertEqualObjects(finalObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
-    STAssertEqualObjects(finalObjs1, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
-    STAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:2] objects], @"Incorrect starting objects in section 2");
+    XCTAssertEqualObjects(finalObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqualObjects(finalObjs1, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
+    XCTAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:2] objects], @"Incorrect starting objects in section 2");
     
     [self waitFor:1];
 
@@ -76,14 +76,14 @@
     [array1 removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     [array1 removeSectionAtIndex:1];
     
-    STAssertNoThrow([array1 endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([array1 endUpdates], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[@"2",@"3",@"4",@"A",@"B",@"C",@"D",@"E"]];
     
     finalObjs0 = @[@"2",@"3",@"4"];
     
-    STAssertEqualObjects(finalObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
-    STAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 2");
+    XCTAssertEqualObjects(finalObjs0, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqualObjects(sect2Objs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 2");
     
     [self waitFor:1];
     
@@ -107,17 +107,17 @@
                                                                                                       collectionList:composite
                                                                                                             delegate:self];
     
-    STAssertEqualObjects(section0Objs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
-    STAssertEqualObjects(section1Objs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
+    XCTAssertEqualObjects(section0Objs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqualObjects(section1Objs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect starting objects in section 1");
 
     [self waitFor:1];
     
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) { return ([evaluatedObject integerValue] > 3); }];
     
-    STAssertNoThrow([filter setPredicate:predicate], @"Exception on setting predicate");
+    XCTAssertNoThrow([filter setPredicate:predicate], @"Exception on setting predicate");
     
     NSArray *filtObjs = @[@"4",@"5"];
-    STAssertEqualObjects(filtObjs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect objects in section 1 after filter");
+    XCTAssertEqualObjects(filtObjs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect objects in section 1 after filter");
     
     [self waitFor:1];
     
@@ -126,11 +126,11 @@
     [array2 removeObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     [array2 addObject:@"22" toSection:0];
     
-    STAssertNoThrow([array2 endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([array2 endUpdates], @"Something went wrong");
     
     filtObjs = @[@"4",@"5",@"22"];
     
-    STAssertEqualObjects(filtObjs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect objects in section 1 after update");
+    XCTAssertEqualObjects(filtObjs, [[[composite sections] objectAtIndex:1] objects], @"Incorrect objects in section 1 after update");
     
     [self waitFor:1];
 }
@@ -154,8 +154,8 @@
     
     NSArray *startObjs = @[@"1",@"2",@"3",@"4",@"5",@"6",@"A", @"B", @"C", @"D", @"E"];
     
-    STAssertEquals([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
-    STAssertEqualObjects(startObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqual([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
+    XCTAssertEqualObjects(startObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
     
     [self waitFor:1];
     
@@ -165,21 +165,21 @@
     [array1 moveObjectAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1] toIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]]; // should cause no change, actually
     [array1 insertObject:@"Uno" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    STAssertNoThrow([array1 endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([array1 endUpdates], @"Something went wrong");
     
     [array2 beginUpdates];
     
     [array2 removeObject:@"A"];
     [array2 insertObject:@"A point 5" atIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     
-    STAssertNoThrow([array2 endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([array2 endUpdates], @"Something went wrong");
     
     NSArray *finalObjs = @[@"Uno",@"2",@"3",@"4",@"5",@"6",@"A point 5",@"B",@"C",@"D",@"E"];
     
     [self assertTitlesOfVisibleCells:finalObjs];
     
-    STAssertEquals([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
-    STAssertEqualObjects(finalObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
+    XCTAssertEqual([composite sections].count, (NSUInteger)1, @"Composite list should have only one section");
+    XCTAssertEqualObjects(finalObjs, [[[composite sections] objectAtIndex:0] objects], @"Incorrect starting objects in section 0");
     
     [self waitFor:1];
 }
@@ -198,7 +198,7 @@
 
 - (NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [NSString stringWithFormat:@"Section %d", section];
+    return [NSString stringWithFormat:@"Section %ld", (long)section];
 }
 
 @end
