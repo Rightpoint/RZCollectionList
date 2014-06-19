@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface RZCollectionListCollectionViewDataSourceTests : SenTestCase
+@interface RZCollectionListCollectionViewDataSourceTests : XCTestCase
 
 @end

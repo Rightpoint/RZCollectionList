@@ -68,7 +68,7 @@
 
 - (NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [NSString stringWithFormat:@"Section %d", section];
+    return [NSString stringWithFormat:@"Section %ld", (long)section];
 }
 
 #pragma mark - Tests
@@ -102,7 +102,7 @@
     [objects[0] setNumber:@100];
     [[NSNotificationCenter defaultCenter] postNotificationName:kRZCollectionListMockObjectUpdated object:objects[0]];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[ @"Albert", @"Eugene", @"Harold", @"Jimbo" ]];
     
@@ -143,7 +143,7 @@
     // move object to section 1
     [self.arrayList moveObjectAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:0] toIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[ @"Maurice", @"Eugene", @"Dave", @"Jim", @"Joe", @"Bob" ]];
     
@@ -180,7 +180,7 @@
     [self.arrayList addObject:[RZCollectionListTestModelObject objectWithName:@"Harold" number:@2]
                     toSection:0];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Something went wrong");
 
     [self waitFor:1.5];
 }

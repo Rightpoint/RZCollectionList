@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
@@ -17,7 +17,7 @@
 
 typedef void (^RZCollectionListTestCoreDataBlock)(NSManagedObjectContext *moc);
 
-@interface RZCollectionListTestsBase : SenTestCase
+@interface RZCollectionListTestsBase : XCTestCase
 
 @property (nonatomic, strong) UIViewController *viewController;
 @property (nonatomic, strong) UITableView *tableView;

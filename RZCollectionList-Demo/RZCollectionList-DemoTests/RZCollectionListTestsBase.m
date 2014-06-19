@@ -70,7 +70,7 @@
         child.index = childInfo[1];
     }
     
-    STAssertTrue([self.moc save:NULL], @"Failed to save MOC");
+    XCTAssertTrue([self.moc save:NULL], @"Failed to save MOC");
 }
 
 
@@ -83,7 +83,7 @@
         
         block(bgMoc);
         
-        STAssertTrue([bgMoc save:NULL], @"Failed to save child MOC");
+        XCTAssertTrue([bgMoc save:NULL], @"Failed to save child MOC");
         
     });
 }
@@ -96,14 +96,14 @@
 - (void)assertTitlesOfVisibleCells:(NSArray *)titles
 {
     NSArray *visibleTitles = [self.tableView.visibleCells valueForKeyPath:@"textLabel.text"];
-    STAssertTrue(visibleTitles.count <= titles.count, @"Too many visible cells for provided titles");
+    XCTAssertTrue(visibleTitles.count <= titles.count, @"Too many visible cells for provided titles");
     if (visibleTitles.count < titles.count){
         
         // trim titles to length of visible cells
         titles = [titles subarrayWithRange:NSMakeRange(0, visibleTitles.count)];
     }
     
-    STAssertEqualObjects(visibleTitles, titles, @"Titles do not match expected titles");
+    XCTAssertEqualObjects(visibleTitles, titles, @"Titles do not match expected titles");
 }
 
 

@@ -13,7 +13,7 @@
  *
  *********************************************************/
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "RZCollectionListTestsBase.h"
 
 @interface RZCollectionListFetchOrderTests : RZCollectionListTestsBase  <NSFetchedResultsControllerDelegate>
