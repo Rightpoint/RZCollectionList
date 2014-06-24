@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
+#import "RZCollectionListTestsBase.h"
 
-@interface RZCollectionListCollectionViewDataSourceTests : XCTestCase
+@interface RZCollectionListCollectionViewDataSourceTests : RZCollectionListTestsBase
 
 @end

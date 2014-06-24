@@ -78,8 +78,9 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    // For some reason collection view needs some time
+    // in the run loop before it's ready to be changed
+    [self waitFor:1];
 
     XCTAssertNoThrow([self.arrayList addObject:@"End" toSection:0], @"Collection View Exception");
 }
@@ -94,8 +95,7 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    [self waitFor:1];
     
     [self.arrayList beginUpdates];
     
@@ -124,8 +124,7 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    [self waitFor:1];
     
     [self.arrayList beginUpdates];
     
@@ -171,6 +170,7 @@
     titleLabel.text = string;
 
     [cell.contentView addSubview:titleLabel];
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
     
     return cell;
 }

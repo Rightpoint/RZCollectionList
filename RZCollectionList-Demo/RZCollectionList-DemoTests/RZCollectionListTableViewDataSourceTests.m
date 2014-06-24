@@ -392,6 +392,10 @@
     [self.arrayList addObject:@"Pre-Numbers" toSection:0];
     
     XCTAssertNoThrow([self.arrayList endUpdates], @"Table View exception");
+    
+    // Not sure how else to assert the update succeeded. Need to wait until after animation finishes.
+    [self waitFor:1.5];
+    
     XCTAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]].textLabel.text, @"zero", @"Cell at index 1 should have title \"zero\"");
     XCTAssertEqualObjects([self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]].textLabel.text, @"one", @"Cell at index 2 should have title \"one\"");
 }
