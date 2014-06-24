@@ -110,7 +110,7 @@
     {
         ListItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ListItem" inManagedObjectContext:self.moc];
         item.itemName = [NSString stringWithFormat:@"Count: %lu", (unsigned long)self.totalCount];
-        item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", self.fetchedList.listObjects.count / 3];
+        item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", (unsigned long)self.fetchedList.listObjects.count / 3];
         
         self.totalCount += 1;
     }
@@ -129,7 +129,7 @@
 {
     ListItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ListItem" inManagedObjectContext:self.moc];
     item.itemName = [NSString stringWithFormat:@"Count: %lu", (unsigned long)self.totalCount];
-    item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", self.fetchedList.listObjects.count / 3];
+    item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", (unsigned long)self.fetchedList.listObjects.count / 3];
     
     self.totalCount += 1;
 }
