@@ -25,6 +25,8 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 - (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate
 {
+    NSParameterAssert(collectionView);
+    
     if ((self = [super init]))
     {
         self.delegate = delegate;

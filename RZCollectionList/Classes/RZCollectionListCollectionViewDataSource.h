@@ -29,14 +29,30 @@
 
 @interface RZCollectionListCollectionViewDataSource : NSObject <UICollectionViewDataSource>
 
-@property (nonatomic, strong) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readonly) UICollectionView *collectionView;
 
-@property (nonatomic, weak) id<RZCollectionListCollectionViewDataSourceDelegate> delegate;
+/**
+ *  The collection list driving this data source. May safely be changed or set to nil after initialization.
+ */
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
+
+@property (nonatomic, weak)   id<RZCollectionListCollectionViewDataSourceDelegate> delegate;
 
 @property (nonatomic, assign, getter = shouldAnimateCollectionChanges) BOOL animateCollectionChanges; // Defaults to YES
 @property (nonatomic, assign, getter = shouldUseBatchUpdating) BOOL useBatchUpdating; // Defaults to YES
 
-- (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
+/**
+ *  Init with a collection view, collection list, and delegate.
+ *
+ *  @param collectionView   The collection view for which this instance will be the data source. Must not be nil.
+ *  @param collectionList   The list to use as the source for the object data driving this data source. May safely be set/changed later.
+ *  @param delegate         A required delegate for providing collection view cells.
+ *                          If not set, the table view will throw an exception when a cell is requested. 
+ *
+ *  @return An initialized collection view data source instance.
+ */
+- (id)initWithCollectionView:(UICollectionView*)collectionView
+              collectionList:(id<RZCollectionList>)collectionList
+                    delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
 
 @end

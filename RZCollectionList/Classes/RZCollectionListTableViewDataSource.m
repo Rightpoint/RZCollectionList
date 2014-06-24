@@ -23,6 +23,8 @@
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
+    NSParameterAssert(tableView);
+    
     if ((self = [super init]))
     {
         self.delegate = delegate;

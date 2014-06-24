@@ -35,10 +35,14 @@
 
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
 
-@property (nonatomic, strong) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readonly) UITableView *tableView;
 
-@property (nonatomic, weak) id<RZCollectionListTableViewDataSourceDelegate> delegate;
+/**
+ *  The collection list driving this data source. May safely be changed or set to nil after initialization.
+ */
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
+
+@property (nonatomic, weak)   id<RZCollectionListTableViewDataSourceDelegate> delegate;
 
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;                           // Defaults to NO
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;                   // Defaults to NO, Overridden if the delegate implements tableView:titleForHeaderInSection:
@@ -50,8 +54,20 @@
 @property (nonatomic, assign) UITableViewRowAnimation removeObjectAnimation;    // Defaults to UITableViewRowAnimationFade
 @property (nonatomic, assign) UITableViewRowAnimation updateObjectAnimation;    // Defaults to UITableViewRowAnimationFade
 
-
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+/**
+ *  Init with a table view, collection list, and delegate.
+ *
+ *  @param tableView        The table view for which this instance will be the data source. Must not be nil.
+ *  @param collectionList   The list to use as the source for the object data driving this data source. May safely be set/changed later.
+ *  @param delegate         A required delegate for providing table view cells.
+ *                          If not set, the table view will throw an exception when a cell is requested.
+ *
+ *
+ *  @return An initialized table view data source instance.
+ */
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
 
 // TableViewAnimations
 - (void)setAllAnimations:(UITableViewRowAnimation)animation;
