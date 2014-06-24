@@ -120,15 +120,18 @@ NSString * const kArrayListCollectionView =  @"ArrayList - Collection View";
         listController = arrayCollectionVC;
     }
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    if ( listController != nil )
     {
-        UINavigationController *navController = (UINavigationController*)[self.splitViewController.viewControllers lastObject];
-        [navController setViewControllers:@[listController] animated:NO];
-    }
-    else
-    {
-        [self.navigationController pushViewController:listController animated:YES];
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        {
+            UINavigationController *navController = (UINavigationController*)[self.splitViewController.viewControllers lastObject];
+            [navController setViewControllers:@[listController] animated:NO];
+        }
+        else
+        {
+            [self.navigationController pushViewController:listController animated:YES];
+            [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        }
     }
 }
 
