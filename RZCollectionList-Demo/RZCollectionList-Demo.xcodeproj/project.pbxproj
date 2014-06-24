@@ -731,6 +731,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
@@ -748,6 +749,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
