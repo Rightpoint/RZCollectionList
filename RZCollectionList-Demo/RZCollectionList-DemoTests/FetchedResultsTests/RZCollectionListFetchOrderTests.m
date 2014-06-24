@@ -60,7 +60,7 @@
     [self insertPairWithName1:@"Ben" name2:@"Jerry" index:@3 moc:self.moc];
     [self insertPairWithName1:@"Logistics" name2:@"Nu:Tone" index:@4 moc:self.moc];
 
-    STAssertTrue([self.moc save:NULL], @"Failed to save MOC");
+    XCTAssertTrue([self.moc save:NULL], @"Failed to save MOC");
     
     NSFetchRequest *fetchReq = [[NSFetchRequest alloc] initWithEntityName:@"TestChildEntity"];
     fetchReq.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES],
@@ -72,10 +72,10 @@
                                                                                      cacheName:nil];
     frc.delegate = self;
     
-    STAssertTrue([frc performFetch:NULL], @"Fetch failed");
+    XCTAssertTrue([frc performFetch:NULL], @"Fetch failed");
     
     NSArray *obj = [frc fetchedObjects];
-    STAssertEquals(obj.count, (NSUInteger)10, @"Wrong number of objects");
+    XCTAssertEqual(obj.count, (NSUInteger)10, @"Wrong number of objects");
     
     // dispatch to background thread, child MOC and save to propogate upwards
     dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -88,12 +88,12 @@
         NSFetchRequest *bgFetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
         bgFetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES]];
         NSArray *currentChildren = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(currentChildren.count, (NSUInteger)10, @"Fetch of children in background failed");
+        XCTAssertEqual(currentChildren.count, (NSUInteger)10, @"Fetch of children in background failed");
     
         // fetch first pair, delete them
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 0"];
         NSArray* pair0 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair0.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair0.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair0){
             [bgMoc deleteObject:obj];
         }
@@ -101,7 +101,7 @@
         // fetch second pair, delete them
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 1"];
         NSArray *pair1 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair1.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair1.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair1){
             [bgMoc deleteObject:obj];
         }
@@ -109,7 +109,7 @@
         // group pair with index 3 with index 2
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 3"];
         NSArray* pair3 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair3.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair3.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair3){
             [obj setIndex:@2];
         }
@@ -117,13 +117,13 @@
         // Update name of object in pair 4 - shouldn't move it, just update
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 4"];
         NSArray* pair4 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair4.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair4.count, (NSUInteger)2, @"Failed to fetch pair");
         [pair4[0] setName:@"Technicolour"];
         
         // Insert a new pair
         [self insertPairWithName1:@"Cheech" name2:@"Chong" index:@420 moc:bgMoc];
         
-        STAssertTrue([bgMoc save:NULL], @"Failed to save background MOC");
+        XCTAssertTrue([bgMoc save:NULL], @"Failed to save background MOC");
         
     });
     
@@ -139,7 +139,7 @@
     [self insertPairWithName1:@"Ben" name2:@"Jerry" index:@3 moc:self.moc];
     [self insertPairWithName1:@"Logistics" name2:@"Nu:Tone" index:@4 moc:self.moc];
     
-    STAssertTrue([self.moc save:NULL], @"Failed to save MOC");
+    XCTAssertTrue([self.moc save:NULL], @"Failed to save MOC");
     
     // Fetch 1 - index <= 2
     NSFetchRequest *fetchReq1 = [[NSFetchRequest alloc] initWithEntityName:@"TestChildEntity"];
@@ -167,14 +167,14 @@
                                                                                       cacheName:nil];
     frc2.delegate = self;
     
-    STAssertTrue([frc1 performFetch:NULL], @"Fetch 1 failed");
-    STAssertTrue([frc2 performFetch:NULL], @"Fetch 2 failed");
+    XCTAssertTrue([frc1 performFetch:NULL], @"Fetch 1 failed");
+    XCTAssertTrue([frc2 performFetch:NULL], @"Fetch 2 failed");
     
     NSArray *obj1 = [frc1 fetchedObjects];
-    STAssertEquals(obj1.count, (NSUInteger)6, @"Wrong number of objects for fetch 1");
+    XCTAssertEqual(obj1.count, (NSUInteger)6, @"Wrong number of objects for fetch 1");
     
     NSArray *obj2 = [frc2 fetchedObjects];
-    STAssertEquals(obj2.count, (NSUInteger)4, @"Wrong number of objects for fetch 2");
+    XCTAssertEqual(obj2.count, (NSUInteger)4, @"Wrong number of objects for fetch 2");
     
     // dispatch to background thread, child MOC and save to propogate upwards
     dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -187,12 +187,12 @@
         NSFetchRequest *bgFetch = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
         bgFetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"index" ascending:YES]];
         NSArray *currentChildren = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(currentChildren.count, (NSUInteger)10, @"Fetch of children in background failed");
+        XCTAssertEqual(currentChildren.count, (NSUInteger)10, @"Fetch of children in background failed");
         
         // fetch first pair, delete them
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 0"];
         NSArray* pair0 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair0.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair0.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair0){
             [bgMoc deleteObject:obj];
         }
@@ -200,7 +200,7 @@
         // fetch second pair, delete them
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 1"];
         NSArray *pair1 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair1.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair1.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair1){
             [bgMoc deleteObject:obj];
         }
@@ -208,7 +208,7 @@
         // group pair with index 3 with index 2
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 3"];
         NSArray* pair3 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair3.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair3.count, (NSUInteger)2, @"Failed to fetch pair");
         for (id obj in pair3){
             [obj setIndex:@2];
         }
@@ -216,13 +216,13 @@
         // Update name of object in pair 4 - shouldn't move it, just update
         bgFetch.predicate = [NSPredicate predicateWithFormat:@"index == 4"];
         NSArray* pair4 = [bgMoc executeFetchRequest:bgFetch error:NULL];
-        STAssertEquals(pair4.count, (NSUInteger)2, @"Failed to fetch pair");
+        XCTAssertEqual(pair4.count, (NSUInteger)2, @"Failed to fetch pair");
         [pair4[0] setName:@"Technicolour"];
         
         // Insert a new pair
         [self insertPairWithName1:@"Cheech" name2:@"Chong" index:@420 moc:bgMoc];
         
-        STAssertTrue([bgMoc save:NULL], @"Failed to save background MOC");
+        XCTAssertTrue([bgMoc save:NULL], @"Failed to save background MOC");
         
     });
     
@@ -272,11 +272,11 @@
     switch (type) {
             
         case NSFetchedResultsChangeDelete:
-            NSLog(@"%@ DELETED SECTION AT INDEX %d", controller, sectionIndex);
+            NSLog(@"%@ DELETED SECTION AT INDEX %lu", controller, (unsigned long)sectionIndex);
             break;
             
         case NSFetchedResultsChangeInsert:
-            NSLog(@"%@ INSERTED SECTION AT INDEX %d", controller, sectionIndex);
+            NSLog(@"%@ INSERTED SECTION AT INDEX %lu", controller, (unsigned long)sectionIndex);
             break;
             
         default:

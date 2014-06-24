@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "RZCollectionListTestsBase.h"
 
 @interface RZCompositeCollectionListTests : RZCollectionListTestsBase

@@ -239,10 +239,12 @@
 - (void)removeAllObjects
 {
     // avoid mutation during enumeration
+    [self beginUpdates];
     NSArray *objects = [[self objects] copy];
     [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self removeObject:obj];
     }];
+    [self endUpdates];
 }
 
 - (void)addSection:(RZArrayCollectionListSectionInfo*)section

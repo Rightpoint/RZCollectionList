@@ -78,10 +78,11 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    // For some reason collection view needs some time
+    // in the run loop before it's ready to be changed
+    [self waitFor:1];
 
-    STAssertNoThrow([self.arrayList addObject:@"End" toSection:0], @"Collection View Exception");
+    XCTAssertNoThrow([self.arrayList addObject:@"End" toSection:0], @"Collection View Exception");
 }
 
 - (void)test2ArrayListBatchAddRemove
@@ -94,8 +95,7 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    [self waitFor:1];
     
     [self.arrayList beginUpdates];
     
@@ -110,7 +110,7 @@
         [self.arrayList addObject:idx toSection:0];
     }
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Collection View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Collection View exception");
     
 }
 
@@ -124,8 +124,7 @@
                                                                                 collectionList:self.arrayList
                                                                                       delegate:self];
     
-    // For some reason collection view needs some time in the run loop before it's ready to be changed...
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    [self waitFor:1];
     
     [self.arrayList beginUpdates];
     
@@ -150,7 +149,7 @@
     NSIndexPath * sixIndexPath = [self.arrayList indexPathForObject:@"6"];
     [self.arrayList moveObjectAtIndexPath:sixIndexPath toIndexPath:[NSIndexPath indexPathForRow:6 inSection:0]];
     
-    STAssertNoThrow([self.arrayList endUpdates], @"Collection View exception");
+    XCTAssertNoThrow([self.arrayList endUpdates], @"Collection View exception");
 }
 
 #pragma mark - RZCollectionListCollectionViewDataSource
@@ -171,6 +170,7 @@
     titleLabel.text = string;
 
     [cell.contentView addSubview:titleLabel];
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
     
     return cell;
 }
