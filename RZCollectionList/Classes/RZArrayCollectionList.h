@@ -19,7 +19,9 @@
 @end
 
 /**
- *  @warning CURRENTLY ASSUMING EACH OBJECT IN ARRAY IS UNIQUE INSTANCE
+ *  A source collection list based on an in-memory array of objects, with optional sectioning.
+ *
+ *  @warning Currently, each object in the array list must be unique, meaning @p isEqual: returns NO when comparing two objects.
  */
 @interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
@@ -28,8 +30,8 @@
 /**
  *  Automatically infer sections based on keypath
  *
- *  @param array   input array
- *  @param keyPath keyPath for which we can infer the title from the object
+ *  @param array   Initial array.
+ *  @param keyPath keyPath for which we can infer the sections from the objects in the array.
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied array and organized into sections based on the supplied keypath
  */
@@ -38,8 +40,8 @@
 /**
  *  Manually create sections for objects in array
  *
- *  @param array    input array
- *  @param sections all objects must be of type RZArrayCollectionListSectionInfo
+ *  @param array    Initial array.
+ *  @param sections Section info for the array. All objects must be of type RZArrayCollectionListSectionInfo
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied sections and array
  */
@@ -100,16 +102,16 @@
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath;
 
 /**
- *  Remove all objects in an id<RZcollectionList> instance.
+ *  Remove all objects in the list.
  */
 - (void)removeAllObjects;
 
 /**
- *  Adds a section to an id<RZcollectionList> instance.
+ *  Adds a section with the specified info.
  *
- *  @param section The section to add.
+ *  @param section The section info for the section to add. Must not be nil.
  */
-- (void)addSection:(RZArrayCollectionListSectionInfo*)section;
+- (void)addSection:(RZArrayCollectionListSectionInfo *)section;
 
 /**
  *  Insert a section at a specific index.
@@ -120,11 +122,11 @@
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index;
 
 /**
- *  Remove a section from an id<RZcollectionList> instance.
+ *  Remove a section.
  *
- *  @param section The section to remove.
+ *  @param section The section info of the section to remove.
  */
-- (void)removeSection:(RZArrayCollectionListSectionInfo*)section;
+- (void)removeSection:(RZArrayCollectionListSectionInfo *)section;
 
 /**
  *  Remove a section at a specific index.
@@ -134,11 +136,14 @@
 - (void)removeSectionAtIndex:(NSUInteger)index;
 
 /**
- *  Call before all of your batch update logic
+ *  Begin a batch update to the array list.
+ *
+ *  @warning Must be matched by a call to @p endUpdates.
  */
 - (void)beginUpdates;
+
 /**
- *  Call after all of your batch update logic
+ *  End a batch update to the array list and deliver all observer notifications.
  */
 - (void)endUpdates;
 

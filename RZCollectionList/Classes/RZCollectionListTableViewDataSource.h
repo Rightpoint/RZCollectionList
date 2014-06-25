@@ -14,19 +14,20 @@
 /**
  *  An object that adopts the RZCollectionListTableViewDataSourceDelegate protocol is responsible for providing the data and views required by an
  *  RZCollectionListTableViewDataSource instance for a UITableView. It also handles the creation and configuration of cells
- *  used by the table view to display the data in the supplied id<RZCollecitonList>.
+ *  used by the table view to display the data in the supplied collection list.
  */
 @protocol RZCollectionListTableViewDataSourceDelegate <NSObject>
 
 @required
 
 /**
- *  Use this callback instead of - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
- *  @warning Must return a valid UITableViewCell from - (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
+ *  Callback to provide a cell to the data source for a particular object.
  *
  *  @param tableView The table view associated with this data source.
  *  @param object    Use this object to populate your cell.
- *  @param indexPath The index path of the object in your id<RZCollectionList>.
+ *  @param indexPath The index path of the object in your collection list.
+ *
+ *  @warning Must return a valid UITableViewCell from - (id)dequeueReusableCellWithIdentifier:(NSString *)identifier;
  *
  *  @return A configured UITableViewCell object. You must not return nil from this method.
  */
@@ -35,7 +36,7 @@
 @optional
 
 /**
- *  A mirror of the UITableViewDataSource callback, use this method instead. Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation.
+ *  Implement this to immediately update a cell's contents as part of a batch update, as opposed to reloading after a batch animation.
  *
  *  @param tableView The table view associated with this data source.
  *  @param cell      The cell to be updated.
@@ -109,25 +110,18 @@
 #pragma mark - RZCollectionListTableViewDataSource
 
 /**
- *  Use RZCollectionListTableViewDataSource when using an id<RZCollectionList> as the data for a UITableView. You initialize an instance of this class, usually saved as a property on your View Controller, with an initialized id<RZCollectionList>.
- *  For example:
- *   @code
- *  self.collectionList = [[RZArrayCollectionList alloc] initWithArray:@[@"This", @"TableView", @"Will", @"Be", @"Awesome!"]  sectionNameKeyPath:nil];
- *  self.dataSource = [[RZCollectionListTableViewDataSource alloc] initWithTableView:self.collectionView
- *  collectionList:self.self.collectionList
- *  delegate:self];
+ *  Table view data source implementation to use a collection list as the data for a UITableView.
  */
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
 
 /**
- *  The collection list used as the data source for _collectionView.
- *  @note Can only be set during initialization with the constructor method: - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+ *  The collection list used as the data source for the collection view.
  */
 @property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
 
 /**
  *  The table view associated with this data source.
- *  @note Can only be set during initialization with the constructor method: - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+ *  @note Can only be set during initialization.
  */
 @property (nonatomic, weak, readonly) UITableView *tableView;
 
@@ -137,20 +131,20 @@
 @property (nonatomic, weak) id<RZCollectionListTableViewDataSourceDelegate> delegate;
 
 /**
- *  Set this to YES if you plan on using - (NSArray *)sectionIndexTitlesForTableView;
+ *  Whether to show the index control on the right side of the table view.
  *  @note Defaults to NO
  */
 @property (nonatomic, assign, getter = shouldShowTableIndex) BOOL showTableIndex;
 
 /**
- *  Set this to YES to have the table view show the sections of _collectionList.
+ *  Set this to YES to have the table view show the titles of the sections of the collection list as header views.
  *  @note Defaults to NO.
  *  @warning Overridden if the delegate implements tableView:titleForHeaderInSection:
  */
 @property (nonatomic, assign, getter = shouldShowSectionHeaders) BOOL showSectionHeaders;
 
 /**
- *  Set this to YES to have the table view automatically animate any changes to _collectionList.
+ *  Set this to YES to have the table view animate any changes to the collection list. Otherwise, the tableview will just be reloaded.
  *  @note Defaults to YES.
  */
 @property (nonatomic, assign, getter = shouldAnimateTableChanges) BOOL animateTableChanges;
@@ -190,7 +184,6 @@
  *
  *  @param tableView      The table view to be associated with this data source.
  *  @param collectionList The collection list to be used as the data source for the table view.
- *  @note There can only be one collection list per RZCollectionListTableViewDataSource instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
  *  @param delegate       An instance of RZCollectionListTableViewDataSourceDelegate. It's usually helpful to keep this as a property.
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.

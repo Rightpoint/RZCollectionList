@@ -11,7 +11,7 @@
 #define kRZCollectionListNotificationsLogging 0
 
 /**
- *  All classifications of section info must conform to this protocol.
+ *  Protocol to be implemented by an object representing section info within a source list.
  */
 @protocol RZCollectionListSectionInfo <NSObject>
 
@@ -32,12 +32,11 @@
  */
 @property (nonatomic, readonly) NSArray *objects;
 
-//! Return a copy of this object which returns STATIC values for all properties above
-/*!
-    This is different from NSCopying in the sense that a cachedCopy of section info
-    should not derive its property values from a dynamic source (source list, etc)
-    but rather should return a static value for each property.
-*/
+/** Return a copy of this object which returns STATIC values for all properties above
+ *  This is different from NSCopying in the sense that a cachedCopy of section info
+ *  should not derive its property values from a dynamic source (source list, etc)
+ *  but rather should return a static value for each property.
+ */
 - (id<RZCollectionListSectionInfo>)cachedCopy;
 
 @end
@@ -46,34 +45,41 @@
 @protocol RZCollectionListObserver;
 
 /**
- *  All classifications of collection list must conform to this protocol.
+ *  Protocol defining a collection list.
+ *  Any object conforming to this protocol may be used as a collection list.
  */
 @protocol RZCollectionList <NSObject>
 
 @required
+
 /**
- *  All properties in the collection list.
+ *  All objects in the collection list in a flat array.
  */
 @property (nonatomic, readonly) NSArray *listObjects;
+
 /**
  *  An array of RZArrayCollectionListSectionInfo
  */
 @property (nonatomic, readonly) NSArray *sections;
+
 /**
  *  Sections cached prior to update, cleared when update is finished
  */
 @property (nonatomic, readonly) NSArray *cachedSections;
+
 /**
  *  A list of all entities who subscribe to the RZCollectionListObserver protocol for this RZCollectionList instance
  */
 @property (nonatomic, readonly) NSArray *listObservers;
+
 /**
- *  The object you want to implement the following protocol method:
- @code - (NSString *)collectionList:(id<RZCollectionList>)collectionList sectionIndexTitleForSectionName:(NSString *)sectionName;
+ *  Optional delegate for providing section index title.
  */
 @property (nonatomic, weak) id<RZCollectionListDelegate> delegate;
+
 /**
- *  Titles for all sections of this RZCollectionList instance
+ *  Titles for all sections of this RZCollectionList instance.
+ *  Should have the same number of objects as @p sections.
  */
 @property (nonatomic, readonly) NSArray *sectionIndexTitles;
 
@@ -85,6 +91,7 @@
  *  @return The object at the designated index path, if it exists, otherwise nil.
  */
 - (id)objectAtIndexPath:(NSIndexPath*)indexPath;
+
 /**
  *  Retrieve the index path of an object in a collection list.
  *
@@ -93,6 +100,7 @@
  *  @return An NSIndexPath of the parameter object if the object exists in the collection list, otherwise nil.
  */
 - (NSIndexPath*)indexPathForObject:(id)object;
+
 /**
  *  Retrieve the index title for a section.
  *
@@ -101,6 +109,7 @@
  *  @return The index title, if it exists, or nil.
  */
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName;
+
 /**
  *  Tell the collection list which section corresponds to section title/index (e.g. "B",1))
  *
@@ -110,12 +119,14 @@
  *  @return The index of the section in the collection list.
  */
 - (NSInteger)sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)sectionIndex;
+
 /**
  *  Add an observer to the list of observers for this collection list.
  *
  *  @param listObserver An object that conforms to the RZCollectionListObserver protocol.
  */
 - (void)addCollectionListObserver:(id<RZCollectionListObserver>)listObserver;
+
 /**
  *  Remove an observer from the list of observers fro this collection list.
  *

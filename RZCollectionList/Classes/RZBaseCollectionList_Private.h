@@ -10,6 +10,10 @@
 #import "RZObserverCollection.h"
 #import "RZCollectionListNotificationWrappers.h"
 
+/**
+ *  Private class continuation header for RZBaseCollectionList.
+ *  Do not use these methods publicly.
+ */
 @interface RZBaseCollectionList ()
 {
     // Exposed so subclasses can override delegate setter if desired.
