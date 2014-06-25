@@ -72,7 +72,7 @@
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         return ([[evaluatedObject index] integerValue] % 2 == 0);
     }];
-    STAssertNoThrow( self.filteredList.predicate = predicate, @"Something went wrong");
+    XCTAssertNoThrow( self.filteredList.predicate = predicate, @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[@"Iggy", @"Gretchen", @"Edgar", @"Carl", @"Arthur"]];
     
@@ -95,7 +95,7 @@
         NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
         gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
         NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
-        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
+        XCTAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
         if (gretchenResults.count > 0){
             TestChildEntity *gretchen = gretchenResults[0];
             [moc deleteObject:gretchen];
@@ -103,7 +103,7 @@
         
     };
     
-    STAssertNoThrow([self performSynchronousCoreDataBlockInChildContext:bgBlock], @"Something went wrong");
+    XCTAssertNoThrow([self performSynchronousCoreDataBlockInChildContext:bgBlock], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:@[@"Iggy", @"Nuni", @"Edgar", @"Carl", @"Kai", @"Arthur"]];
     
@@ -165,7 +165,7 @@
         NSFetchRequest *gretchenFetchen = [NSFetchRequest fetchRequestWithEntityName:@"TestChildEntity"];
         gretchenFetchen.predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Gretchen"];
         NSArray *gretchenResults = [moc executeFetchRequest:gretchenFetchen error:NULL];
-        STAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
+        XCTAssertTrue(gretchenResults.count != 0, @"Couldn't Find Gretchen");
         if (gretchenResults.count > 0){
             TestChildEntity *gretchen = gretchenResults[0];
             [moc deleteObject:gretchen];
@@ -173,7 +173,7 @@
         
     };
     
-    STAssertNoThrow([self performSynchronousCoreDataBlockInChildContext:bgBlock], @"Something went wrong");
+    XCTAssertNoThrow([self performSynchronousCoreDataBlockInChildContext:bgBlock], @"Something went wrong");
     
     [self assertTitlesOfVisibleCells:
      @[ @"Arthur",

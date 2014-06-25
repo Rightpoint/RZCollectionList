@@ -53,7 +53,6 @@
 		FE02ACF2160289A40096F3EA /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FE02ACF1160289A40096F3EA /* Default@2x.png */; };
 		FE02ACF4160289A40096F3EA /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FE02ACF3160289A40096F3EA /* Default-568h@2x.png */; };
 		FE02ACF7160289A40096F3EA /* RZCollectionList_Demo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FE02ACF5160289A40096F3EA /* RZCollectionList_Demo.xcdatamodeld */; };
-		FE02ACFF160289A40096F3EA /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACFE160289A40096F3EA /* SenTestingKit.framework */; };
 		FE02AD00160289A40096F3EA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACDB160289A40096F3EA /* UIKit.framework */; };
 		FE02AD01160289A40096F3EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACDD160289A40096F3EA /* Foundation.framework */; };
 		FE02AD02160289A40096F3EA /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE02ACE1160289A40096F3EA /* CoreData.framework */; };
@@ -157,8 +156,7 @@
 		FE02ACF1160289A40096F3EA /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		FE02ACF3160289A40096F3EA /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		FE02ACF6160289A40096F3EA /* RZCollectionList_Demo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RZCollectionList_Demo.xcdatamodel; sourceTree = "<group>"; };
-		FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RZCollectionList-DemoTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FE02ACFE160289A40096F3EA /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RZCollectionList-DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE02AD07160289A40096F3EA /* RZCollectionList-DemoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RZCollectionList-DemoTests-Info.plist"; sourceTree = "<group>"; };
 		FE02AD09160289A40096F3EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		FE02AD2A1603DB3F0096F3EA /* ListItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListItem.h; sourceTree = "<group>"; };
@@ -210,7 +208,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AD49080170CCB06003AB9D7 /* QuartzCore.framework in Frameworks */,
-				FE02ACFF160289A40096F3EA /* SenTestingKit.framework in Frameworks */,
 				FE02AD00160289A40096F3EA /* UIKit.framework in Frameworks */,
 				FE02AD01160289A40096F3EA /* Foundation.framework in Frameworks */,
 				FE02AD02160289A40096F3EA /* CoreData.framework in Frameworks */,
@@ -302,7 +299,7 @@
 			isa = PBXGroup;
 			children = (
 				FE02ACD7160289A40096F3EA /* RZCollectionList-Demo.app */,
-				FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.octest */,
+				FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -315,7 +312,6 @@
 				FE02ACDD160289A40096F3EA /* Foundation.framework */,
 				FE02ACDF160289A40096F3EA /* CoreGraphics.framework */,
 				FE02ACE1160289A40096F3EA /* CoreData.framework */,
-				FE02ACFE160289A40096F3EA /* SenTestingKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -471,8 +467,8 @@
 			);
 			name = "RZCollectionList-DemoTests";
 			productName = "RZCollectionList-DemoTests";
-			productReference = FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = FE02ACFD160289A40096F3EA /* RZCollectionList-DemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -480,7 +476,8 @@
 		FE02ACCE160289A40096F3EA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastTestingUpgradeCheck = 0510;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Raizlabs;
 			};
 			buildConfigurationList = FE02ACD1160289A40096F3EA /* Build configuration list for PBXProject "RZCollectionList-Demo" */;
@@ -668,6 +665,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "../**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -728,13 +726,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -745,13 +743,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
