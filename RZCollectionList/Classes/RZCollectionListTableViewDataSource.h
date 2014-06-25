@@ -115,15 +115,16 @@
 @interface RZCollectionListTableViewDataSource : NSObject <UITableViewDataSource>
 
 /**
- *  The collection list used as the data source for the collection view.
- */
-@property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
-
-/**
  *  The table view associated with this data source.
  *  @note Can only be set during initialization.
  */
 @property (nonatomic, weak, readonly) UITableView *tableView;
+
+/**
+ *  The collection list used as the data source for the collection view. May safely be changed or set to nil after initialization.
+ */
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
+
 
 /**
  *  The delegate for this data source.
@@ -182,9 +183,9 @@
 /**
  *  Initializer for an RZCollectionListTableViewDataSource instance.
  *
- *  @param tableView      The table view to be associated with this data source.
+ *  @param tableView      The table view to be associated with this data source. Must not be nil.
  *  @param collectionList The collection list to be used as the data source for the table view.
- *  @param delegate       An instance of RZCollectionListTableViewDataSourceDelegate. It's usually helpful to keep this as a property.
+ *  @param delegate       A required delegate for providing table view cells.
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */

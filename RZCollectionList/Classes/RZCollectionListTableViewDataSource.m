@@ -12,7 +12,6 @@
 
 @interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
-@property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
 @property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
@@ -24,22 +23,19 @@
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
+    NSParameterAssert(tableView);
+    
     if ((self = [super init]))
     {
-        self.collectionList = collectionList;
         self.delegate = delegate;
         self.tableView = tableView;
-
-        [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
-        collectionList.delegate = self;
         
         tableView.dataSource = self;
         
-        // reload data here to prep for collection list observations
-        [tableView reloadData];        
+        self.collectionList = collectionList;
     }
     
     return self;
@@ -48,6 +44,28 @@
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setCollectionList:(id<RZCollectionList>)collectionList
+{
+    if (collectionList != _collectionList)
+    {
+        if (nil != _collectionList)
+        {
+            [_collectionList removeCollectionListObserver:self];
+            _collectionList.delegate = nil;
+        }
+        
+        _collectionList = collectionList;
+        
+        if (nil != collectionList)
+        {
+            [collectionList addCollectionListObserver:self];
+            collectionList.delegate = self;
+        }
+        
+        [self.tableView reloadData];
+    }
 }
 
 - (void)setDelegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate

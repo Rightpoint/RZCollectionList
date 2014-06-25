@@ -69,9 +69,10 @@
 @interface RZCollectionListCollectionViewDataSource : NSObject <UICollectionViewDataSource>
 
 /**
- *  The collection list used as the data source for the collection View.
+ *  The collection list used as the data source for the collection view.
+ *  May safely be changed or set to nil after initialization.
  */
-@property (nonatomic, strong, readonly) id<RZCollectionList> collectionList;
+@property (nonatomic, strong) id<RZCollectionList> collectionList;
 
 /**
  *  The collection view associated with this data source.
@@ -103,10 +104,13 @@
  *  @param collectionList   The collection list used to update the collection view.
  *  @param delegate         An object that conforms to the RZCollectionListCollectionViewDataSourceDelegate protocol. This should never be nil.
  *  
- *  @note There can only be one collection list per RZCollectionListCollectionViewDataSourceDelegate instance. Be sure to use an RZCompositeCollectionList when your data consists of multiple lists.
+ *  @note There can only be one collection list per RZCollectionListCollectionViewDataSourceDelegate instance. 
+ *        Use an RZCompositeCollectionList when your data consists of multiple lists.
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
+- (id)initWithCollectionView:(UICollectionView*)collectionView
+              collectionList:(id<RZCollectionList>)collectionList
+                    delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
 
 @end
