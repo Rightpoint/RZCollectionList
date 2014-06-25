@@ -21,7 +21,7 @@
 /**
  *  A source collection list based on an in-memory array of objects, with optional sectioning.
  *
- *  @warning Currently, each object in the array list must be unique, meaning @p isEqual: returns NO when comparing two objects.
+ *  @warning Currently, each object in the array list must be unique, meaning isEqual: returns NO when comparing two objects.
  */
 @interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
 
@@ -50,6 +50,8 @@
 /**
  *  Create multiple sections, each with a title and array of objects
  *  Order of variadic args should be title (NSString), objects (NSArray)
+ *  
+ *  @param firstSectionTitle The title of the first section.
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied sections
  */
@@ -138,7 +140,7 @@
 /**
  *  Begin a batch update to the array list.
  *
- *  @warning Must be matched by a call to @p endUpdates.
+ *  @warning Must be matched by a call to endUpdates.
  */
 - (void)beginUpdates;
 
