@@ -86,13 +86,15 @@
 
 /**
  *  Whether to animate any changes to the collection list, or reload in place.
+ *  @note Defaults to YES.
  */
-@property (nonatomic, assign, getter = shouldAnimateCollectionChanges) BOOL animateCollectionChanges; // Defaults to YES
+@property (nonatomic, assign, getter = shouldAnimateCollectionChanges) BOOL animateCollectionChanges;
 
 /**
  *  Whether to allow batch updating of the collection list. Helps with animations when multiple changes occur in a short time span.
+ *  @note Defaults to YES.
  */
-@property (nonatomic, assign, getter = shouldUseBatchUpdating) BOOL useBatchUpdating; // Defaults to YES
+@property (nonatomic, assign, getter = shouldUseBatchUpdating) BOOL useBatchUpdating;
 
 /**
  *  Initializer for an RZCollectionListCollectionViewDataSourceDelegate instance.
