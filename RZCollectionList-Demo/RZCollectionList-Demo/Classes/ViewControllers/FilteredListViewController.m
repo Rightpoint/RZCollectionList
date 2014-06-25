@@ -34,7 +34,9 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        if ( [self respondsToSelector:@selector(setEdgesForExtendedLayout:)] ) {
+            self.edgesForExtendedLayout = UIRectEdgeNone;
+        }
     }
     return self;
 }
