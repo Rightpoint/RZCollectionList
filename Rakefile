@@ -24,7 +24,13 @@ end
 #
 
 task :test do
-  sh("xctool -project '#{PROJ_PATH}' -scheme '#{BUILD_SCHEME}' -sdk iphonesimulator clean test -simulator iphone7.1 -freshInstall") rescue nil
+  sh("xctool \
+     -project '#{PROJ_PATH}' \
+     -scheme '#{BUILD_SCHEME}'\
+     -sdk iphonesimulator \
+     -destination platform='iOS Simulator',OS=7.1,name='iPhone Retina (4-inch)' \
+     clean test \
+     -freshInstall") rescue nil
   exit $?.exitstatus
 end
 
