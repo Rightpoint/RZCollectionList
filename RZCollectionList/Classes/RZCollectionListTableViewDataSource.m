@@ -33,8 +33,8 @@
         self.collectionList = collectionList;
         self.delegate = delegate;
         self.tableView = tableView;
-        self.showTableIndex = showTableIndex;
-        self.showSectionHeaders = showSectionHeaders;
+        _showTableIndex = showTableIndex;
+        _showSectionHeaders = showSectionHeaders;
         
         [self.collectionList addCollectionListObserver:self];
         
