@@ -177,7 +177,8 @@
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
     [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+
     ListItem *item = (ListItem*)object;
     
     if ([item isKindOfClass:[ListItem class]])
