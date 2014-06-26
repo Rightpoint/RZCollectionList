@@ -75,6 +75,22 @@
     self.updateObjectAnimation = animation;
 }
 
+- (void)setShowTableIndex:(BOOL)showTableIndex
+{
+    if ( _showTableIndex != showTableIndex ) {
+        _showTableIndex = showTableIndex;
+        [self.tableView reloadData];
+    }
+}
+
+- (void)setShowSectionHeaders:(BOOL)showSectionHeaders
+{
+    if ( _showSectionHeaders != showSectionHeaders ) {
+        _showSectionHeaders = showSectionHeaders;
+        [self.tableView reloadData];
+    }
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
