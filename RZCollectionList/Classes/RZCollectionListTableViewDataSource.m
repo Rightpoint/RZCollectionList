@@ -22,14 +22,20 @@
 
 @implementation RZCollectionListTableViewDataSource
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+         showTableIndex:(BOOL)showTableIndex
+     showSectionHeaders:(BOOL)showSectionHeaders
 {
-    if ((self = [super init]))
-    {
+    self = [super init];
+    if ( self != nil ) {
         self.collectionList = collectionList;
         self.delegate = delegate;
         self.tableView = tableView;
-
+        self.showTableIndex = showTableIndex;
+        self.showSectionHeaders = showSectionHeaders;
+        
         [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
@@ -39,10 +45,14 @@
         tableView.dataSource = self;
         
         // reload data here to prep for collection list observations
-        [tableView reloadData];        
+        [tableView reloadData];
     }
-    
     return self;
+}
+
+- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+{
+    return [self initWithTableView:tableView collectionList:collectionList delegate:delegate showTableIndex:NO showSectionHeaders:NO];
 }
 
 - (void)dealloc
