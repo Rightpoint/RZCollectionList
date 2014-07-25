@@ -56,7 +56,9 @@
          showTableIndex:(BOOL)showTableIndex
      showSectionHeaders:(BOOL)showSectionHeaders;
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
 
 // TableViewAnimations
 - (void)setAllAnimations:(UITableViewRowAnimation)animation;
