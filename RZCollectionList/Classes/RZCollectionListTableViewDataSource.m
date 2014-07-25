@@ -23,12 +23,24 @@
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
+    return [self initWithTableView:tableView collectionList:collectionList delegate:delegate showTableIndex:NO showSectionHeaders:NO];
+}
+
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+         showTableIndex:(BOOL)showTableIndex
+     showSectionHeaders:(BOOL)showSectionHeaders
+{
     NSParameterAssert(tableView);
-    
-    if ((self = [super init]))
-    {
+
+    self = [super init];
+    if ( self != nil ) {
         self.delegate = delegate;
         self.tableView = tableView;
+        _showTableIndex = showTableIndex;
+        _showSectionHeaders = showSectionHeaders;
+
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
@@ -37,7 +49,6 @@
         
         self.collectionList = collectionList;
     }
-    
     return self;
 }
 
@@ -91,6 +102,22 @@
     self.addObjectAnimation = animation;
     self.removeObjectAnimation = animation;
     self.updateObjectAnimation = animation;
+}
+
+- (void)setShowTableIndex:(BOOL)showTableIndex
+{
+    if ( _showTableIndex != showTableIndex ) {
+        _showTableIndex = showTableIndex;
+        [self.tableView reloadData];
+    }
+}
+
+- (void)setShowSectionHeaders:(BOOL)showSectionHeaders
+{
+    if ( _showSectionHeaders != showSectionHeaders ) {
+        _showSectionHeaders = showSectionHeaders;
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - UITableViewDataSource

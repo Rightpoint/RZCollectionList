@@ -189,7 +189,29 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
+
+
+/**
+ *  Initializer for an RZCollectionListTableViewDataSource instance with table view index and header options.
+ *
+ *  @param tableView            The table view to be associated with this data source. Must not be nil.
+ *  @param collectionList       The collection list to be used as the data source for the table view.
+ *  @param delegate             A required delegate for providing table view cells.
+ *  @param showTableIndex       If @c YES and the collection list provides section names, the table view 
+ *                              will show an index control on the right side based on these names.
+ *  @param showSectionHeaders   If @c YES and the collection list provides section names, the table view 
+ *                              will show section headers in the default style.
+ *
+ *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
+ */
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+         showTableIndex:(BOOL)showTableIndex
+     showSectionHeaders:(BOOL)showSectionHeaders;
 
 #pragma mark - TableViewAnimations
 
