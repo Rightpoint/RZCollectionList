@@ -33,8 +33,8 @@
         self.collectionList = collectionList;
         self.delegate = delegate;
         self.tableView = tableView;
-        self.showTableIndex = showTableIndex;
-        self.showSectionHeaders = showSectionHeaders;
+        _showTableIndex = showTableIndex;
+        _showSectionHeaders = showSectionHeaders;
         
         [self.collectionList addCollectionListObserver:self];
         
@@ -83,6 +83,22 @@
     self.addObjectAnimation = animation;
     self.removeObjectAnimation = animation;
     self.updateObjectAnimation = animation;
+}
+
+- (void)setShowTableIndex:(BOOL)showTableIndex
+{
+    if ( _showTableIndex != showTableIndex ) {
+        _showTableIndex = showTableIndex;
+        [self.tableView reloadData];
+    }
+}
+
+- (void)setShowSectionHeaders:(BOOL)showSectionHeaders
+{
+    if ( _showSectionHeaders != showSectionHeaders ) {
+        _showSectionHeaders = showSectionHeaders;
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - UITableViewDataSource
