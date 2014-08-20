@@ -340,7 +340,7 @@
 {
     RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
     
-    if ( sectionInfo.numberOfObjects == 0 ) {
+    if ( indexPath.row >= sectionInfo.numberOfObjects ) {
         return;
     }
     
