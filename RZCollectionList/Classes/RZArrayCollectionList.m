@@ -339,6 +339,11 @@
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath sendNotifications:(BOOL)shouldSendNotifications
 {
     RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
+    
+    if ( sectionInfo.numberOfObjects == 0 ) {
+        return;
+    }
+    
     NSUInteger index = sectionInfo.indexOffset + indexPath.row;
     
     id object = nil;
