@@ -341,7 +341,7 @@
     RZArrayCollectionListSectionInfo *sectionInfo = [self sectionInfoForSection:indexPath.section];
     
     if ( indexPath.row >= sectionInfo.numberOfObjects ) {
-        return;
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"Index is outside the bounds for the section. Index:%lu in section %lu is greater than the number of objects in the section:%lu", (unsigned long)indexPath.row, (unsigned long)indexPath.section, (unsigned long)sectionInfo.numberOfObjects] userInfo:nil];
     }
     
     NSUInteger index = sectionInfo.indexOffset + indexPath.row;
