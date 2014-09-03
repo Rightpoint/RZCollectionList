@@ -96,6 +96,7 @@
         } else {
             self.sectionsInfo = [[NSArray array] mutableCopy];
         }
+
         
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
@@ -201,7 +202,7 @@
 - (void)insertObject:(id)object atIndexPath:(NSIndexPath*)indexPath
 {
     [self prepareForUpdateIfNecessary];
-    [self insertObject:object atIndexPath:indexPath sendNotifications:!self.batchUpdating];
+    [self insertObject:object atIndexPath:indexPath sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
@@ -218,33 +219,38 @@
 - (void)removeObjectAtIndexPath:(NSIndexPath*)indexPath
 {
     [self prepareForUpdateIfNecessary];
-    [self removeObjectAtIndexPath:indexPath sendNotifications:!self.batchUpdating];
+    [self removeObjectAtIndexPath:indexPath sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
 - (void)replaceObjectAtIndexPath:(NSIndexPath*)indexPath withObject:(id)object
 {
     [self prepareForUpdateIfNecessary];
-    [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.batchUpdating];
+    [self replaceObjectAtIndexPath:indexPath withObject:object sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
 - (void)moveObjectAtIndexPath:(NSIndexPath*)sourceIndexPath toIndexPath:(NSIndexPath*)destinationIndexPath
 {
     [self prepareForUpdateIfNecessary];
-    [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.batchUpdating];
+    [self moveObjectAtIndexPath:sourceIndexPath toIndexPath:destinationIndexPath sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
 - (void)removeAllObjects
 {
-    // avoid mutation during enumeration
-    [self beginUpdates];
+    BOOL isBatchUpdate = self.isBatchUpdating;
+    if ( !isBatchUpdate ) {
+        [self beginUpdates];
+    }
     NSArray *objects = [[self objects] copy];
     [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [self removeObject:obj];
     }];
-    [self endUpdates];
+    if ( !isBatchUpdate ) {
+        [self endUpdates];
+    }
+
 }
 
 - (void)addSection:(RZArrayCollectionListSectionInfo*)section
@@ -255,7 +261,7 @@
 - (void)insertSection:(RZArrayCollectionListSectionInfo*)section atIndex:(NSUInteger)index
 {
     [self prepareForUpdateIfNecessary];
-    [self insertSection:section atIndex:index sendNotifications:!self.batchUpdating];
+    [self insertSection:section atIndex:index sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
@@ -269,13 +275,13 @@
 - (void)removeSectionAtIndex:(NSUInteger)index
 {
     [self prepareForUpdateIfNecessary];
-    [self removeSectionAtIndex:index sendNotifications:!self.batchUpdating];
+    [self removeSectionAtIndex:index sendNotifications:!self.isBatchUpdating];
     [self finalizeUpdateIfNecessary];
 }
 
 - (void)beginUpdates
 {
-    if(!self.batchUpdating)
+    if(!self.isBatchUpdating)
     {
         self.batchUpdating = YES;
         self.sourceObjectsBeforeUpdate = [self.objects copy];
@@ -290,7 +296,7 @@
 
 - (void)endUpdates
 {
-    if (self.batchUpdating)
+    if (self.isBatchUpdating)
     {
         [self processPendingChangeNotifications];
         [self sendAllPendingChangeNotifications];
@@ -591,7 +597,7 @@
 
 - (void)prepareForUpdateIfNecessary
 {
-    if (!self.batchUpdating)
+    if (!self.isBatchUpdating)
     {
         // always need to have valid cached sections before sending willChange
         self.sourceSectionsInfoBeforeUpdateDeep = [self.sectionsInfo valueForKey:@"cachedCopy"];
@@ -601,7 +607,7 @@
 
 - (void)finalizeUpdateIfNecessary
 {
-    if (!self.batchUpdating)
+    if (!self.isBatchUpdating)
     {
         [self sendDidChangeContentNotifications];
         self.sourceSectionsInfoBeforeUpdateDeep = nil;
@@ -719,7 +725,7 @@
     
     if (nil != object && nil != indexPath)
     {
-        if (!self.batchUpdating)
+        if (!self.isBatchUpdating)
         {
             [self sendWillChangeContentNotifications];
             
