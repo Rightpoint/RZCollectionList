@@ -97,7 +97,6 @@
             self.sectionsInfo = [[NSArray array] mutableCopy];
         }
 
-        
         [self.sectionsInfo enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             ((RZArrayCollectionListSectionInfo*)obj).arrayList = self;
         }];
