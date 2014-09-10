@@ -79,8 +79,14 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    id<RZCollectionListSectionInfo> sectionInfo = [self.collectionList.sections objectAtIndex:section];
-    return sectionInfo.numberOfObjects;
+    // This check is here because as of iOS 8GM this method gets called even when number of sections in tableView returns 0
+    if ( section < self.collectionList.sections.count ) {
+        id<RZCollectionListSectionInfo> sectionInfo = [self.collectionList.sections objectAtIndex:section];
+        return sectionInfo.numberOfObjects;
+    }
+    else {
+        return 0;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
