@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.license = "MIT"
   s.authors = { "Joe Goullaud" => "joe@raizlabs.com",
                 "Nick Donaldson" => "nick.donaldson@raizlabs.com" }
-  s.source = { :git => "https://github.com/Raizlabs/RZCollectionList.git", :tag => "0.6.0" }
+  s.source = { :git => "https://github.com/Raizlabs/RZCollectionList.git", :tag => "0.7.0" }
   s.source_files = 'RZCollectionList', 'RZCollectionList/**/*.{h,m}'
   s.requires_arc = true
   s.platform = :ios, '5.0'
