@@ -12,7 +12,6 @@
 
 @interface RZCollectionListTableViewDataSource () <RZCollectionListDelegate, RZCollectionListObserver>
 
-@property (nonatomic, strong, readwrite) id<RZCollectionList> collectionList;
 @property (nonatomic, weak, readwrite) UITableView *tableView;
 
 @property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
@@ -24,30 +23,60 @@
 
 - (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
-    if ((self = [super init]))
-    {
-        self.collectionList = collectionList;
+    return [self initWithTableView:tableView collectionList:collectionList delegate:delegate showTableIndex:NO showSectionHeaders:NO];
+}
+
+- (id)initWithTableView:(UITableView*)tableView
+         collectionList:(id<RZCollectionList>)collectionList
+               delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+         showTableIndex:(BOOL)showTableIndex
+     showSectionHeaders:(BOOL)showSectionHeaders
+{
+    NSParameterAssert(tableView);
+
+    self = [super init];
+    if ( self != nil ) {
         self.delegate = delegate;
         self.tableView = tableView;
+        _showTableIndex = showTableIndex;
+        _showSectionHeaders = showSectionHeaders;
 
-        [self.collectionList addCollectionListObserver:self];
         
         self.animateTableChanges = YES;
         [self setAllAnimations:UITableViewRowAnimationFade];
-        collectionList.delegate = self;
         
         tableView.dataSource = self;
         
-        // reload data here to prep for collection list observations
-        [tableView reloadData];        
+        self.collectionList = collectionList;
     }
-    
     return self;
 }
 
 - (void)dealloc
 {
     [self.collectionList removeCollectionListObserver:self];
+}
+
+- (void)setCollectionList:(id<RZCollectionList>)collectionList
+{
+    if (collectionList != _collectionList)
+    {
+        if (nil != _collectionList)
+        {
+            [_collectionList removeCollectionListObserver:self];
+            _collectionList.delegate = nil;
+        }
+        
+        _collectionList = collectionList;
+        
+        if (nil != collectionList)
+        {
+            [collectionList addCollectionListObserver:self];
+            collectionList.delegate = self;
+        }
+        
+        [self.tableView reloadData];
+    }
 }
 
 - (void)setDelegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
@@ -73,6 +102,22 @@
     self.addObjectAnimation = animation;
     self.removeObjectAnimation = animation;
     self.updateObjectAnimation = animation;
+}
+
+- (void)setShowTableIndex:(BOOL)showTableIndex
+{
+    if ( _showTableIndex != showTableIndex ) {
+        _showTableIndex = showTableIndex;
+        [self.tableView reloadData];
+    }
+}
+
+- (void)setShowSectionHeaders:(BOOL)showSectionHeaders
+{
+    if ( _showSectionHeaders != showSectionHeaders ) {
+        _showSectionHeaders = showSectionHeaders;
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - UITableViewDataSource

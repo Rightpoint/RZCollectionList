@@ -69,7 +69,7 @@
 {
     static NSUInteger totalCount = 0;
     ++totalCount;
-    [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %u", totalCount] subtitle:nil] toSection:0];
+    [self.arrayList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Item %lu", (unsigned long)totalCount] subtitle:nil] toSection:0];
 }
 
 #pragma mark - UITableViewDelegate
@@ -130,7 +130,8 @@
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
     [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+
     ListItemObject *item = (ListItemObject*)object;
     
     if ([item isKindOfClass:[ListItemObject class]])

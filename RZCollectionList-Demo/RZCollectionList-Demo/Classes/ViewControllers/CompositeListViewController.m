@@ -77,7 +77,7 @@
         [self.dynamicList addSection:[[RZArrayCollectionListSectionInfo alloc] initWithName:@"Dynamic" sectionIndexTitle:@"D" numberOfObjects:0]];
     }
     
-    [self.dynamicList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Dynamic Item %u", totalCount] subtitle:@"Dynamic"] toSection:0];
+    [self.dynamicList addObject:[ListItemObject listItemObjectWithName:[NSString stringWithFormat:@"Dynamic Item %lu", (unsigned long)totalCount] subtitle:@"Dynamic"] toSection:0];
 }
 
 #pragma mark - RZCollectionListDataSourceDelegate
@@ -133,7 +133,8 @@
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
     [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+
     ListItemObject *item = (ListItemObject*)object;
     
     CGSize itemSize = ((UICollectionViewFlowLayout*)collectionView.collectionViewLayout).itemSize;

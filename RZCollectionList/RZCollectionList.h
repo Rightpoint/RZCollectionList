@@ -18,10 +18,7 @@
 #import "RZSortedCollectionList.h"
 #import "RZCompositeCollectionList.h"
 #import "RZCollectionListTableViewDataSource.h"
-
-#if (__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0)
-    #import "RZCollectionListCollectionViewDataSource.h"
-#endif
+#import "RZCollectionListCollectionViewDataSource.h"
 
 // Category for helping construct fetch requests
 #import "NSFetchRequest+RZCreationHelpers.h"

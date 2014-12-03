@@ -17,7 +17,7 @@
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"%@ [%d]", self.name, self.index.integerValue];
+    return [NSString stringWithFormat:@"%@ [%ld]", self.name, (long)self.index.integerValue];
 }
 
 @end

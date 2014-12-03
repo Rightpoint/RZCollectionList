@@ -109,8 +109,8 @@
     if (ascending)
     {
         ListItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ListItem" inManagedObjectContext:self.moc];
-        item.itemName = [NSString stringWithFormat:@"Count: %d", self.totalCount];
-        item.subtitle = [NSString stringWithFormat:@"%d Subtitle", self.fetchedList.listObjects.count / 3];
+        item.itemName = [NSString stringWithFormat:@"Count: %lu", (unsigned long)self.totalCount];
+        item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", (unsigned long)self.fetchedList.listObjects.count / 3];
         
         self.totalCount += 1;
     }
@@ -128,8 +128,8 @@
 - (IBAction)addItemTapped:(id)sender
 {
     ListItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ListItem" inManagedObjectContext:self.moc];
-    item.itemName = [NSString stringWithFormat:@"Count: %d", self.totalCount];
-    item.subtitle = [NSString stringWithFormat:@"%d Subtitle", self.fetchedList.listObjects.count / 3];
+    item.itemName = [NSString stringWithFormat:@"Count: %lu", (unsigned long)self.totalCount];
+    item.subtitle = [NSString stringWithFormat:@"%lu Subtitle", (unsigned long)self.fetchedList.listObjects.count / 3];
     
     self.totalCount += 1;
 }
@@ -177,7 +177,8 @@
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kRZCellIdentifier forIndexPath:indexPath];
     [cell.contentView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
+    [cell.contentView setBackgroundColor:[UIColor whiteColor]];
+
     ListItem *item = (ListItem*)object;
     
     if ([item isKindOfClass:[ListItem class]])
