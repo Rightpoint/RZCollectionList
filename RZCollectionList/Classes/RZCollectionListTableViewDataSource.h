@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "RZCollectionListProtocol.h"
 
 #pragma mark - RZCollectionListTableViewDataSourceDelegate
