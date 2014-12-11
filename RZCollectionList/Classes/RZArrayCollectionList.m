@@ -75,13 +75,13 @@
 
 @implementation RZArrayCollectionList
 
-- (id)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
+- (instancetype)initWithArray:(NSArray *)array sectionNameKeyPath:(NSString *)keyPath
 {
     NSArray *sections = [RZArrayCollectionList sectionsForObjects:array withNameKeyPath:keyPath];
     return [self initWithArray:array sections:sections];
 }
 
-- (id)initWithArray:(NSArray *)array sections:(NSArray *)sections
+- (instancetype)initWithArray:(NSArray *)array sections:(NSArray *)sections
 {    
     if ((self = [super init]))
     {
@@ -105,7 +105,7 @@
     return self;
 }
 
-- (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ...
+- (instancetype)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ...
 {
     if ((self = [super init]))
     {
@@ -963,7 +963,7 @@
 
 @implementation RZArrayCollectionListSectionInfo
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects
 {
     if ((self = [super init]))
     {

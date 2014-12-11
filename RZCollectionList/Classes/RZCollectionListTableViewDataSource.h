@@ -189,7 +189,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithTableView:(UITableView*)tableView
          collectionList:(id<RZCollectionList>)collectionList
                delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
 
@@ -207,7 +207,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithTableView:(UITableView*)tableView
          collectionList:(id<RZCollectionList>)collectionList
                delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
          showTableIndex:(BOOL)showTableIndex

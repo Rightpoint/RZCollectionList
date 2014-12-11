@@ -19,7 +19,7 @@
 
 @property (nonatomic, assign) BOOL isCachedCopy;
 
-- (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
+- (instancetype)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
 
 @end
 
@@ -90,12 +90,12 @@ typedef enum {
 
 @implementation RZFilteredCollectionList
 
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
 {
     return [self initWithSourceList:sourceList predicate:predicate filterOutEmptySections:YES];
 }
 
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate filterOutEmptySections:(BOOL)filterOutEmptySections
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate filterOutEmptySections:(BOOL)filterOutEmptySections
 {
     if ((self = [super init]))
     {
@@ -918,7 +918,7 @@ typedef enum {
 
 @implementation RZFilteredCollectionListSectionInfo
 
-- (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList
+- (instancetype)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList
 {
     if ((self = [super init]))
     {

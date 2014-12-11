@@ -17,7 +17,7 @@
 @property (nonatomic, strong) id<NSFetchedResultsSectionInfo> fetchedSectionInfo;
 @property (nonatomic, assign) BOOL isCachedCopy;
 
-- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo;
+- (instancetype)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo;
 
 @end
 
@@ -32,12 +32,12 @@
 
 @implementation RZFetchedCollectionList
 
-- (id)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name
+- (instancetype)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name
 {
     return [self initWithFetchedResultsController:[[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:sectionNameKeyPath cacheName:name]];
 }
 
-- (id)initWithFetchedResultsController:(NSFetchedResultsController*)controller
+- (instancetype)initWithFetchedResultsController:(NSFetchedResultsController*)controller
 {
     if ((self = [super init]))
     {
@@ -199,7 +199,7 @@
 
 @implementation RZFetchedCollectionListSectionInfo
 
-- (id)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo
+- (instancetype)initWithFetchedResultsSectionInfo:(id<NSFetchedResultsSectionInfo>)fetchedSectionInfo
 {
     if ((self = [super init]))
     {
