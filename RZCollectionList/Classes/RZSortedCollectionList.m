@@ -21,7 +21,7 @@
 
 @property (nonatomic, weak) RZSortedCollectionList *sortedList;
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects;
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects;
 
 @end
 
@@ -58,7 +58,7 @@ typedef enum {
 
 @implementation RZSortedCollectionList
 
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList sortDescriptors:(NSArray *)sortDescriptors
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList sortDescriptors:(NSArray *)sortDescriptors
 {
     if ((self = [super init]))
     {
@@ -435,7 +435,7 @@ typedef enum {
 
 @implementation RZSortedCollectionListSectionInfo
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects
 {
     if ((self = [super init]))
     {

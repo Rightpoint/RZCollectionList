@@ -33,7 +33,7 @@
  *
  *  @return An instance of RZFilteredCollectionList.
  */
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate;
 
 /**
  *  An initializer for RZFilteredCollectionList. Takes a source list, a predicate, and a boolean to determine whether or not to filter out empty sections.
@@ -44,6 +44,6 @@
  *
  *  @return An instance of RZFilteredCollectionList.
  */
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate filterOutEmptySections:(BOOL)filterOutEmptySections; // defaults to YES, will hide empty sections
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate*)predicate filterOutEmptySections:(BOOL)filterOutEmptySections; // defaults to YES, will hide empty sections
 
 @end

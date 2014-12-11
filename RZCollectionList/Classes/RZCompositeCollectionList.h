@@ -32,7 +32,7 @@
  *
  *  @return An instance of RZCompositeCollectionList.
  */
-- (id)initWithSourceLists:(NSArray*)sourceLists;
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists;
 
 /**
  *  Initializer for an instance of RZCompositeCollectionList. You must provide one or more @b initialized source collection list instances.
@@ -45,7 +45,7 @@
  *
  *  @return An instance of RZCompositeCollectionList.
  */
-- (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections;
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections;
 
 /**
  *  Returns the list at the specified section in the RZCompositeCollectionList instance. This will work even if _ignoreSections is set to YES.
