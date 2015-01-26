@@ -16,7 +16,7 @@
 
 @property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
 @property (nonatomic, assign) BOOL reloadAfterAnimation;
-@property (nonatomic, assign) BOOL tableViewBeginUpdateWasCalled;
+@property (nonatomic, assign) BOOL tableViewBeginUpdatesWasCalled;
 
 @end
 
@@ -300,15 +300,15 @@
     if (self.animateTableChanges && self.tableView.window != nil)
     {
         [self.tableView beginUpdates];
-        self.tableViewBeginUpdateWasCalled = YES;
+        self.tableViewBeginUpdatesWasCalled = YES;
     }
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    if (self.animateTableChanges && self.tableView.window != nil && self.tableViewBeginUpdateWasCalled )
+    if (self.animateTableChanges && self.tableView.window != nil && self.tableViewBeginUpdatesWasCalled )
     {
-        self.tableViewBeginUpdateWasCalled = NO;
+        self.tableViewBeginUpdatesWasCalled = NO;
         
         if (self.reloadAfterAnimation)
         {
