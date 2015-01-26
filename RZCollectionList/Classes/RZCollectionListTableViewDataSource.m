@@ -234,7 +234,7 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    if (self.animateTableChanges)
+    if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
             case RZCollectionListChangeInsert:
@@ -276,7 +276,7 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
-    if (self.animateTableChanges)
+    if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
             case RZCollectionListChangeInsert:
