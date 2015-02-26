@@ -234,6 +234,7 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
+    // Animating changes when the tableView is offscreen will produce a crash
     if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
@@ -275,6 +276,7 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
+    // Animating changes when the tableView is offscreen produce a crash
     if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
@@ -296,6 +298,7 @@
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
+    // Checks to animation and window are made here to prevent unbalanced calls to begin/end updates
     if (self.animateTableChanges && self.tableView.window != nil)
     {
         [self.tableView beginUpdates];
@@ -305,6 +308,7 @@
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
+    // Animating changes when the tableView is offscreen produce a crash
     if (self.animateTableChanges && self.tableView.window != nil && self.tableViewBeginUpdatesWasCalled )
     {
         self.tableViewBeginUpdatesWasCalled = NO;
