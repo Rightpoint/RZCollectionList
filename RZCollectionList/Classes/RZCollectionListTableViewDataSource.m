@@ -16,6 +16,7 @@
 
 @property (nonatomic, assign) BOOL delegateImplementsInPlaceUpdate;
 @property (nonatomic, assign) BOOL reloadAfterAnimation;
+@property (nonatomic, assign) BOOL tableViewBeginUpdatesWasCalled;
 
 @end
 
@@ -233,7 +234,8 @@
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeObject:(id)object atIndexPath:(NSIndexPath*)indexPath forChangeType:(RZCollectionListChangeType)type newIndexPath:(NSIndexPath*)newIndexPath
 {
-    if (self.animateTableChanges)
+    // Animating changes when the tableView is offscreen will produce a crash
+    if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
             case RZCollectionListChangeInsert:
@@ -270,12 +272,12 @@
                 break;
         }
     }
-    
 }
 
 - (void)collectionList:(id<RZCollectionList>)collectionList didChangeSection:(id<RZCollectionListSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(RZCollectionListChangeType)type
 {
-    if (self.animateTableChanges)
+    // Animating changes when the tableView is offscreen produce a crash
+    if (self.animateTableChanges  && self.tableView.window != nil)
     {
         switch(type) {
             case RZCollectionListChangeInsert:
@@ -296,16 +298,21 @@
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
 {
-    if (self.animateTableChanges)
+    // Checks to animation and window are made here to prevent unbalanced calls to begin/end updates
+    if (self.animateTableChanges && self.tableView.window != nil)
     {
         [self.tableView beginUpdates];
+        self.tableViewBeginUpdatesWasCalled = YES;
     }
 }
 
 - (void)collectionListDidChangeContent:(id<RZCollectionList>)collectionList
 {
-    if (self.animateTableChanges)
+    // Animating changes when the tableView is offscreen produce a crash
+    if (self.animateTableChanges && self.tableView.window != nil && self.tableViewBeginUpdatesWasCalled )
     {
+        self.tableViewBeginUpdatesWasCalled = NO;
+        
         if (self.reloadAfterAnimation)
         {
             [CATransaction begin];
