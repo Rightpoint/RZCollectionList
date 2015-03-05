@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "DemoCollectionListViewController.h"
+#import <CoreData/CoreData.h>
 
 @implementation AppDelegate
 
