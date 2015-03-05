@@ -7,6 +7,7 @@
 //
 
 #import "RZCollectionListCollectionViewDataSource.h"
+#import <UIKit/UITableView.h>
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 

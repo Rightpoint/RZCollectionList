@@ -6,9 +6,8 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import "RZCollectionListProtocol.h"
+#import <UIKit/UITableView.h>
 
 #pragma mark - RZCollectionListTableViewDataSourceDelegate
 
