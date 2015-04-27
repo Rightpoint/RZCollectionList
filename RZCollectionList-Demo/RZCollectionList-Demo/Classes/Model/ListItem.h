@@ -6,9 +6,7 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-
 
 @interface ListItem : NSManagedObject
 

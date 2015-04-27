@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
+#import <UIKit/UITableView.h>
 #import "RZArrayCollectionList.h"
 #import "RZObserverCollection.h"
 #import "RZBaseCollectionList_Private.h"

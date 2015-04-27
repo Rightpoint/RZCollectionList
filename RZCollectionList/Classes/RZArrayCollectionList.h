@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 #import "RZBaseCollectionList.h"
 
