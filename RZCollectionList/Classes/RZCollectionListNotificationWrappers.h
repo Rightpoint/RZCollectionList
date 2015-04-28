@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 
 // Box containers for storing fetched results controller notifications until didChange is called.

@@ -7,6 +7,7 @@
 //
 
 #import "RZCollectionListCollectionViewDataSource.h"
+#import <UIKit/UITableView.h>
 
 typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
@@ -23,7 +24,7 @@ typedef void(^RZCollectionListCollectionViewBatchUpdateBlock)(void);
 
 @implementation RZCollectionListCollectionViewDataSource
 
-- (id)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate
+- (instancetype)initWithCollectionView:(UICollectionView*)collectionView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate
 {
     NSParameterAssert(collectionView);
     

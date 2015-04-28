@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
+#import <UIKit/UICollectionView.h>
 
 /**
  *  An object that adopts the RZCollectionListCollectionViewDataSourceDelegate protocol is responsible for providing the data and views required by an
@@ -109,7 +109,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithCollectionView:(UICollectionView*)collectionView
+- (instancetype)initWithCollectionView:(UICollectionView*)collectionView
               collectionList:(id<RZCollectionList>)collectionList
                     delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
 

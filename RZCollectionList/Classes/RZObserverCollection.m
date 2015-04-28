@@ -56,8 +56,11 @@
     else
     {
 #if RZOCL_POINTER_ARRAY_AVAILABLE
-        [self.observerPointerArray addPointer:(__bridge void *)(observer)];
+        if ( [self indexOfObserverInPointerArray:observer] == NSNotFound ) {
+            [self.observerPointerArray addPointer:(__bridge void *)(observer)];
+        }
 #else
+        
         NSString *addressString = [NSString stringWithFormat:@"%p", observer];
         if (![self.observerAddresses containsObject:addressString])
         {

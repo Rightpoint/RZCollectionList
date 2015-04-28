@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
 #import "RZBaseCollectionList.h"
 
@@ -14,7 +13,7 @@
 
 @property (nonatomic, assign) NSUInteger indexOffset;
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects;
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle numberOfObjects:(NSUInteger)numberOfObjects;
 
 @end
 
@@ -35,7 +34,7 @@
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied array and organized into sections based on the supplied keypath
  */
-- (id)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
+- (instancetype)initWithArray:(NSArray*)array sectionNameKeyPath:(NSString*)keyPath;
 
 /**
  *  Manually create sections for objects in array
@@ -45,7 +44,7 @@
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied sections and array
  */
-- (id)initWithArray:(NSArray*)array sections:(NSArray*)sections;
+- (instancetype)initWithArray:(NSArray*)array sections:(NSArray*)sections;
 
 /**
  *  Create multiple sections, each with a title and array of objects
@@ -55,7 +54,7 @@
  *
  *  @return An instance of RZArrayCollectionList populated with the supplied sections
  */
-- (id)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ... NS_REQUIRES_NIL_TERMINATION;
+- (instancetype)initWithSectionTitlesAndSectionArrays:(NSString*)firstSectionTitle, ... NS_REQUIRES_NIL_TERMINATION;
 
 /**
  *  Add an object to a particular section.

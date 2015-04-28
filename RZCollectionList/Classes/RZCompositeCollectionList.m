@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
+#import <UIKit/UITableView.h>
 #import "RZCompositeCollectionList.h"
 #import "RZBaseCollectionList_Private.h"
 #import "RZObserverCollection.h"
@@ -22,7 +23,7 @@
 
 @property (nonatomic, weak) RZCompositeCollectionList *compositeList;
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
 
 @end
 
@@ -66,12 +67,12 @@ typedef enum {
 
 @implementation RZCompositeCollectionList
 
-- (id)initWithSourceLists:(NSArray*)sourceLists
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists
 {
     return [self initWithSourceLists:sourceLists ignoreSections:NO];
 }
 
-- (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections
 {
     if ((self = [super init]))
     {
@@ -577,7 +578,7 @@ typedef enum {
 
 @implementation RZCompositeCollectionListSectionInfo
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList *)compositeList
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList *)compositeList
 {
     if ((self = [super init]))
     {

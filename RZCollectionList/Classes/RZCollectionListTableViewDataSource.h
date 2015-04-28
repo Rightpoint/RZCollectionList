@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "RZCollectionListProtocol.h"
+#import <UIKit/UITableView.h>
 
 #pragma mark - RZCollectionListTableViewDataSourceDelegate
 
@@ -189,7 +189,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithTableView:(UITableView*)tableView
          collectionList:(id<RZCollectionList>)collectionList
                delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate;
 
@@ -207,7 +207,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithTableView:(UITableView*)tableView
          collectionList:(id<RZCollectionList>)collectionList
                delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
          showTableIndex:(BOOL)showTableIndex

@@ -149,7 +149,6 @@
 		FE02ACE5160289A40096F3EA /* RZCollectionList-Demo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RZCollectionList-Demo-Info.plist"; sourceTree = "<group>"; };
 		FE02ACE7160289A40096F3EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		FE02ACE9160289A40096F3EA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		FE02ACEB160289A40096F3EA /* RZCollectionList-Demo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RZCollectionList-Demo-Prefix.pch"; sourceTree = "<group>"; };
 		FE02ACEC160289A40096F3EA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		FE02ACED160289A40096F3EA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		FE02ACEF160289A40096F3EA /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -334,7 +333,6 @@
 				FE02ACE5160289A40096F3EA /* RZCollectionList-Demo-Info.plist */,
 				FE02ACE6160289A40096F3EA /* InfoPlist.strings */,
 				FE02ACE9160289A40096F3EA /* main.m */,
-				FE02ACEB160289A40096F3EA /* RZCollectionList-Demo-Prefix.pch */,
 				FE02ACEF160289A40096F3EA /* Default.png */,
 				FE02ACF1160289A40096F3EA /* Default@2x.png */,
 				FE02ACF3160289A40096F3EA /* Default-568h@2x.png */,
@@ -696,8 +694,6 @@
 		FE02AD11160289A40096F3EA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-Demo/RZCollectionList-Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -709,8 +705,6 @@
 		FE02AD12160289A40096F3EA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-Demo/RZCollectionList-Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -728,8 +722,6 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 					"$(inherited)",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -746,8 +738,6 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 					"$(inherited)",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RZCollectionList-Demo/RZCollectionList-Demo-Prefix.pch";
 				INFOPLIST_FILE = "RZCollectionList-DemoTests/RZCollectionList-DemoTests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Raizlabs. All rights reserved.
 //
 
+#import <UIKit/UITableView.h>
 #import "RZFilteredCollectionList.h"
 #import "RZBaseCollectionList_Private.h"
 #import "RZObserverCollection.h"
@@ -19,7 +20,7 @@
 
 @property (nonatomic, assign) BOOL isCachedCopy;
 
-- (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
+- (instancetype)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList;
 
 @end
 
@@ -90,12 +91,12 @@ typedef enum {
 
 @implementation RZFilteredCollectionList
 
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate
 {
     return [self initWithSourceList:sourceList predicate:predicate filterOutEmptySections:YES];
 }
 
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate filterOutEmptySections:(BOOL)filterOutEmptySections
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList predicate:(NSPredicate *)predicate filterOutEmptySections:(BOOL)filterOutEmptySections
 {
     if ((self = [super init]))
     {
@@ -497,7 +498,7 @@ typedef enum {
 
 - (void)addSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
     {
         NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
         [sectionIndexSet shiftIndexesStartingAtIndex:indexPath.row by:1];
@@ -528,7 +529,7 @@ typedef enum {
 
 - (void)removeSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.cachedObjectIndexesForSectionDeep.count && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < self.cachedObjectIndexesForSectionDeep.count && indexPath.section < self.objectIndexesForSection.count)
     {
         NSMutableIndexSet *cachedSectionIndexSet = [self.cachedObjectIndexesForSectionDeep objectAtIndex:indexPath.section];
         
@@ -551,7 +552,7 @@ typedef enum {
     // All we need to do here is remove the index from the set
     NSIndexPath *indexPath = moveNotification.indexPath;
     NSUInteger sectionCount = self.objectIndexesForSection.count;
-    if (indexPath.section >= 0 && indexPath.section < sectionCount)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < sectionCount)
     {
         NSMutableIndexSet *fromSectionObjectIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
         
@@ -566,7 +567,7 @@ typedef enum {
     NSIndexPath *indexPath = moveNotification.indexPath;
     NSIndexPath *newIndexPath = moveNotification.nuIndexPath;
     NSUInteger sectionCount = self.objectIndexesForSection.count;
-    if (newIndexPath.section >= 0 && newIndexPath.section < sectionCount)
+    if (newIndexPath != nil && newIndexPath.section >= 0 && newIndexPath.section < sectionCount)
     {
         // Occasionally, a move produced by a fetched list will actually result in the object no longer passing the predicate.
         // Need to handle that case.
@@ -634,7 +635,7 @@ typedef enum {
 
 - (void)updateSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath currentSourceIndexPath:(NSIndexPath *)currentIndexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
     {
         BOOL isInFilteredList = [self sourceIndexPathIsInFilteredList:indexPath cached:YES];
         BOOL passesPredicate = ([self.predicate evaluateWithObject:object] || nil == self.predicate);
@@ -675,7 +676,7 @@ typedef enum {
 
 - (void)filterOutSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
     {
         NSMutableIndexSet *sectionIndexSet = [self.objectIndexesForSection objectAtIndex:indexPath.section];
         
@@ -696,7 +697,7 @@ typedef enum {
 
 - (void)unfilterSourceObject:(id)object atSourceIndexPath:(NSIndexPath*)indexPath
 {
-    if (indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
+    if (indexPath != nil && indexPath.section >= 0 && indexPath.section < self.objectIndexesForSection.count)
     {
         [self confirmPotentialUpdates];
         
@@ -918,7 +919,7 @@ typedef enum {
 
 @implementation RZFilteredCollectionListSectionInfo
 
-- (id)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList
+- (instancetype)initWithSourceSectionInfo:(id<RZCollectionListSectionInfo>)sourceSectionInfo filteredList:(RZFilteredCollectionList*)filteredList
 {
     if ((self = [super init]))
     {
