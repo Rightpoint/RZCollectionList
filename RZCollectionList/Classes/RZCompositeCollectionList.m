@@ -23,7 +23,7 @@
 
 @property (nonatomic, weak) RZCompositeCollectionList *compositeList;
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList*)compositeList;
 
 @end
 
@@ -67,12 +67,12 @@ typedef enum {
 
 @implementation RZCompositeCollectionList
 
-- (id)initWithSourceLists:(NSArray*)sourceLists
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists
 {
     return [self initWithSourceLists:sourceLists ignoreSections:NO];
 }
 
-- (id)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections
+- (instancetype)initWithSourceLists:(NSArray*)sourceLists ignoreSections:(BOOL)ignoreSections
 {
     if ((self = [super init]))
     {
@@ -578,7 +578,7 @@ typedef enum {
 
 @implementation RZCompositeCollectionListSectionInfo
 
-- (id)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList *)compositeList
+- (instancetype)initWithName:(NSString*)name sectionIndexTitle:(NSString*)indexTitle compositeList:(RZCompositeCollectionList *)compositeList
 {
     if ((self = [super init]))
     {

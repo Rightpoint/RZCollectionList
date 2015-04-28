@@ -28,7 +28,7 @@
  *
  *  @return An instance of RZFetchedResultsController.
  */
-- (id)initWithFetchedResultsController:(NSFetchedResultsController*)controller;
+- (instancetype)initWithFetchedResultsController:(NSFetchedResultsController*)controller;
 
 /**
  *  Initializer for an RZFetchedCollectionList instance. Takes all of the objects necessary to data an NSFetchedResultsController configured to fetch the desired objects from Core Data.
@@ -40,6 +40,6 @@
  *
  *  @return An instance of RZFetchedResultsController.
  */
-- (id)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name;
+- (instancetype)initWithFetchRequest:(NSFetchRequest*)fetchRequest managedObjectContext:(NSManagedObjectContext*)context sectionNameKeyPath:(NSString*)sectionNameKeyPath cacheName:(NSString*)name;
 
 @end

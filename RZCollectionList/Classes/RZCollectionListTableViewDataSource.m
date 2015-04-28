@@ -22,12 +22,12 @@
 
 @implementation RZCollectionListTableViewDataSource
 
-- (id)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
+- (instancetype)initWithTableView:(UITableView*)tableView collectionList:(id<RZCollectionList>)collectionList delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
 {
     return [self initWithTableView:tableView collectionList:collectionList delegate:delegate showTableIndex:NO showSectionHeaders:NO];
 }
 
-- (id)initWithTableView:(UITableView*)tableView
+- (instancetype)initWithTableView:(UITableView*)tableView
          collectionList:(id<RZCollectionList>)collectionList
                delegate:(id<RZCollectionListTableViewDataSourceDelegate>)delegate
          showTableIndex:(BOOL)showTableIndex

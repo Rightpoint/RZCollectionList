@@ -109,7 +109,7 @@
  *
  *  @return An instance of RZCollectionListCollectionViewDataSourceDelegate. It's usually helpful to keep this as a property.
  */
-- (id)initWithCollectionView:(UICollectionView*)collectionView
+- (instancetype)initWithCollectionView:(UICollectionView*)collectionView
               collectionList:(id<RZCollectionList>)collectionList
                     delegate:(id<RZCollectionListCollectionViewDataSourceDelegate>)delegate;
 

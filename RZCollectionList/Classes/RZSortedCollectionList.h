@@ -35,6 +35,6 @@
  *
  *  @return An instance of RZSortedCollectionList.
  */
-- (id)initWithSourceList:(id<RZCollectionList>)sourceList sortDescriptors:(NSArray*)sortDescriptors;
+- (instancetype)initWithSourceList:(id<RZCollectionList>)sourceList sortDescriptors:(NSArray*)sortDescriptors;
 
 @end
