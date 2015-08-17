@@ -163,7 +163,7 @@ typedef enum {
 - (NSIndexPath*)indexPathForObject:(id)object
 {
     NSUInteger indexOfObject = [self.sortedListObjects indexOfObject:object];
-    return [NSIndexPath indexPathForRow:indexOfObject inSection:0];
+    return (indexOfObject != NSNotFound) ? [NSIndexPath indexPathForRow:indexOfObject inSection:0] : nil;
 }
 
 - (NSString *)sectionIndexTitleForSectionName:(NSString *)sectionName
