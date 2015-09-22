@@ -882,13 +882,11 @@
 {
     RZArrayCollectionListSectionInfo *section = [self sectionInfoForSection:indexPath.section];
     
-    NSUInteger index = section.indexOffset + indexPath.row;
-    
     id object = nil;
     
-    if (index < [self.objects count])
+    if (indexPath.row < section.numberOfObjects)
     {
-        object = [self.objects objectAtIndex:index];
+        object = [section.objects objectAtIndex:indexPath.row];
     }
     
     return object;
