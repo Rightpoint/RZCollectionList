@@ -744,6 +744,21 @@ typedef void (^RZCollectionListTestObserverDidChangeObjectBlock)(id<RZCollection
     [self logCollectionList:self.filteredList];
 }
 
+- (void)test12IndexPathOfObjectInFilteredList
+{
+    NSArray *array = @[@"Bob", @"Mary", @"John", @"June", @"Brad", @"Rudi", @"Richard", @"Ray", @"Bun"];
+    RZArrayCollectionList *arrayList = [[RZArrayCollectionList alloc] initWithArray:array sectionNameKeyPath:nil];
+    RZFilteredCollectionList *filteredList = [[RZFilteredCollectionList alloc] initWithSourceList:arrayList predicate:nil];
+
+    NSIndexPath *initialIndexPath = [NSIndexPath indexPathForRow:7 inSection:0];
+    id object = [filteredList objectAtIndexPath:initialIndexPath];
+
+    filteredList.predicate = [NSPredicate predicateWithFormat:@"self contains[c] %@", @"u"];
+
+    NSIndexPath *newIndexPath = [filteredList indexPathForObject:object];
+    XCTAssertNil(newIndexPath, @"IndexPath should be nil, instead it is: %@", newIndexPath);
+}
+
 #pragma mark - RZCollectionListObserver
 
 - (void)collectionListWillChangeContent:(id<RZCollectionList>)collectionList
