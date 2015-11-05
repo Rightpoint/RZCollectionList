@@ -280,9 +280,14 @@ typedef enum {
     NSUInteger filteredSection = [self filteredSectionIndexForSourceSectionIndex:indexPath.section cached:cached];
     
     NSIndexSet *sectionIndexSet = cached ? [self.cachedObjectIndexesForSectionDeep objectAtIndex:indexPath.section] : [self.objectIndexesForSection objectAtIndex:indexPath.section];
-    NSUInteger filteredRow = [sectionIndexSet countOfIndexesInRange:NSMakeRange(0, indexPath.row)];
-    
-    return [NSIndexPath indexPathForRow:filteredRow inSection:filteredSection];
+
+    if ([sectionIndexSet containsIndex:indexPath.row]) {
+        NSUInteger filteredRow = [sectionIndexSet countOfIndexesInRange:NSMakeRange(0, indexPath.row)];
+        return [NSIndexPath indexPathForRow:filteredRow inSection:filteredSection];
+    }
+    else {
+        return nil;
+    }
 }
 
 - (NSUInteger)filteredSectionIndexForSourceSectionIndex:(NSUInteger)section
