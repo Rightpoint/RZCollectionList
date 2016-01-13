@@ -135,7 +135,13 @@
         NSLog(@"RZFetchedCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", anObject, indexPath, type, newIndexPath);
 #endif
       
-        [self cacheObjectNotificationWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:(RZCollectionListChangeType)type];
+        // ??? Workaround for an iOS 9 FRC bug that causes "Moves" to be issued for what should be "Update"
+        NSFetchedResultsChangeType changeType = type;
+        if ([indexPath isEqual:newIndexPath] && type == NSFetchedResultsChangeMove) {
+            changeType = NSFetchedResultsChangeUpdate;
+        }
+
+        [self cacheObjectNotificationWithObject:anObject indexPath:indexPath newIndexPath:newIndexPath type:(RZCollectionListChangeType)changeType];
 
     }
 }
