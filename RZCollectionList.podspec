@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = "RZCollectionList"
-  s.version = "0.7.2"
+  s.version = "0.7.3"
   s.summary = "A framework for transforming and combining data from Core Data and other sources and displaying it in a UITableView or UICollectionView."
   s.homepage = "http://github.com/Raizlabs/RZCollectionList"
   s.license = "MIT"
