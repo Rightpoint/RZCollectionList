@@ -620,7 +620,7 @@
     NSLog(@"RZArrayCollectionList Did Change Object: %@ IndexPath:%@ Type: %d NewIndexPath: %@", object, indexPath, type, newIndexPath);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)]  && [obj respondsToSelector:@selector(collectionList:didChangeObject:atIndexPath:forChangeType:newIndexPath:)])
         {
             [obj collectionList:self didChangeObject:object atIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
         }
@@ -633,7 +633,7 @@
     NSLog(@"RZArrayCollectionList Did Change Section: %@ Index:%d Type: %d", sectionInfo, sectionIndex, type);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)]  && [obj respondsToSelector:@selector(collectionList:didChangeSection:atIndex:forChangeType:)])
         {
             [obj collectionList:self didChangeSection:sectionInfo atIndex:sectionIndex forChangeType:type];
         }

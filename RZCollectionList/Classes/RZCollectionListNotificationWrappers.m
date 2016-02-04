@@ -30,7 +30,7 @@
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list
 {
     [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)] && [obj respondsToSelector:@selector(collectionList:didChangeSection:atIndex:forChangeType:)])
         {
             [obj collectionList:list didChangeSection:self.sectionInfo atIndex:self.sectionIndex forChangeType:self.type];
         }
@@ -68,7 +68,7 @@
 - (void)sendToObservers:(NSArray*)observers fromCollectionList:(id<RZCollectionList>)list
 {
     [observers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)] && [obj respondsToSelector:@selector(collectionList:didChangeObject:atIndexPath:forChangeType:newIndexPath:)])
         {
             [obj collectionList:list didChangeObject:self.object atIndexPath:self.indexPath forChangeType:self.type newIndexPath:self.nuIndexPath];
         }

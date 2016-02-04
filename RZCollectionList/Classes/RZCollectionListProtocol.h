@@ -152,7 +152,7 @@ typedef enum {
     RZCollectionListChangeUpdate = 4
 } RZCollectionListChangeType;
 
-@required
+@optional
 
 /**
  *  Called every time on object in a collection list changes.
