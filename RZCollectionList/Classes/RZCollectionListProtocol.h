@@ -137,20 +137,20 @@
 @end
 
 /**
- *  An observer protocol to receive RZCollectionList change events
- */
-@protocol RZCollectionListObserver <NSObject>
-
-/**
  *  All of the types of changes for update notifications.
  */
-typedef enum {
+typedef NS_ENUM(NSInteger, RZCollectionListChangeType ) {
     RZCollectionListChangeInvalid = -1,
     RZCollectionListChangeInsert = 1,
     RZCollectionListChangeDelete = 2,
     RZCollectionListChangeMove = 3,
     RZCollectionListChangeUpdate = 4
-} RZCollectionListChangeType;
+};
+
+/**
+ *  An observer protocol to receive RZCollectionList change events
+ */
+@protocol RZCollectionListObserver <NSObject>
 
 @required
 
