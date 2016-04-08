@@ -181,7 +181,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     NSLog(@"%@ Will Change", self);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)]  && [obj respondsToSelector:@selector(collectionListWillChangeContent:)])
         {
             [obj collectionListWillChangeContent:self];
         }
@@ -194,7 +194,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
     NSLog(@"%@ Did Change", self);
 #endif
     [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+        if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)]  && [obj respondsToSelector:@selector(collectionListDidChangeContent:)])
         {
             [obj collectionListDidChangeContent:self];
         }
@@ -286,7 +286,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
 {
     [sectionNotifications enumerateObjectsUsingBlock:^(RZCollectionListSectionNotification *notification, NSUInteger idx, BOOL *stop) {
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)] && [obj respondsToSelector:@selector(collectionList:didChangeSection:atIndex:forChangeType:)])
             {
 #if kRZCollectionListNotificationsLogging
                 NSLog(@"%@ Changed Section %@", self, notification);
@@ -301,7 +301,7 @@ static NSString * const RZCollectionListMissingProtocolMethodException = @"RZCol
 {
     [objectNotifications enumerateObjectsUsingBlock:^(RZCollectionListObjectNotification *notification, NSUInteger idx, BOOL *stop) {
         [[self.collectionListObservers allObjects] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)])
+            if ([obj conformsToProtocol:@protocol(RZCollectionListObserver)]  && [obj respondsToSelector:@selector(collectionList:didChangeObject:atIndexPath:forChangeType:newIndexPath:)])
             {
 #if kRZCollectionListNotificationsLogging
                 NSLog(@"%@ Changed Object %@", self, notification);

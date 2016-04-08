@@ -152,7 +152,7 @@ typedef NS_ENUM(NSInteger, RZCollectionListChangeType ) {
  */
 @protocol RZCollectionListObserver <NSObject>
 
-@required
+@optional
 
 /**
  *  Called every time on object in a collection list changes.
