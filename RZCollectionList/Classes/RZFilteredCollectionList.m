@@ -106,8 +106,8 @@ typedef enum {
         [self setupIndexSetsForSourceList:sourceList predicate:predicate];
         
         self.sourceList = sourceList;
-        self.predicate = predicate;
-        
+        _predicate = predicate; // we avoid the accessor because we don't need a redundant call to getIndexSets:andSections:forSourceList:predicate
+
         [self.sourceList addCollectionListObserver:self];
     }
     
@@ -404,6 +404,9 @@ typedef enum {
 
 - (NSArray*)listObjects
 {
+    [self beginPotentialUpdates];
+    [self confirmPotentialUpdates];
+    [self endPotentialUpdates];
     return (self.predicate == nil ? [self.sourceList listObjects] : [self filteredObjects]);
 }
 

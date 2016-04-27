@@ -22,7 +22,7 @@
  *
  *  @warning Currently, each object in the array list must be unique, meaning isEqual: returns NO when comparing two objects.
  */
-@interface RZArrayCollectionList : RZBaseCollectionList <RZCollectionList>
+@interface RZArrayCollectionList : RZBaseCollectionList
 
 @property (nonatomic, copy) NSArray *objectUpdateNotifications;
 

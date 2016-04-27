@@ -13,7 +13,7 @@
  *  RZCompositeCollectionList is a "list of lists." All you need to do to properly use RZCompositeCollectionList is to create one or 
  *  more instances of a collection list.
  */
-@interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
+@interface RZCompositeCollectionList : RZBaseCollectionList <RZCollectionListObserver>
 
 /**
  *  An array of the lists in an instance of RZCompositeCollectionList.

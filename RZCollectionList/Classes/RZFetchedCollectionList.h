@@ -14,7 +14,7 @@
  *  A type of collection list to be used when your objects are fetched from core data. 
  *  You may initialize an instance of RZCollectionList with either an NSFetchedResultsController or all of the data we need to create an NSFetchedResultsController for you. 
  */
-@interface RZFetchedCollectionList : RZBaseCollectionList <RZCollectionList>
+@interface RZFetchedCollectionList : RZBaseCollectionList
 
 /**
  *  The controller used to fetch core data objects for this collection list.

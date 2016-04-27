@@ -13,7 +13,7 @@
  *  RZSortedCollectionList takes an array of NSSortDescriptors and a source collection list. It uses the sort descriptors to sort the source list, and send all the appropriate change notifications.
  *  This is especially useful to automatically animate your changes in a table view or collection view, assuming that you are using RZCollectionListTableViewDataSource or RZCollectionListCollectionViewDataSource respectively.
  */
-@interface RZSortedCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
+@interface RZSortedCollectionList : RZBaseCollectionList <RZCollectionListObserver>
 
 /**
  *  The source collection list to sort.

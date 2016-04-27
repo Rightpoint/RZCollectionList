@@ -12,7 +12,7 @@
 /**
  *  Create an RZFilteredCollectionList to subset a current list into its own object.
  */
-@interface RZFilteredCollectionList : RZBaseCollectionList <RZCollectionList, RZCollectionListObserver>
+@interface RZFilteredCollectionList : RZBaseCollectionList <RZCollectionListObserver>
 
 /**
  *  An instance of id<RZCollectionList> that you want to filter.
